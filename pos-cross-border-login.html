@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 - 智慧新零售云POS综合管理平台</title>
+    <title>登录 - 跨境云商综合管理平台</title>
     <link rel="stylesheet" href="pos-common.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -17,7 +17,7 @@
         /* ========== Left Side - Background Image ========== */
         .login-left {
             flex: 1;
-            background: url('assets/login-store-bg.jpg') center/cover no-repeat;
+            background: url('assets/cross-border-bg.jpg') center/cover no-repeat;
             position: relative;
             display: flex;
             flex-direction: column;
@@ -30,20 +30,22 @@
             position: absolute;
             inset: 0;
             background: linear-gradient(135deg,
-                rgba(0,0,0,0.75) 0%,
-                rgba(0,0,0,0.50) 40%,
-                rgba(0,0,0,0.60) 100%
+                rgba(0,20,40,0.80) 0%,
+                rgba(0,40,60,0.55) 40%,
+                rgba(0,20,40,0.70) 100%
             );
         }
 
-        /* Decorative grid overlay */
+        /* Decorative globe grid overlay */
         .login-left::after {
             content: '';
             position: absolute;
             inset: 0;
             background-image:
-                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+                radial-gradient(circle at 30% 60%, rgba(0,150,255,0.06) 0%, transparent 50%),
+                radial-gradient(circle at 70% 30%, rgba(0,200,255,0.04) 0%, transparent 40%),
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
             background-size: 60px 60px;
             pointer-events: none;
         }
@@ -58,13 +60,13 @@
         .login-brand .brand-logo {
             width: 64px;
             height: 64px;
-            background: linear-gradient(135deg, #52c41a, #389e0d);
+            background: linear-gradient(135deg, #1890ff, #096dd9);
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 28px;
-            box-shadow: 0 8px 32px rgba(82, 196, 26, 0.4);
+            box-shadow: 0 8px 32px rgba(24, 144, 255, 0.4);
         }
 
         .login-brand .brand-logo svg { width: 34px; height: 34px; fill: #fff; }
@@ -117,7 +119,7 @@
         .login-brand .brand-highlights .hl-item svg {
             width: 18px;
             height: 18px;
-            fill: #52c41a;
+            fill: #40a9ff;
             flex-shrink: 0;
         }
 
@@ -138,7 +140,7 @@
         .login-brand .brand-stats .stat-item .stat-number {
             font-size: 24px;
             font-weight: 700;
-            color: #52c41a;
+            color: #40a9ff;
         }
 
         .login-brand .brand-stats .stat-item .stat-label {
@@ -169,7 +171,7 @@
         .login-brand .brand-features .feature-item svg {
             width: 18px;
             height: 18px;
-            fill: #52c41a;
+            fill: #40a9ff;
         }
 
         /* ========== Right Side - Login Form ========== */
@@ -248,16 +250,16 @@
         }
 
         .login-input:hover, .login-input:focus {
-            border-color: var(--primary-green);
+            border-color: #1890ff;
             background: #fff;
             outline: none;
         }
 
         .login-input:focus {
-            box-shadow: 0 0 0 3px rgba(82, 196, 26, 0.12);
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.12);
         }
 
-        .login-input:focus + .input-icon { color: var(--primary-green); }
+        .login-input:focus + .input-icon { color: #1890ff; }
 
         .login-input::placeholder { color: var(--text-disabled); }
 
@@ -286,7 +288,7 @@
             transition: border-color 0.3s;
         }
 
-        .captcha-img:hover { border-color: var(--primary-green); }
+        .captcha-img:hover { border-color: #1890ff; }
 
         .captcha-img canvas { width: 100%; height: 100%; }
 
@@ -310,13 +312,13 @@
         .login-options .pos-checkbox input {
             width: 16px;
             height: 16px;
-            accent-color: var(--primary-green);
+            accent-color: #1890ff;
             cursor: pointer;
         }
 
         .login-options .forgot-link {
             font-size: 13px;
-            color: var(--primary-green);
+            color: #1890ff;
             cursor: pointer;
             background: none;
             border: none;
@@ -324,13 +326,13 @@
             transition: color 0.3s;
         }
 
-        .login-options .forgot-link:hover { color: var(--primary-green-active); text-decoration: underline; }
+        .login-options .forgot-link:hover { color: #096dd9; text-decoration: underline; }
 
         /* 登录按钮 */
         .login-btn {
             width: 100%;
             height: 46px;
-            background: linear-gradient(135deg, var(--primary-green), #389e0d);
+            background: linear-gradient(135deg, #1890ff, #096dd9);
             color: #fff;
             border: none;
             border-radius: 8px;
@@ -343,7 +345,7 @@
 
         .login-btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 8px 24px rgba(82, 196, 26, 0.35);
+            box-shadow: 0 8px 24px rgba(24, 144, 255, 0.35);
         }
 
         .login-btn:active { transform: translateY(0); }
@@ -364,7 +366,7 @@
         }
 
         .login-extra a {
-            color: var(--primary-green);
+            color: #1890ff;
             cursor: pointer;
             text-decoration: none;
         }
@@ -471,14 +473,14 @@
             border-color: var(--border-color);
             color: var(--text-primary);
         }
-        .modal-btn-default:hover { border-color: var(--primary-green); color: var(--primary-green); }
+        .modal-btn-default:hover { border-color: #1890ff; color: #1890ff; }
 
         .modal-btn-primary {
-            background: var(--primary-green);
-            border-color: var(--primary-green);
+            background: #1890ff;
+            border-color: #1890ff;
             color: #fff;
         }
-        .modal-btn-primary:hover { background: var(--primary-green-hover); border-color: var(--primary-green-hover); }
+        .modal-btn-primary:hover { background: #40a9ff; border-color: #40a9ff; }
 
         /* ========== Toast ========== */
         .login-toast {
@@ -520,61 +522,61 @@
             <div class="login-brand">
                 <div class="brand-logo">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/>
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
                     </svg>
                 </div>
-                <h1>智慧新零售云POS</h1>
-                <div class="brand-subtitle">龙岩星链星河文化科技有限公司</div>
+                <h1>跨境云商综合管理平台</h1>
+                <div class="brand-subtitle">全球贸易 · 智慧互联</div>
                 <div class="brand-desc">
-                    一站式智慧零售综合管理平台，深度整合智能收银、商品管理、会员营销、<br>
-                    数据分析、库存预警、财务对账等核心业务场景，助力门店数字化转型升级。
+                    一站式跨境电商综合管理平台，整合全球商品采购、跨境物流追踪、<br>
+                    多币种结算、海关报关、海外仓管理等核心业务模块，助力中国品牌扬帆出海。
                 </div>
 
                 <div class="brand-highlights">
                     <div class="hl-item">
                         <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                        <span>支持多门店统一管理，数据实时同步</span>
+                        <span>覆盖全球200+国家和地区贸易网络</span>
                     </div>
                     <div class="hl-item">
                         <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
-                        <span>银行级数据加密，全方位安全保障</span>
+                        <span>国际支付与多币种结算安全保障</span>
                     </div>
                     <div class="hl-item">
                         <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-                        <span>AI智能数据分析，经营决策有据可依</span>
+                        <span>智能报关与全链路物流实时追踪</span>
                     </div>
                     <div class="hl-item">
-                        <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-                        <span>智能收银、全渠道支付快速结算</span>
+                        <svg viewBox="0 0 24 24"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
+                        <span>海外仓管理 + 本地化运营一站式服务</span>
                     </div>
                 </div>
 
                 <div class="brand-stats">
                     <div class="stat-item">
-                        <div class="stat-number">500+</div>
-                        <div class="stat-label">合作商家</div>
+                        <div class="stat-number">200+</div>
+                        <div class="stat-label">覆盖国家</div>
                     </div>
                     <div class="stat-divider"></div>
                     <div class="stat-item">
-                        <div class="stat-number">2000+</div>
-                        <div class="stat-label">门店数量</div>
+                        <div class="stat-number">50万+</div>
+                        <div class="stat-label">跨境商户</div>
                     </div>
                     <div class="stat-divider"></div>
                     <div class="stat-item">
-                        <div class="stat-number">99.9%</div>
-                        <div class="stat-label">系统稳定率</div>
+                        <div class="stat-number">99.5%</div>
+                        <div class="stat-label">通关成功率</div>
                     </div>
                     <div class="stat-divider"></div>
                     <div class="stat-item">
                         <div class="stat-number">24/7</div>
-                        <div class="stat-label">技术支持</div>
+                        <div class="stat-label">全球客服</div>
                     </div>
                 </div>
 
                 <div class="brand-features">
                     <div class="feature-item">
                         <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                        <span>智能收银</span>
+                        <span>全球采购</span>
                     </div>
                     <div class="feature-item">
                         <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
@@ -582,7 +584,7 @@
                     </div>
                     <div class="feature-item">
                         <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                        <span>会员营销</span>
+                        <span>全球营销</span>
                     </div>
                 </div>
             </div>
@@ -593,7 +595,7 @@
             <div class="login-card">
                 <div class="login-header">
                     <h2>欢迎登录</h2>
-                    <p>智慧新零售云POS综合管理平台</p>
+                    <p>跨境云商综合管理平台</p>
                 </div>
 
                 <form id="loginForm" onsubmit="return false;">
@@ -601,7 +603,7 @@
                     <div class="login-form-group">
                         <label>用户名</label>
                         <div class="login-input-wrapper">
-                            <input type="text" class="login-input" id="username" value="manager" placeholder="请输入用户名" autocomplete="username">
+                            <input type="text" class="login-input" id="username" value="admin" placeholder="请输入用户名" autocomplete="username">
                             <span class="input-icon">
                                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                             </span>
@@ -648,7 +650,7 @@
             </div>
 
             <div class="login-footer">
-                &copy; 2025 智慧新零售云POS综合管理平台 V1.0 | SSL安全加密传输
+                &copy; 2025 跨境云商综合管理平台 V2.0 | 全球贸易 · 智慧互联
             </div>
         </div>
     </div>
@@ -662,15 +664,15 @@
             </div>
             <div class="modal-body">
                 <div class="login-form-group">
-                    <label>用户名 / 手机号</label>
+                    <label>用户名 / 邮箱</label>
                     <div class="login-input-wrapper">
-                        <input type="text" class="login-input" id="forgotUser" placeholder="请输入用户名或手机号" style="padding-left: 12px;">
+                        <input type="text" class="login-input" id="forgotUser" placeholder="请输入用户名或注册邮箱" style="padding-left: 12px;">
                     </div>
                 </div>
                 <div class="login-form-group">
                     <label>新密码</label>
                     <div class="login-input-wrapper">
-                        <input type="password" class="login-input" id="forgotNewPwd" placeholder="请输入新密码（至少6位）" style="padding-left: 12px;">
+                        <input type="password" class="login-input" id="forgotNewPwd" placeholder="请输入新密码（至少8位）" style="padding-left: 12px;">
                     </div>
                 </div>
                 <div class="login-form-group">
@@ -680,9 +682,9 @@
                     </div>
                 </div>
                 <div class="login-form-group">
-                    <label>短信验证码</label>
+                    <label>邮箱验证码</label>
                     <div class="captcha-row">
-                        <input type="text" class="login-input" id="forgotSmsCode" placeholder="请输入短信验证码" maxlength="6" style="padding-left: 12px;">
+                        <input type="text" class="login-input" id="forgotSmsCode" placeholder="请输入邮箱验证码" maxlength="6" style="padding-left: 12px;">
                         <button type="button" class="modal-btn modal-btn-default" id="smsBtn" onclick="sendSmsCode()" style="width: 110px; height: 44px; white-space: nowrap;">获取验证码</button>
                     </div>
                 </div>
@@ -711,11 +713,9 @@
             const w = canvas.width;
             const h = canvas.height;
 
-            // 背景
             ctx.fillStyle = '#f5f5f5';
             ctx.fillRect(0, 0, w, h);
 
-            // 干扰线
             for (let i = 0; i < 6; i++) {
                 ctx.strokeStyle = randomColor(150, 220);
                 ctx.lineWidth = 1;
@@ -725,7 +725,6 @@
                 ctx.stroke();
             }
 
-            // 干扰点
             for (let i = 0; i < 30; i++) {
                 ctx.fillStyle = randomColor(150, 220);
                 ctx.beginPath();
@@ -733,7 +732,6 @@
                 ctx.fill();
             }
 
-            // 验证码字符
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             let code = '';
             const fontSize = 22;
@@ -785,7 +783,6 @@
 
         function closeForgotModal() {
             document.getElementById('forgotModal').classList.remove('show');
-            // 清空
             document.getElementById('forgotUser').value = '';
             document.getElementById('forgotNewPwd').value = '';
             document.getElementById('forgotConfirmPwd').value = '';
@@ -795,7 +792,7 @@
         let smsCountdown = 0;
         function sendSmsCode() {
             const user = document.getElementById('forgotUser').value.trim();
-            if (!user) { showToast('请先输入用户名或手机号', 'error'); return; }
+            if (!user) { showToast('请输入用户名或邮箱', 'error'); return; }
 
             if (smsCountdown > 0) return;
             const btn = document.getElementById('smsBtn');
@@ -803,7 +800,7 @@
             btn.textContent = smsCountdown + 's';
             btn.disabled = true;
             btn.style.opacity = '0.6';
-            showToast('验证码已发送至您的手机', 'success');
+            showToast('验证码已发送至您的注册邮箱', 'success');
 
             const timer = setInterval(function() {
                 smsCountdown--;
@@ -824,10 +821,10 @@
             const confirmPwd = document.getElementById('forgotConfirmPwd').value;
             const smsCode = document.getElementById('forgotSmsCode').value.trim();
 
-            if (!user) { showToast('请输入用户名或手机号', 'error'); return; }
-            if (!newPwd || newPwd.length < 6) { showToast('新密码至少6位', 'error'); return; }
+            if (!user) { showToast('请输入用户名或邮箱', 'error'); return; }
+            if (!newPwd || newPwd.length < 8) { showToast('新密码至少8位', 'error'); return; }
             if (newPwd !== confirmPwd) { showToast('两次输入的密码不一致', 'error'); return; }
-            if (!smsCode || smsCode.length < 4) { showToast('请输入短信验证码', 'error'); return; }
+            if (!smsCode || smsCode.length < 4) { showToast('请输入邮箱验证码', 'error'); return; }
 
             showToast('密码重置成功，请使用新密码登录', 'success');
             closeForgotModal();

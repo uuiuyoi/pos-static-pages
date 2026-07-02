@@ -1,121 +1,387 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数据看板 - 智慧新零售云POS综合管理平台</title>
+    <title>首页看板 - 智慧新零售云POS综合管理平台</title>
     <link rel="stylesheet" href="pos-common.css">
     <style>
-        /* Dashboard specific styles */
-        .dashboard-title {
-            font-size: 18px;
+        /* ========== Dashboard Layout ========== */
+        .dashboard-page-title {
+            font-size: 20px;
             font-weight: 600;
             color: var(--text-primary);
+            text-align: center;
             margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr 300px;
+            gap: 16px;
+            align-items: start;
+        }
+
+        @media screen and (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ========== Left Panel ========== */
+        .dashboard-left {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .dashboard-title::before {
-            content: '';
-            width: 4px;
-            height: 20px;
-            background: var(--primary-green);
-            border-radius: 2px;
+        /* 总成交量 */
+        .total-volume-card {
+            padding: 20px;
         }
 
-        /* Quick date filter */
-        .date-filter {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .date-filter .date-btn {
-            padding: 5px 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background: #fff;
+        .total-volume-card .volume-title {
+            font-size: 14px;
             color: var(--text-secondary);
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s;
+            margin-bottom: 8px;
         }
 
-        .date-filter .date-btn:hover,
-        .date-filter .date-btn.active {
-            color: var(--primary-green);
-            border-color: var(--primary-green);
-            background: var(--primary-green-light);
+        .total-volume-card .volume-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: 12px;
         }
 
-        .date-filter .date-range {
-            margin-left: auto;
+        .volume-sub {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
+            gap: 16px;
+            font-size: 12px;
             color: var(--text-tertiary);
         }
 
-        /* Bar chart specific */
-        .bar-chart-container {
-            padding: 8px 0;
+        .volume-sub span strong {
+            color: var(--text-primary);
+            font-weight: 600;
         }
 
-        .bar-chart {
-            height: 220px;
-            align-items: flex-end;
-            gap: 16px;
-            padding: 0 4px;
+        /* Tabs */
+        .dashboard-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
-        .bar-item .bar {
-            max-width: 52px;
-            min-width: 28px;
+        .dashboard-tab {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            color: var(--text-secondary);
+            transition: all 0.3s;
         }
 
-        .bar-item .bar-value {
+        .dashboard-tab.active {
+            background: var(--primary-green);
+            color: #fff;
+            border-color: var(--primary-green);
+        }
+
+        /* Horizontal bar chart */
+        .hbar-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .hbar-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .hbar-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .hbar-track {
+            height: 8px;
+            background: var(--border-color-light);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .hbar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+
+        .hbar-fill.green { background: var(--primary-green); }
+        .hbar-fill.blue { background: var(--auxiliary-blue); }
+        .hbar-fill.cyan { background: #13c2c2; }
+        .hbar-fill.orange { background: var(--warning-color); }
+        .hbar-fill.purple { background: #722ed1; }
+
+        .hbar-footer {
+            display: flex;
+            justify-content: space-between;
             font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        /* 销售趋势 mini line chart */
+        .mini-line-chart {
+            position: relative;
+            height: 160px;
+            padding: 10px 0 24px 30px;
+        }
+
+        .mini-line-y {
+            position: absolute;
+            left: 0;
+            top: 10px;
+            bottom: 24px;
+            width: 26px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .mini-line-y span {
+            font-size: 10px;
+            color: var(--text-tertiary);
+            text-align: right;
+            line-height: 1;
+        }
+
+        .mini-line-area {
+            position: relative;
+            height: 100%;
+            border-left: 1px solid var(--border-color-light);
+            border-bottom: 1px solid var(--border-color-light);
+        }
+
+        .mini-line-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .mini-line-x {
+            position: absolute;
+            bottom: 0;
+            left: 30px;
+            right: 0;
+            height: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mini-line-x span {
+            font-size: 10px;
+            color: var(--text-tertiary);
+            transform: scale(0.9);
+        }
+
+        /* ========== Center Panel ========== */
+        .dashboard-center {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* 今日收款大卡片 */
+        .receipt-card {
+            background: linear-gradient(135deg, #e6f7ff 0%, #f6ffed 100%);
+            border: 1px solid var(--primary-green-border);
+            text-align: center;
+            padding: 28px 20px;
+        }
+
+        .receipt-card .receipt-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .receipt-card .receipt-value {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .receipt-metrics {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .receipt-metric {
+            text-align: center;
+        }
+
+        .receipt-metric .rm-label {
+            font-size: 12px;
             color: var(--text-tertiary);
             margin-bottom: 4px;
         }
 
-        .bar-item .bar-label {
-            font-size: 11px;
-            margin-top: 8px;
-            max-width: 56px;
-            line-height: 1.3;
+        .receipt-metric .rm-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
-        /* Pie chart CSS conic-gradient */
-        .pie-chart {
-            width: 150px;
-            height: 150px;
-            background: conic-gradient(
-                #52c41a 0deg 234deg,
-                #1890ff 234deg 324deg,
-                #faad14 324deg 360deg
-            );
-            border-radius: 50%;
+        @media screen and (max-width: 768px) {
+            .receipt-metrics {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* 成交时段 chart */
+        .time-line-chart {
             position: relative;
+            height: 220px;
+            padding: 10px 0 28px 40px;
         }
 
-        .pie-chart::after {
+        .time-line-y {
+            position: absolute;
+            left: 0;
+            top: 10px;
+            bottom: 28px;
+            width: 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .time-line-y span {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            text-align: right;
+            line-height: 1;
+        }
+
+        .time-line-area {
+            position: relative;
+            height: 100%;
+            border-left: 1px solid var(--border-color-light);
+            border-bottom: 1px solid var(--border-color-light);
+        }
+
+        .time-line-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .time-line-x {
+            position: absolute;
+            bottom: 0;
+            left: 40px;
+            right: 0;
+            height: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .time-line-x span {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        /* ========== Right Panel ========== */
+        .dashboard-right {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .other-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            padding: 20px;
+        }
+
+        .other-stat {
+            text-align: center;
+        }
+
+        .other-stat .os-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+        }
+
+        .other-stat .os-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .other-stat .os-trend {
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        .other-stat .os-trend.up { color: var(--success-color); }
+        .other-stat .os-trend.down { color: var(--error-color); }
+
+        /* Donut chart */
+        .donut-chart-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px 8px;
+        }
+
+        .donut-chart {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--primary-green) 0deg 183.6deg,
+                var(--warning-color) 183.6deg 257.04deg,
+                #fa8c16 257.04deg 293.76deg,
+                var(--auxiliary-blue) 293.76deg 349.92deg,
+                #13c2c2 349.92deg 360deg
+            );
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .donut-chart::after {
             content: '';
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             background: #fff;
             border-radius: 50%;
         }
 
-        .pie-center-text {
+        .donut-center {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -124,122 +390,163 @@
             z-index: 2;
         }
 
-        .pie-center-text .pie-total {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .pie-center-text .pie-label {
+        .donut-center .dc-label {
             font-size: 11px;
             color: var(--text-tertiary);
         }
 
-        /* Table actions */
-        .table-action {
-            color: var(--auxiliary-blue);
-            cursor: pointer;
+        .donut-center .dc-value {
             font-size: 13px;
-            margin: 0 4px;
+            font-weight: 700;
+            color: var(--text-primary);
         }
 
-        .table-action:hover {
-            color: var(--primary-green);
+        .donut-legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 16px;
+            width: 100%;
         }
 
-        .table-action.danger {
-            color: var(--error-color);
-        }
-
-        .table-action.danger:hover {
-            color: #cf1322;
-        }
-
-        /* Inventory warning row */
-        .warning-row td {
-            background: var(--warning-bg) !important;
-        }
-
-        /* Mobile menu toggle */
-        .mobile-menu-toggle {
-            display: none;
-            width: 36px;
-            height: 36px;
+        .donut-legend-item {
+            display: flex;
             align-items: center;
-            justify-content: center;
-            border: none;
-            background: none;
-            cursor: pointer;
-            font-size: 20px;
-            color: var(--text-secondary);
-            border-radius: 6px;
-        }
-
-        .mobile-menu-toggle:hover {
-            background: var(--body-bg);
-        }
-
-        @media screen and (max-width: 768px) {
-            .mobile-menu-toggle {
-                display: flex;
-            }
-        }
-
-        /* Card more link */
-        .card-more {
-            font-size: 13px;
-            color: var(--text-tertiary);
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-
-        .card-more:hover {
-            color: var(--primary-green);
-        }
-
-        /* Rank number */
-        .rank-num {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 22px;
-            height: 22px;
-            border-radius: 4px;
+            gap: 6px;
             font-size: 12px;
-            font-weight: 600;
+            color: var(--text-secondary);
         }
 
-        .rank-num.top1 { background: #fff7e6; color: #fa8c16; }
-        .rank-num.top2 { background: #f0f0f0; color: #8c8c8c; }
-        .rank-num.top3 { background: #fff1f0; color: #ff4d4f; }
-        .rank-num.normal { background: #fafafa; color: #8c8c8c; }
+        .donut-legend-item .dl-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
 
-        /* Stock bar */
-        .stock-bar-wrapper {
+        .donut-legend-item .dl-name {
+            flex: 1;
+        }
+
+        .donut-legend-item .dl-percent {
+            font-weight: 600;
+            color: var(--text-primary);
+            min-width: 36px;
+            text-align: right;
+        }
+
+        .donut-legend-item .dl-amount {
+            color: var(--text-tertiary);
+            font-size: 11px;
+            min-width: 70px;
+            text-align: right;
+        }
+
+        .donut-total {
+            text-align: center;
+            padding: 0 20px 16px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .donut-total strong {
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        /* ========== Store Switcher ========== */
+        .header-store {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: background 0.3s;
+            user-select: none;
+        }
+
+        .header-store:hover { background: var(--body-bg); }
+
+        .header-store .store-icon {
+            width: 18px;
+            height: 18px;
+            color: var(--primary-green);
+        }
+
+        .header-store .store-name {
+            font-weight: 500;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .header-store .store-arrow {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            transition: transform 0.3s;
+        }
+
+        .header-store.open .store-arrow { transform: rotate(180deg); }
+
+        .store-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            min-width: 180px;
+            padding: 6px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 0.2s;
+            z-index: 100;
+        }
+
+        .header-store.open .store-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .store-dropdown .store-item {
+            padding: 10px 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
+            transition: all 0.2s;
         }
 
-        .stock-bar {
-            flex: 1;
+        .store-dropdown .store-item:hover {
+            background: var(--primary-green-light);
+            color: var(--primary-green);
+        }
+
+        .store-dropdown .store-item.active {
+            color: var(--primary-green);
+            font-weight: 500;
+            background: var(--primary-green-light);
+        }
+
+        .store-dropdown .store-item.active::before {
+            content: '';
+            width: 6px;
             height: 6px;
-            background: #f0f0f0;
-            border-radius: 3px;
-            overflow: hidden;
+            border-radius: 50%;
+            background: var(--primary-green);
         }
 
-        .stock-bar-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.6s ease;
-        }
-
-        .stock-text {
-            font-size: 12px;
-            color: var(--text-tertiary);
-            min-width: 36px;
-            text-align: right;
+        /* Card inner no padding for chart body */
+        .card-body-no-padding {
+            padding: 0 !important;
         }
     </style>
 </head>
@@ -397,7 +704,7 @@
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18-.14-.23-.41-.12-.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
                         </span>
                         <span class="menu-title">系统设置</span>
                         <span class="menu-arrow">&#9654;</span>
@@ -423,10 +730,24 @@
                     <div class="header-breadcrumb">
                         <a href="javascript:void(0);">首页</a>
                         <span>/</span>
-                        <span style="color: var(--text-primary);">数据看板</span>
+                        <span style="color: var(--text-primary);" id="breadcrumbTitle">星链旗舰店综合数据</span>
                     </div>
                 </div>
                 <div class="header-right">
+                    <!-- Store Switcher -->
+                    <div class="header-store" id="storeSwitcher" onclick="toggleStoreDropdown(event)">
+                        <svg class="store-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10z"/></svg>
+                        <span class="store-name" id="currentStoreName">星链旗舰店</span>
+                        <svg class="store-arrow" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                        <div class="store-dropdown" id="storeDropdown" onclick="event.stopPropagation()">
+                            <div class="store-item active" data-store="星链旗舰店" onclick="selectStore(this)">星链旗舰店</div>
+                            <div class="store-item" data-store="万达广场店" onclick="selectStore(this)">万达广场店</div>
+                            <div class="store-item" data-store="龙岩万达店" onclick="selectStore(this)">龙岩万达店</div>
+                            <div class="store-item" data-store="新罗区店" onclick="selectStore(this)">新罗区店</div>
+                            <div class="store-item" data-store="永定区店" onclick="selectStore(this)">永定区店</div>
+                        </div>
+                    </div>
+
                     <!-- Search -->
                     <button class="header-action" title="搜索">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
@@ -446,8 +767,8 @@
                     </button>
                     <!-- User -->
                     <div class="header-user" onclick="toggleUserMenu()">
-                        <div class="user-avatar">A</div>
-                        <span class="user-name">Admin</span>
+                        <div class="user-avatar">M</div>
+                        <span class="user-name">Manager</span>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color: var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                     </div>
                 </div>
@@ -455,316 +776,327 @@
 
             <!-- Main Content Area -->
             <main class="pos-content">
-                <!-- Dashboard Title -->
-                <div class="dashboard-title">数据看板</div>
+                <div class="dashboard-page-title" id="pageTitle">星链旗舰店综合数据</div>
 
-                <!-- Date Filter -->
-                <div class="date-filter">
-                    <button class="date-btn active">今日</button>
-                    <button class="date-btn">昨日</button>
-                    <button class="date-btn">本周</button>
-                    <button class="date-btn">本月</button>
-                    <button class="date-btn">本年</button>
-                    <div class="date-range">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
-                        2026-05-26
-                    </div>
-                </div>
-
-                <!-- ========== Stat Cards ========== -->
-                <div class="stat-cards">
-                    <!-- 今日销售额 -->
-                    <div class="stat-card">
-                        <div class="stat-icon green">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-label">今日销售额</div>
-                            <div class="stat-value">&yen;128,560.00</div>
-                            <div class="stat-trend up">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
-                                12.5% 较昨日
+                <div class="dashboard-grid">
+                    <!-- ========== Left Panel ========== -->
+                    <div class="dashboard-left">
+                        <!-- 总成交量 -->
+                        <div class="pos-card total-volume-card">
+                            <div class="volume-title">总成交量</div>
+                            <div class="volume-value" id="totalVolume">1167</div>
+                            <div class="volume-sub">
+                                <span>会员成交：<strong id="memberOrders">5377单</strong></span>
+                                <span>非会员成交：<strong id="nonMemberOrders">34单</strong></span>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- 今日订单数 -->
-                    <div class="stat-card">
-                        <div class="stat-icon blue">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-label">今日订单数</div>
-                            <div class="stat-value">356<span style="font-size:14px;font-weight:400;color:var(--text-tertiary);"> 笔</span></div>
-                            <div class="stat-trend up">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
-                                8.3% 较昨日
+                        <!-- 订单来源 -->
+                        <div class="pos-card">
+                            <div class="card-header">
+                                <div class="dashboard-tabs">
+                                    <button class="dashboard-tab active">订单来源</button>
+                                    <button class="dashboard-tab">成交类型</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="hbar-list">
+                                    <div class="hbar-item">
+                                        <div class="hbar-header">
+                                            <span>线下收银</span>
+                                            <span>50%</span>
+                                        </div>
+                                        <div class="hbar-track">
+                                            <div class="hbar-fill green" style="width: 50%;"></div>
+                                        </div>
+                                        <div class="hbar-footer">
+                                            <span>822单</span>
+                                        </div>
+                                    </div>
+                                    <div class="hbar-item">
+                                        <div class="hbar-header">
+                                            <span>在线商城</span>
+                                            <span>30%</span>
+                                        </div>
+                                        <div class="hbar-track">
+                                            <div class="hbar-fill blue" style="width: 30%;"></div>
+                                        </div>
+                                        <div class="hbar-footer">
+                                            <span>380单</span>
+                                        </div>
+                                    </div>
+                                    <div class="hbar-item">
+                                        <div class="hbar-header">
+                                            <span>扫码点餐</span>
+                                            <span>17%</span>
+                                        </div>
+                                        <div class="hbar-track">
+                                            <div class="hbar-fill cyan" style="width: 17%;"></div>
+                                        </div>
+                                        <div class="hbar-footer">
+                                            <span>30单</span>
+                                        </div>
+                                    </div>
+                                    <div class="hbar-item">
+                                        <div class="hbar-header">
+                                            <span>微信卡包</span>
+                                            <span>8%</span>
+                                        </div>
+                                        <div class="hbar-track">
+                                            <div class="hbar-fill orange" style="width: 8%;"></div>
+                                        </div>
+                                        <div class="hbar-footer">
+                                            <span>10单</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- 客单价 -->
-                    <div class="stat-card">
-                        <div class="stat-icon orange">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-label">客单价</div>
-                            <div class="stat-value">&yen;361.13</div>
-                            <div class="stat-trend up">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
-                                3.8% 较昨日
+                        <!-- 销售趋势 -->
+                        <div class="pos-card">
+                            <div class="card-header">
+                                <span class="card-title">销售趋势</span>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- 今日退款 -->
-                    <div class="stat-card">
-                        <div class="stat-icon red">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 6.9c1.78 0 3.22 1.44 3.22 3.22 0 1.78-1.44 3.22-3.22 3.22-1.78 0-3.22-1.44-3.22-3.22 0-1.78 1.44-3.22 3.22-3.22M12.5 5C9.46 5 7 7.46 7 10.5c0 3.04 2.46 5.5 5.5 5.5 3.04 0 5.5-2.46 5.5-5.5C18 7.46 15.54 5 12.5 5zM5 9c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zm0-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zm14 2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zm0-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zm-7-3c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5z"/></svg>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-label">今日退款</div>
-                            <div class="stat-value">&yen;2,350.00</div>
-                            <div class="stat-trend down">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
-                                15.2% 较昨日
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ========== Charts Row ========== -->
-                <div class="grid-2 mb-24">
-                    <!-- Hot Products Bar Chart -->
-                    <div class="pos-card">
-                        <div class="card-header">
-                            <span class="card-title">热销商品 TOP10</span>
-                            <span class="card-more">查看全部 &gt;</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="bar-chart-container">
-                                <div class="bar-chart">
-                                    <div class="bar-item">
-                                        <div class="bar-value">256</div>
-                                        <div class="bar green" style="height: 100%;"></div>
-                                        <div class="bar-label">有机牛奶</div>
+                            <div class="card-body">
+                                <div class="mini-line-chart">
+                                    <div class="mini-line-y">
+                                        <span>900</span>
+                                        <span>600</span>
+                                        <span>300</span>
+                                        <span>0</span>
                                     </div>
-                                    <div class="bar-item">
-                                        <div class="bar-value">198</div>
-                                        <div class="bar green" style="height: 77%;"></div>
-                                        <div class="bar-label">进口红酒</div>
+                                    <div class="mini-line-area">
+                                        <svg class="mini-line-svg" viewBox="0 0 240 130" preserveAspectRatio="none">
+                                            <defs>
+                                                <linearGradient id="miniGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="0%" stop-color="#52c41a" stop-opacity="0.3"/>
+                                                    <stop offset="100%" stop-color="#52c41a" stop-opacity="0.02"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <polygon fill="url(#miniGradient)" points="0,100 34,80 68,90 102,50 136,60 170,40 204,70 240,55 240,130 0,130"/>
+                                            <polyline fill="none" stroke="#52c41a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="0,100 34,80 68,90 102,50 136,60 170,40 204,70 240,55"/>
+                                            <circle cx="102" cy="50" r="3" fill="#52c41a" stroke="#fff" stroke-width="1.5"/>
+                                        </svg>
                                     </div>
-                                    <div class="bar-item">
-                                        <div class="bar-value">175</div>
-                                        <div class="bar green" style="height: 68%;"></div>
-                                        <div class="bar-label">精品咖啡</div>
-                                    </div>
-                                    <div class="bar-item">
-                                        <div class="bar-value">152</div>
-                                        <div class="bar green" style="height: 59%;"></div>
-                                        <div class="bar-label">新鲜水果</div>
-                                    </div>
-                                    <div class="bar-item">
-                                        <div class="bar-value">128</div>
-                                        <div class="bar green" style="height: 50%;"></div>
-                                        <div class="bar-label">零食礼盒</div>
+                                    <div class="mini-line-x" id="trendDates">
+                                        <span>6.26</span>
+                                        <span>6.27</span>
+                                        <span>6.28</span>
+                                        <span>6.29</span>
+                                        <span>6.30</span>
+                                        <span>7.01</span>
+                                        <span>7.02</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Channel Pie Chart -->
-                    <div class="pos-card">
-                        <div class="card-header">
-                            <span class="card-title">各渠道销售占比</span>
-                            <span class="card-more">查看详情 &gt;</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="pie-chart-wrapper">
-                                <div style="position: relative;">
-                                    <div class="pie-chart"></div>
-                                    <div class="pie-center-text">
-                                        <div class="pie-total">&yen;128K</div>
-                                        <div class="pie-label">总销售额</div>
+                    <!-- ========== Center Panel ========== -->
+                    <div class="dashboard-center">
+                        <!-- 今日收款金额 -->
+                        <div class="pos-card receipt-card">
+                            <div class="receipt-label">7月2日收款金额(元)</div>
+                            <div class="receipt-value" id="receiptAmount">30,283.21</div>
+                            <div class="receipt-metrics" id="receiptMetricsTop">
+                                <div class="receipt-metric">
+                                    <div class="rm-label">商品销售额</div>
+                                    <div class="rm-value" id="salesAmount">19,823.83</div>
+                                </div>
+                                <div class="receipt-metric">
+                                    <div class="rm-label">充值金额</div>
+                                    <div class="rm-value" id="rechargeAmount">132,000</div>
+                                </div>
+                                <div class="receipt-metric">
+                                    <div class="rm-label">购次金额</div>
+                                    <div class="rm-value" id="cardAmount">26,878</div>
+                                </div>
+                                <div class="receipt-metric">
+                                    <div class="rm-label">退款额</div>
+                                    <div class="rm-value" id="refundAmount">519,760</div>
+                                </div>
+                                <div class="receipt-metric">
+                                    <div class="rm-label">毛利金额</div>
+                                    <div class="rm-value" id="profitAmount">273,836</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--primary-green-border);">
+                                <div class="receipt-metrics" id="receiptMetricsBottom">
+                                    <div class="receipt-metric">
+                                        <div class="rm-label">销售订单量</div>
+                                        <div class="rm-value" id="salesOrders">96,739</div>
+                                    </div>
+                                    <div class="receipt-metric">
+                                        <div class="rm-label">充值单量</div>
+                                        <div class="rm-value" id="rechargeOrders">237</div>
+                                    </div>
+                                    <div class="receipt-metric">
+                                        <div class="rm-label">次卡单量</div>
+                                        <div class="rm-value" id="cardOrders">78</div>
+                                    </div>
+                                    <div class="receipt-metric">
+                                        <div class="rm-label">退款单量</div>
+                                        <div class="rm-value" id="refundOrders">823</div>
+                                    </div>
+                                    <div class="receipt-metric">
+                                        <div class="rm-label">综合毛利率</div>
+                                        <div class="rm-value" id="profitRate">25%</div>
                                     </div>
                                 </div>
-                                <div class="pie-legend">
-                                    <div class="pie-legend-item">
-                                        <span class="legend-dot" style="background: #52c41a;"></span>
-                                        <span>线下门店</span>
-                                        <span class="legend-value">65%</span>
+                            </div>
+                        </div>
+
+                        <!-- 成交时段 -->
+                        <div class="pos-card">
+                            <div class="card-header" style="justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <span class="card-title">成交时段</span>
+                                    <div style="display: flex; align-items: center; gap: 12px; font-size: 12px;">
+                                        <span style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--primary-green); display: inline-block;"></span>
+                                            按金额
+                                        </span>
+                                        <span style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--auxiliary-blue); display: inline-block;"></span>
+                                            按单量
+                                        </span>
                                     </div>
-                                    <div class="pie-legend-item">
-                                        <span class="legend-dot" style="background: #1890ff;"></span>
-                                        <span>线上商城</span>
-                                        <span class="legend-value">25%</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="time-line-chart">
+                                    <div class="time-line-y">
+                                        <span>1800</span>
+                                        <span>1500</span>
+                                        <span>1200</span>
+                                        <span>900</span>
+                                        <span>600</span>
+                                        <span>300</span>
+                                        <span>0</span>
                                     </div>
-                                    <div class="pie-legend-item">
-                                        <span class="legend-dot" style="background: #faad14;"></span>
-                                        <span>第三方平台</span>
-                                        <span class="legend-value">10%</span>
+                                    <div class="time-line-area">
+                                        <svg class="time-line-svg" viewBox="0 0 480 200" preserveAspectRatio="none">
+                                            <defs>
+                                                <linearGradient id="timeGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="0%" stop-color="#52c41a" stop-opacity="0.2"/>
+                                                    <stop offset="100%" stop-color="#52c41a" stop-opacity="0.02"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <polygon fill="url(#timeGradient)" points="0,180 20,175 40,170 60,160 80,140 100,120 120,100 140,90 160,80 180,85 200,110 220,130 240,120 260,100 280,90 300,85 320,80 340,70 360,60 380,50 400,55 420,70 440,100 460,140 480,160 480,200 0,200"/>
+                                            <polyline fill="none" stroke="#52c41a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="0,180 20,175 40,170 60,160 80,140 100,120 120,100 140,90 160,80 180,85 200,110 220,130 240,120 260,100 280,90 300,85 320,80 340,70 360,60 380,50 400,55 420,70 440,100 460,140 480,160"/>
+                                            <circle cx="380" cy="50" r="4" fill="#52c41a" stroke="#fff" stroke-width="2"/>
+                                        </svg>
+                                    </div>
+                                    <div class="time-line-x">
+                                        <span>00</span>
+                                        <span>01</span>
+                                        <span>02</span>
+                                        <span>03</span>
+                                        <span>04</span>
+                                        <span>05</span>
+                                        <span>06</span>
+                                        <span>07</span>
+                                        <span>08</span>
+                                        <span>09</span>
+                                        <span>10</span>
+                                        <span>11</span>
+                                        <span>12</span>
+                                        <span>13</span>
+                                        <span>14</span>
+                                        <span>15</span>
+                                        <span>16</span>
+                                        <span>17</span>
+                                        <span>18</span>
+                                        <span>19</span>
+                                        <span>20</span>
+                                        <span>21</span>
+                                        <span>22</span>
+                                        <span>23</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- ========== Tables Row ========== -->
-                <div class="grid-2">
-                    <!-- Store Sales Ranking -->
-                    <div class="pos-card">
-                        <div class="card-header">
-                            <span class="card-title">各门店销售排名</span>
-                            <span class="card-more">查看全部 &gt;</span>
-                        </div>
-                        <div class="card-body" style="padding: 0;">
-                            <div class="pos-table-wrapper">
-                                <table class="pos-table">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 60px;">排名</th>
-                                            <th>门店名称</th>
-                                            <th>销售额</th>
-                                            <th>订单数</th>
-                                            <th>完成率</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td><span class="rank-num top1">1</span></td>
-                                            <td>星链旗舰店</td>
-                                            <td style="font-weight: 600; color: var(--text-primary);">&yen;45,280.00</td>
-                                            <td>126</td>
-                                            <td>
-                                                <div class="stock-bar-wrapper">
-                                                    <div class="stock-bar">
-                                                        <div class="stock-bar-fill" style="width: 95%; background: var(--success-color);"></div>
-                                                    </div>
-                                                    <span class="stock-text">95%</span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="rank-num top2">2</span></td>
-                                            <td>万达广场店</td>
-                                            <td style="font-weight: 600; color: var(--text-primary);">&yen;38,650.00</td>
-                                            <td>108</td>
-                                            <td>
-                                                <div class="stock-bar-wrapper">
-                                                    <div class="stock-bar">
-                                                        <div class="stock-bar-fill" style="width: 88%; background: var(--auxiliary-blue);"></div>
-                                                    </div>
-                                                    <span class="stock-text">88%</span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="rank-num top3">3</span></td>
-                                            <td>龙岩万达店</td>
-                                            <td style="font-weight: 600; color: var(--text-primary);">&yen;25,430.00</td>
-                                            <td>72</td>
-                                            <td>
-                                                <div class="stock-bar-wrapper">
-                                                    <div class="stock-bar">
-                                                        <div class="stock-bar-fill" style="width: 76%; background: var(--auxiliary-blue);"></div>
-                                                    </div>
-                                                    <span class="stock-text">76%</span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="rank-num normal">4</span></td>
-                                            <td>新罗区店</td>
-                                            <td style="font-weight: 600; color: var(--text-primary);">&yen;12,800.00</td>
-                                            <td>35</td>
-                                            <td>
-                                                <div class="stock-bar-wrapper">
-                                                    <div class="stock-bar">
-                                                        <div class="stock-bar-fill" style="width: 62%; background: var(--warning-color);"></div>
-                                                    </div>
-                                                    <span class="stock-text">62%</span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="rank-num normal">5</span></td>
-                                            <td>永定区店</td>
-                                            <td style="font-weight: 600; color: var(--text-primary);">&yen;6,400.00</td>
-                                            <td>15</td>
-                                            <td>
-                                                <div class="stock-bar-wrapper">
-                                                    <div class="stock-bar">
-                                                        <div class="stock-bar-fill" style="width: 45%; background: var(--error-color);"></div>
-                                                    </div>
-                                                    <span class="stock-text">45%</span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                    <!-- ========== Right Panel ========== -->
+                    <div class="dashboard-right">
+                        <!-- 其他统计 -->
+                        <div class="pos-card">
+                            <div class="card-header">
+                                <span class="card-title">其他统计</span>
+                            </div>
+                            <div class="other-stats" id="otherStats">
+                                <div class="other-stat">
+                                    <div class="os-label">成交会员数</div>
+                                    <div class="os-value" id="memberCount">1192</div>
+                                    <div class="os-trend up" id="memberTrend">&#9650; 5.2%</div>
+                                </div>
+                                <div class="other-stat">
+                                    <div class="os-label">新增会员数</div>
+                                    <div class="os-value" id="newMemberCount">34</div>
+                                    <div class="os-trend up" id="newMemberTrend">&#9650; 12.1%</div>
+                                </div>
+                                <div class="other-stat">
+                                    <div class="os-label">短信发送数</div>
+                                    <div class="os-value" id="smsCount">1256</div>
+                                    <div class="os-trend up" id="smsTrend">&#9650; 8.7%</div>
+                                </div>
+                                <div class="other-stat">
+                                    <div class="os-label">次卡销售数</div>
+                                    <div class="os-value" id="cardSaleCount">0</div>
+                                    <div class="os-trend down" id="cardSaleTrend">&#9660; 0%</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Inventory Warning -->
-                    <div class="pos-card">
-                        <div class="card-header">
-                            <span class="card-title">库存预警商品</span>
-                            <span class="card-more" style="color: var(--error-color);">5件商品预警 &gt;</span>
-                        </div>
-                        <div class="card-body" style="padding: 0;">
-                            <div class="pos-table-wrapper">
-                                <table class="pos-table">
-                                    <thead>
-                                        <tr>
-                                            <th>商品名称</th>
-                                            <th>SKU</th>
-                                            <th>当前库存</th>
-                                            <th>预警值</th>
-                                            <th>状态</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr class="warning-row">
-                                            <td>有机纯牛奶 1L</td>
-                                            <td style="color: var(--text-tertiary);">SKU-001256</td>
-                                            <td style="color: var(--error-color); font-weight: 600;">12</td>
-                                            <td>50</td>
-                                            <td><span class="pos-tag pos-tag-error">紧急</span></td>
-                                        </tr>
-                                        <tr class="warning-row">
-                                            <td>进口红酒 750ml</td>
-                                            <td style="color: var(--text-tertiary);">SKU-002389</td>
-                                            <td style="color: var(--error-color); font-weight: 600;">8</td>
-                                            <td>30</td>
-                                            <td><span class="pos-tag pos-tag-error">紧急</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>精品咖啡豆 500g</td>
-                                            <td style="color: var(--text-tertiary);">SKU-003456</td>
-                                            <td style="color: var(--warning-color); font-weight: 600;">25</td>
-                                            <td>40</td>
-                                            <td><span class="pos-tag pos-tag-warning">预警</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>零食大礼包</td>
-                                            <td style="color: var(--text-tertiary);">SKU-004782</td>
-                                            <td style="color: var(--warning-color); font-weight: 600;">18</td>
-                                            <td>35</td>
-                                            <td><span class="pos-tag pos-tag-warning">预警</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>矿泉水 550ml</td>
-                                            <td style="color: var(--text-tertiary);">SKU-005123</td>
-                                            <td style="color: var(--warning-color); font-weight: 600;">45</td>
-                                            <td>60</td>
-                                            <td><span class="pos-tag pos-tag-warning">预警</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        <!-- 收款方式占比 -->
+                        <div class="pos-card">
+                            <div class="card-header">
+                                <div class="dashboard-tabs">
+                                    <button class="dashboard-tab active">收款方式占比</button>
+                                    <button class="dashboard-tab">订单支付占比</button>
+                                </div>
+                            </div>
+                            <div class="card-body" style="padding-bottom: 0;">
+                                <div class="donut-chart-wrapper">
+                                    <div style="position: relative;">
+                                        <div class="donut-chart"></div>
+                                        <div class="donut-center">
+                                            <div class="dc-label">收款方式占比</div>
+                                        </div>
+                                    </div>
+                                    <div class="donut-legend">
+                                        <div class="donut-legend-item">
+                                            <span class="dl-dot" style="background: var(--primary-green);"></span>
+                                            <span class="dl-name">现金支付</span>
+                                            <span class="dl-percent">51%</span>
+                                        </div>
+                                        <div class="donut-legend-item">
+                                            <span class="dl-dot" style="background: var(--warning-color);"></span>
+                                            <span class="dl-name">手机(官方)</span>
+                                            <span class="dl-percent">20.3%</span>
+                                        </div>
+                                        <div class="donut-legend-item">
+                                            <span class="dl-dot" style="background: #fa8c16;"></span>
+                                            <span class="dl-name">手机(个人)</span>
+                                            <span class="dl-percent">5%</span>
+                                        </div>
+                                        <div class="donut-legend-item">
+                                            <span class="dl-dot" style="background: var(--auxiliary-blue);"></span>
+                                            <span class="dl-name">刷卡支付</span>
+                                            <span class="dl-percent">22%</span>
+                                        </div>
+                                        <div class="donut-legend-item">
+                                            <span class="dl-dot" style="background: #13c2c2;"></span>
+                                            <span class="dl-name">微信刷脸</span>
+                                            <span class="dl-percent">3%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="donut-total">
+                                合计收款 <strong id="donutTotal">&yen;9610,283.21</strong>
                             </div>
                         </div>
                     </div>
@@ -774,11 +1106,11 @@
             <!-- Footer -->
             <footer class="pos-footer">
                 <div style="display: flex; align-items: center; gap: 24px; width: 100%; flex-wrap: wrap;">
-                    <span>Current User：<strong style="color: var(--text-secondary);">Admin</strong></span>
+                    <span>Current User：<strong style="color: var(--text-secondary);">Manager</strong></span>
                     <span>|</span>
-                    <span>门店：<strong style="color: var(--text-secondary);">星链旗舰店</strong></span>
+                    <span>门店：<strong style="color: var(--text-secondary);" id="footerStoreName">星链旗舰店</strong></span>
                     <span>|</span>
-                    <span>数据同步：<strong style="color: var(--text-secondary);">2026-05-26 10:30</strong></span>
+                    <span>数据同步：<strong style="color: var(--text-secondary);" id="syncTime">2026-07-02 10:30</strong></span>
                     <span>|</span>
                     <span>版本：<strong style="color: var(--text-secondary);">V1.0</strong></span>
                     <span style="margin-left: auto;">网络：<span class="status-dot online"></span><strong style="color: var(--success-color);">已连接</strong></span>
@@ -821,13 +1153,15 @@
             }
         }
 
-        // Date filter buttons
-        document.querySelectorAll('.date-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.date-btn').forEach(function(b) {
-                    b.classList.remove('active');
-                });
-                this.classList.add('active');
+        // Tab switching inside cards
+        document.querySelectorAll('.dashboard-tabs').forEach(function(tabs) {
+            tabs.addEventListener('click', function(e) {
+                if (e.target.classList.contains('dashboard-tab')) {
+                    tabs.querySelectorAll('.dashboard-tab').forEach(function(t) {
+                        t.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+                }
             });
         });
 
@@ -836,7 +1170,222 @@
             // Placeholder for user dropdown
         }
 
-        // Close mobile sidebar when clicking outside
+        // Store dropdown toggle
+        function toggleStoreDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('storeSwitcher').classList.toggle('open');
+        }
+
+        // Store data sets
+        var storeData = {
+            '星链旗舰店': {
+                totalVolume: 2847,
+                memberOrders: '2,156单',
+                nonMemberOrders: '691单',
+                receiptAmount: '86,532.80',
+                salesAmount: '62,340.50',
+                rechargeAmount: '18,200.00',
+                cardAmount: '8,450.00',
+                refundAmount: '2,457.70',
+                profitAmount: '21,680.30',
+                salesOrders: '2,156',
+                rechargeOrders: '342',
+                cardOrders: '128',
+                refundOrders: '56',
+                profitRate: '34.8%',
+                memberCount: 2156,
+                memberTrend: '&#9650; 8.3%',
+                newMemberCount: 128,
+                newMemberTrend: '&#9650; 15.2%',
+                smsCount: 3420,
+                smsTrend: '&#9650; 12.5%',
+                cardSaleCount: 128,
+                cardSaleTrend: '&#9650; 6.8%',
+                donutTotal: '&yen;86,532.80',
+                syncTime: '2026-07-02 10:45',
+                trendDates: ['6.26','6.27','6.28','6.29','6.30','7.01','7.02'],
+                trendValues: [120, 180, 150, 220, 260, 310, 284]
+            },
+            '万达广场店': {
+                totalVolume: 1863,
+                memberOrders: '1,420单',
+                nonMemberOrders: '443单',
+                receiptAmount: '52,180.60',
+                salesAmount: '38,920.00',
+                rechargeAmount: '9,800.00',
+                cardAmount: '4,200.00',
+                refundAmount: '739.40',
+                profitAmount: '12,850.20',
+                salesOrders: '1,420',
+                rechargeOrders: '198',
+                cardOrders: '76',
+                refundOrders: '32',
+                profitRate: '33.0%',
+                memberCount: 1420,
+                memberTrend: '&#9650; 6.1%',
+                newMemberCount: 86,
+                newMemberTrend: '&#9650; 9.8%',
+                smsCount: 2150,
+                smsTrend: '&#9650; 7.2%',
+                cardSaleCount: 76,
+                cardSaleTrend: '&#9650; 4.5%',
+                donutTotal: '&yen;52,180.60',
+                syncTime: '2026-07-02 10:42',
+                trendDates: ['6.26','6.27','6.28','6.29','6.30','7.01','7.02'],
+                trendValues: [80, 120, 100, 160, 190, 220, 186]
+            },
+            '龙岩万达店': {
+                totalVolume: 1234,
+                memberOrders: '956单',
+                nonMemberOrders: '278单',
+                receiptAmount: '35,680.40',
+                salesAmount: '26,520.00',
+                rechargeAmount: '6,400.00',
+                cardAmount: '3,100.00',
+                refundAmount: '339.60',
+                profitAmount: '8,760.50',
+                salesOrders: '956',
+                rechargeOrders: '128',
+                cardOrders: '48',
+                refundOrders: '18',
+                profitRate: '33.0%',
+                memberCount: 956,
+                memberTrend: '&#9650; 4.8%',
+                newMemberCount: 52,
+                newMemberTrend: '&#9650; 7.5%',
+                smsCount: 1480,
+                smsTrend: '&#9650; 5.6%',
+                cardSaleCount: 48,
+                cardSaleTrend: '&#9650; 3.2%',
+                donutTotal: '&yen;35,680.40',
+                syncTime: '2026-07-02 10:38',
+                trendDates: ['6.26','6.27','6.28','6.29','6.30','7.01','7.02'],
+                trendValues: [50, 80, 70, 110, 130, 150, 123]
+            },
+            '新罗区店': {
+                totalVolume: 856,
+                memberOrders: '642单',
+                nonMemberOrders: '214单',
+                receiptAmount: '24,120.80',
+                salesAmount: '17,850.00',
+                rechargeAmount: '4,200.00',
+                cardAmount: '2,350.00',
+                refundAmount: '279.20',
+                profitAmount: '5,890.30',
+                salesOrders: '642',
+                rechargeOrders: '86',
+                cardOrders: '32',
+                refundOrders: '12',
+                profitRate: '33.0%',
+                memberCount: 642,
+                memberTrend: '&#9650; 3.5%',
+                newMemberCount: 34,
+                newMemberTrend: '&#9650; 5.2%',
+                smsCount: 980,
+                smsTrend: '&#9650; 4.1%',
+                cardSaleCount: 32,
+                cardSaleTrend: '&#9650; 2.8%',
+                donutTotal: '&yen;24,120.80',
+                syncTime: '2026-07-02 10:35',
+                trendDates: ['6.26','6.27','6.28','6.29','6.30','7.01','7.02'],
+                trendValues: [30, 50, 45, 75, 90, 105, 86]
+            },
+            '永定区店': {
+                totalVolume: 523,
+                memberOrders: '398单',
+                nonMemberOrders: '125单',
+                receiptAmount: '14,560.20',
+                salesAmount: '10,680.00',
+                rechargeAmount: '2,600.00',
+                cardAmount: '1,420.00',
+                refundAmount: '139.80',
+                profitAmount: '3,520.60',
+                salesOrders: '398',
+                rechargeOrders: '52',
+                cardOrders: '18',
+                refundOrders: '8',
+                profitRate: '33.0%',
+                memberCount: 398,
+                memberTrend: '&#9650; 2.1%',
+                newMemberCount: 18,
+                newMemberTrend: '&#9650; 3.6%',
+                smsCount: 560,
+                smsTrend: '&#9650; 2.5%',
+                cardSaleCount: 18,
+                cardSaleTrend: '&#9650; 1.5%',
+                donutTotal: '&yen;14,560.20',
+                syncTime: '2026-07-02 10:30',
+                trendDates: ['6.26','6.27','6.28','6.29','6.30','7.01','7.02'],
+                trendValues: [20, 30, 25, 45, 55, 65, 52]
+            }
+        };
+
+        // Render dashboard data for selected store
+        function renderDashboard(storeName) {
+            var data = storeData[storeName];
+            if (!data) return;
+
+            // Titles
+            document.getElementById('pageTitle').textContent = storeName + '综合数据';
+            document.getElementById('breadcrumbTitle').textContent = storeName + '综合数据';
+
+            // Total volume
+            document.getElementById('totalVolume').textContent = data.totalVolume;
+            document.getElementById('memberOrders').textContent = data.memberOrders;
+            document.getElementById('nonMemberOrders').textContent = data.nonMemberOrders;
+
+            // Receipt card
+            document.getElementById('receiptAmount').textContent = data.receiptAmount;
+            document.getElementById('salesAmount').textContent = data.salesAmount;
+            document.getElementById('rechargeAmount').textContent = data.rechargeAmount;
+            document.getElementById('cardAmount').textContent = data.cardAmount;
+            document.getElementById('refundAmount').textContent = data.refundAmount;
+            document.getElementById('profitAmount').textContent = data.profitAmount;
+            document.getElementById('salesOrders').textContent = data.salesOrders;
+            document.getElementById('rechargeOrders').textContent = data.rechargeOrders;
+            document.getElementById('cardOrders').textContent = data.cardOrders;
+            document.getElementById('refundOrders').textContent = data.refundOrders;
+            document.getElementById('profitRate').textContent = data.profitRate;
+
+            // Other stats
+            document.getElementById('memberCount').textContent = data.memberCount;
+            document.getElementById('memberTrend').innerHTML = data.memberTrend;
+            document.getElementById('newMemberCount').textContent = data.newMemberCount;
+            document.getElementById('newMemberTrend').innerHTML = data.newMemberTrend;
+            document.getElementById('smsCount').textContent = data.smsCount;
+            document.getElementById('smsTrend').innerHTML = data.smsTrend;
+            document.getElementById('cardSaleCount').textContent = data.cardSaleCount;
+            document.getElementById('cardSaleTrend').innerHTML = data.cardSaleTrend;
+
+            // Donut
+            document.getElementById('donutTotal').innerHTML = data.donutTotal;
+
+            // Footer
+            document.getElementById('syncTime').textContent = data.syncTime;
+
+            // Trend dates
+            var trendContainer = document.getElementById('trendDates');
+            if (trendContainer) {
+                trendContainer.innerHTML = data.trendDates.map(function(d) {
+                    return '<span>' + d + '</span>';
+                }).join('');
+            }
+        }
+
+        // Select store
+        function selectStore(el) {
+            var storeName = el.getAttribute('data-store');
+            document.getElementById('currentStoreName').textContent = storeName;
+            document.getElementById('footerStoreName').textContent = storeName;
+            document.querySelectorAll('.store-item').forEach(function(item) {
+                item.classList.remove('active');
+            });
+            el.classList.add('active');
+            document.getElementById('storeSwitcher').classList.remove('open');
+            renderDashboard(storeName);
+        }
+
+        // Close dropdowns when clicking outside
         document.addEventListener('click', function(e) {
             var sidebar = document.getElementById('sidebar');
             var toggle = document.querySelector('.mobile-menu-toggle');
@@ -845,6 +1394,18 @@
                     sidebar.classList.remove('mobile-open');
                 }
             }
+            // Close store dropdown
+            var storeSwitcher = document.getElementById('storeSwitcher');
+            if (storeSwitcher && storeSwitcher.classList.contains('open')) {
+                if (!storeSwitcher.contains(e.target)) {
+                    storeSwitcher.classList.remove('open');
+                }
+            }
+        });
+
+        // Initialize default store data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderDashboard('星链旗舰店');
         });
     </script>
     <script src="pos-common.js"></script>
