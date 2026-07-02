@@ -6,13 +6,33 @@
     <title>会员报表 - 智慧新零售云POS综合管理平台</title>
     <link rel="stylesheet" href="pos-common.css">
     
-    <style>
-        .page-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 20px;
-        }
+        <style>
+        .content-header { margin-bottom: 24px; }
+        .content-title { font-size: 22px; font-weight: 600; color: #333; margin-bottom: 8px; }
+        .content-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #e8e8e8; }
+        .stat-label { font-size: 13px; color: var(--text-tertiary); margin-bottom: 8px; }
+        .stat-value { font-size: 24px; font-weight: 700; color: #333; margin-bottom: 6px; }
+        .stat-trend { font-size: 12px; }
+        .stat-up { color: var(--success-color); }
+        .stat-down { color: var(--danger-color); }
+        .step-list { display: flex; flex-direction: column; gap: 12px; }
+        .step-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
+        .step-number { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+        .step-text { font-size: 14px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e8e8e8; font-size: 14px; }
+        .data-table th { background: #f8f9fa; font-weight: 600; color: #333; }
+        .data-table td { color: var(--text-secondary); }
+        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .status-normal { background: #e3f2fd; color: #1976d2; }
+        .status-warning { background: #fff3e0; color: #f57c00; }
+        .status-success { background: #e8f5e9; color: #388e3c; }
+        .status-danger { background: #ffebee; color: #d32f2f; }
+        .btn-sm { padding: 6px 14px; font-size: 13px; }
+        @media (max-width: 1200px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .stat-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -228,16 +248,80 @@
             <!-- Main Content Area -->
             <!-- Main Content Area -->
             <main class="pos-content">
-                <div style="font-size: 20px; font-weight: 600; color: #333; margin-bottom: 20px;">会员报表</div>
-                
+                <div class="content-header">
+                    <h1 class="content-title">会员报表</h1>
+                    <p class="content-desc">会员报表提供会员增长、消费、等级分布和活跃度等多维度分析。</p>
+                </div>
+
+                <!-- Stat Cards -->
+                <div class="stat-grid">
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">会员总数</div>
+                        <div class="stat-value">3,856</div>
+                        <div class="stat-trend stat-up">&#9650; +56</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">本月新增</div>
+                        <div class="stat-value">156</div>
+                        <div class="stat-trend stat-up">&#9650; +23</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">活跃会员</div>
+                        <div class="stat-value">1,286</div>
+                        <div class="stat-trend stat-up">&#9650; +45</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">会员消费占比</div>
+                        <div class="stat-value">62.3%</div>
+                        <div class="stat-trend stat-up">&#9650; +2.1%</div>
+                    </div>
+                </div>
+
+                <!-- Operation Steps -->
                 <div class="pos-card">
                     <div class="card-header">
-                        <span class="card-title">功能开发中</span>
+                        <span class="card-title">&#128161; 操作指南</span>
                     </div>
-                    <div class="card-body" style="padding: 40px; text-align: center;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">&#128736;</div>
-                        <div style="font-size: 16px; color: var(--text-secondary); margin-bottom: 8px;">会员报表 模块正在开发中</div>
-                        <div style="font-size: 13px; color: var(--text-tertiary);">敬请期待完整功能上线</div>
+                    <div class="card-body">
+                        <div class="step-list">
+                            
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-text">选择报表类型：会员增长报表、会员消费报表、会员等级分布报表或会员活跃度报表</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-text">设置查询条件：时间范围、会员等级、门店范围</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-text">查看报表数据，会员活跃度报表展示各时段的会员活跃情况</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-text">支持导出报表数据为Excel或PDF格式</div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Placeholder Table -->
+                <div class="pos-card">
+                    <div class="card-header">
+                        <span class="card-title">&#128202; 数据概览</span>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>项目名称</th><th>数值</th><th>状态</th><th>操作</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>示例数据 1</td><td>--</td><td><span class="status-badge status-normal">正常</span></td><td><button class="btn btn-sm btn-primary">查看</button></td></tr>
+                                <tr><td>示例数据 2</td><td>--</td><td><span class="status-badge status-warning">预警</span></td><td><button class="btn btn-sm btn-primary">处理</button></td></tr>
+                                <tr><td>示例数据 3</td><td>--</td><td><span class="status-badge status-success">完成</span></td><td><button class="btn btn-sm btn-primary">详情</button></td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </main>
