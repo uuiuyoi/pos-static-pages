@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS收银终端 - 智慧新零售云POS综合管理平台</title>
+    <link rel="stylesheet" href="pos-common.css">
+    <style>
+        /* 收银终端全屏布局 */
+        .cashier-layout {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background: #f0f2f5;
+        }
+
+        /* 顶部状态栏 */
+        .cashier-topbar {
+            height: 48px;
+            min-height: 48px;
+            background: #001529;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            font-size: 13px;
+            z-index: 10;
+        }
+
+        .cashier-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .cashier-topbar-left .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: rgba(255,255,255,0.85);
+            cursor: pointer;
+            padding: 4px 10px;
+            border-radius: 4px;
+            transition: background .2s;
+            font-size: 13px;
+            border: none;
+            background: none;
+        }
+
+        .cashier-topbar-left .back-btn:hover {
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+        }
+
+        .cashier-topbar-left .store-name {
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .cashier-topbar-left .cashier-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255,255,255,0.75);
+        }
+
+        .cashier-topbar-left .cashier-info .cashier-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #1890ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .cashier-topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: rgba(255,255,255,0.75);
+        }
+
+        .cashier-topbar-right .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #52c41a;
+            display: inline-block;
+            margin-right: 4px;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* 主体区域 */
+        .cashier-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* 左侧商品分类区 */
+        .cashier-categories {
+            width: 200px;
+            min-width: 200px;
+            background: #fff;
+            border-right: 1px solid #e8e8e8;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .category-search {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .category-search input {
+            width: 100%;
+            height: 34px;
+            padding: 0 10px 0 34px;
+            border: 1px solid #d9d9d9;
+            border-radius: 17px;
+            font-size: 13px;
+            outline: none;
+            background: #fafafa url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 10px center no-repeat;
+            transition: all 0.3s;
+        }
+
+        .category-search input:focus {
+            border-color: #1890ff;
+            background-color: #fff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.1);
+        }
+
+        .category-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .category-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            gap: 6px;
+        }
+
+        .category-item:hover {
+            background: #e6f7ff;
+            border-left-color: #1890ff;
+        }
+
+        .category-item.active {
+            background: #e6f7ff;
+            border-left-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .category-item .cat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            background: #f5f5f5;
+        }
+
+        .category-item.active .cat-icon {
+            background: #e6f7ff;
+        }
+
+        .category-item .cat-name {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .category-item.active .cat-name {
+            color: #1890ff;
+            font-weight: 600;
+        }
+
+        /* 中间购物车区 */
+        .cashier-cart {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #f0f2f5;
+        }
+
+        .cart-header {
+            background: #fff;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .cart-header h3 {
+            font-size: 16px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cart-header h3 .cart-count {
+            background: #1890ff;
+            color: #fff;
+            font-size: 12px;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-weight: 400;
+        }
+
+        .cart-table-wrap {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .cart-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .cart-table thead th {
+            background: #fafafa;
+            padding: 10px 12px;
+            text-align: center;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 1px solid #e8e8e8;
+            font-size: 12px;
+        }
+
+        .cart-table tbody td {
+            padding: 10px 12px;
+            text-align: center;
+            border-bottom: 1px solid #f5f5f5;
+            color: #333;
+            vertical-align: middle;
+        }
+
+        .cart-table tbody tr:hover {
+            background: #e6f7ff;
+        }
+
+        .cart-table .product-name {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .cart-table .qty-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .cart-table .qty-control button {
+            width: 26px;
+            height: 26px;
+            border: none;
+            background: #fafafa;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .cart-table .qty-control button:hover {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .cart-table .qty-control input {
+            width: 36px;
+            height: 26px;
+            border: none;
+            border-left: 1px solid #d9d9d9;
+            border-right: 1px solid #d9d9d9;
+            text-align: center;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .cart-table .delete-btn {
+            color: #ff4d4f;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .cart-table .delete-btn:hover {
+            background: #fff2f0;
+        }
+
+        /* 购物车底部汇总 */
+        .cart-summary {
+            background: #fff;
+            border-top: 2px solid #e8e8e8;
+            padding: 14px 20px;
+        }
+
+        .cart-summary-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .cart-summary-row.total {
+            padding-top: 10px;
+            margin-top: 6px;
+            border-top: 1px dashed #e8e8e8;
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff4d4f;
+        }
+
+        .cart-summary-row.total .label {
+            color: #333;
+        }
+
+        .cart-summary-row .discount {
+            color: #52c41a;
+        }
+
+        /* 右侧支付区 */
+        .cashier-payment {
+            width: 280px;
+            min-width: 280px;
+            background: #fff;
+            border-left: 1px solid #e8e8e8;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .payment-section {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .payment-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .member-search {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .member-search input {
+            flex: 1;
+            height: 32px;
+            padding: 0 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .member-search input:focus {
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.1);
+        }
+
+        .member-search button {
+            height: 32px;
+            padding: 0 12px;
+            background: #1890ff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .member-search button:hover {
+            background: #40a9ff;
+        }
+
+        .member-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 12px;
+        }
+
+        .member-card .member-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .member-card .member-name .vip-badge {
+            background: rgba(255,255,255,0.25);
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        .member-card .member-stats {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .member-card .member-stats .stat-item {
+            text-align: center;
+        }
+
+        .member-card .member-stats .stat-value {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .member-card .member-stats .stat-label {
+            color: rgba(255,255,255,0.7);
+            margin-top: 2px;
+        }
+
+        /* 优惠券 & 积分按钮 */
+        .coupon-btn, .points-btn {
+            width: 100%;
+            height: 36px;
+            border: 1px dashed #d9d9d9;
+            border-radius: 4px;
+            background: #fafafa;
+            cursor: pointer;
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+
+        .coupon-btn:hover, .points-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .coupon-btn .badge {
+            background: #ff4d4f;
+            color: #fff;
+            font-size: 11px;
+            padding: 0 5px;
+            border-radius: 8px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* 支付方式网格 */
+        .pay-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .pay-method-btn {
+            height: 52px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            transition: all 0.2s;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .pay-method-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .pay-method-btn .pay-icon {
+            font-size: 20px;
+        }
+
+        /* 挂单 / 取单 */
+        .order-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+            padding: 14px 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .order-actions button {
+            flex: 1;
+            height: 40px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .order-actions button:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .order-actions .pending-badge {
+            background: #ff4d4f;
+            color: #fff;
+            font-size: 11px;
+            padding: 0 5px;
+            border-radius: 8px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* 底部功能栏 */
+        .cashier-bottombar {
+            height: 44px;
+            min-height: 44px;
+            background: #fff;
+            border-top: 1px solid #e8e8e8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            padding: 0 20px;
+        }
+
+        .bottombar-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 13px;
+            color: #666;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .bottombar-btn:hover {
+            background: #f5f5f5;
+            color: #1890ff;
+        }
+
+        .bottombar-btn .bar-icon {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="cashier-layout">
+        <!-- 顶部状态栏 -->
+        <div class="cashier-topbar">
+            <div class="cashier-topbar-left">
+                <button class="back-btn" onclick="location.href='pos-main-dashboard.html'">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                    Back
+                </button>
+                <span class="store-name">&#x1F6D2; 星链旗舰店</span>
+                <div class="cashier-info">
+                    <span class="cashier-avatar">张</span>
+                    <span>Cashier：Lily Zhang</span>
+                </div>
+            </div>
+            <div class="cashier-topbar-right">
+                <span>2026-05-26 14:30</span>
+                <span><span class="status-dot"></span> 网络已连接</span>
+            </div>
+        </div>
+
+        <!-- 主体区域 -->
+        <div class="cashier-body">
+            <!-- 左侧商品分类区 -->
+            <div class="cashier-categories">
+                <div class="category-search">
+                    <input type="text" placeholder="搜索商品...">
+                </div>
+                <div class="category-list">
+                    <div class="category-item active">
+                        <div class="cat-icon">&#x1F379;</div>
+                        <span class="cat-name">饮料</span>
+                    </div>
+                    <div class="category-item">
+                        <div class="cat-icon">&#x1F35F;</div>
+                        <span class="cat-name">零食</span>
+                    </div>
+                    <div class="category-item">
+                        <div class="cat-icon">&#x1F9F3;</div>
+                        <span class="cat-name">日用品</span>
+                    </div>
+                    <div class="category-item">
+                        <div class="cat-icon">&#x1F34E;</div>
+                        <span class="cat-name">生鲜</span>
+                    </div>
+                    <div class="category-item">
+                        <div class="cat-icon">&#x1F377;</div>
+                        <span class="cat-name">烟酒</span>
+                    </div>
+                    <div class="category-item">
+                        <div class="cat-icon">&#x1F95B;</div>
+                        <span class="cat-name">乳制品</span>
+                    </div>
+                    <div class="category-item">
+                        <div class="cat-icon">&#x1F33E;</div>
+                        <span class="cat-name">粮油</span>
+                    </div>
+                    <div class="category-item">
+                        <div class="cat-icon">&#x1F58C;&#xFE0F;</div>
+                        <span class="cat-name">文具</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中间购物车区 -->
+            <div class="cashier-cart">
+                <div class="cart-header">
+                    <h3>&#x1F6D2; 购物车 <span class="cart-count">5</span></h3>
+                    <button class="btn btn-sm" style="color:#ff4d4f;border-color:#ff4d4f;" onclick="clearCart()">&#x1F5D1; 清空</button>
+                </div>
+                <div class="cart-table-wrap">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th style="width:50px;">序号</th>
+                                <th>商品名称</th>
+                                <th style="width:90px;">单价</th>
+                                <th style="width:120px;">数量</th>
+                                <th style="width:90px;">小计</th>
+                                <th style="width:50px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartBody">
+                            <tr>
+                                <td>1</td>
+                                <td class="product-name">可口可乐 330ml</td>
+                                <td>&#xA5;3.50</td>
+                                <td>
+                                    <div class="qty-control">
+                                        <button onclick="changeQty(this,-1)">-</button>
+                                        <input type="text" value="2" readonly>
+                                        <button onclick="changeQty(this,1)">+</button>
+                                    </div>
+                                </td>
+                                <td class="text-bold">&#xA5;7.00</td>
+                                <td><span class="delete-btn" onclick="deleteRow(this)">&#x2716;</span></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td class="product-name">乐事薯片 75g</td>
+                                <td>&#xA5;6.90</td>
+                                <td>
+                                    <div class="qty-control">
+                                        <button onclick="changeQty(this,-1)">-</button>
+                                        <input type="text" value="1" readonly>
+                                        <button onclick="changeQty(this,1)">+</button>
+                                    </div>
+                                </td>
+                                <td class="text-bold">&#xA5;6.90</td>
+                                <td><span class="delete-btn" onclick="deleteRow(this)">&#x2716;</span></td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td class="product-name">农夫山泉 550ml</td>
+                                <td>&#xA5;2.00</td>
+                                <td>
+                                    <div class="qty-control">
+                                        <button onclick="changeQty(this,-1)">-</button>
+                                        <input type="text" value="3" readonly>
+                                        <button onclick="changeQty(this,1)">+</button>
+                                    </div>
+                                </td>
+                                <td class="text-bold">&#xA5;6.00</td>
+                                <td><span class="delete-btn" onclick="deleteRow(this)">&#x2716;</span></td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td class="product-name">蒙牛纯牛奶 250ml</td>
+                                <td>&#xA5;4.50</td>
+                                <td>
+                                    <div class="qty-control">
+                                        <button onclick="changeQty(this,-1)">-</button>
+                                        <input type="text" value="2" readonly>
+                                        <button onclick="changeQty(this,1)">+</button>
+                                    </div>
+                                </td>
+                                <td class="text-bold">&#xA5;9.00</td>
+                                <td><span class="delete-btn" onclick="deleteRow(this)">&#x2716;</span></td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td class="product-name">康师傅红烧牛肉面 桶装</td>
+                                <td>&#xA5;5.80</td>
+                                <td>
+                                    <div class="qty-control">
+                                        <button onclick="changeQty(this,-1)">-</button>
+                                        <input type="text" value="1" readonly>
+                                        <button onclick="changeQty(this,1)">+</button>
+                                    </div>
+                                </td>
+                                <td class="text-bold">&#xA5;5.80</td>
+                                <td><span class="delete-btn" onclick="deleteRow(this)">&#x2716;</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- 底部汇总 -->
+                <div class="cart-summary">
+                    <div class="cart-summary-row">
+                        <span>商品总数</span>
+                        <span id="totalQty">8 件</span>
+                    </div>
+                    <div class="cart-summary-row">
+                        <span>商品总额</span>
+                        <span id="totalAmount">&#xA5;86.50</span>
+                    </div>
+                    <div class="cart-summary-row">
+                        <span>优惠金额</span>
+                        <span class="discount" id="discount">-&#xA5;5.00</span>
+                    </div>
+                    <div class="cart-summary-row total">
+                        <span class="label">应付金额</span>
+                        <span id="payAmount">&#xA5;81.50</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧支付区 -->
+            <div class="cashier-payment">
+                <!-- 会员识别 -->
+                <div class="payment-section">
+                    <div class="payment-section-title">&#x1F464; 会员识别</div>
+                    <div class="member-search">
+                        <input type="text" placeholder="请输入手机号" value="138****6789">
+                        <button onclick="queryMember()">查询</button>
+                    </div>
+                    <div class="member-card">
+                        <div class="member-name">
+                            王女士
+                            <span class="vip-badge">&#x2B50; 金卡会员</span>
+                        </div>
+                        <div class="member-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">1,280</div>
+                                <div class="stat-label">积分</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">&#xA5;500.00</div>
+                                <div class="stat-label">储值余额</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 优惠券 & 积分 -->
+                <div class="payment-section">
+                    <button class="coupon-btn" onclick="openCoupon()">
+                        &#x1F3AB; 优惠券 <span class="badge">2</span>
+                    </button>
+                    <button class="points-btn" onclick="usePoints()">
+                        &#x1F4B0; 积分抵扣
+                    </button>
+                </div>
+
+                <!-- 支付方式 -->
+                <div class="payment-section">
+                    <div class="payment-section-title">&#x1F4B3; 支付方式</div>
+                    <div class="pay-methods">
+                        <button class="pay-method-btn" onclick="pay('cash')">
+                            <span class="pay-icon">&#x1F4B5;</span>
+                            <span>现金</span>
+                        </button>
+                        <button class="pay-method-btn" onclick="pay('wechat')">
+                            <span class="pay-icon" style="color:#07c160;">&#x1F4F1;</span>
+                            <span>微信支付</span>
+                        </button>
+                        <button class="pay-method-btn" onclick="pay('alipay')">
+                            <span class="pay-icon" style="color:#1677ff;">&#x1F4F1;</span>
+                            <span>支付宝</span>
+                        </button>
+                        <button class="pay-method-btn" onclick="pay('card')">
+                            <span class="pay-icon">&#x1F3E6;</span>
+                            <span>银行卡</span>
+                        </button>
+                        <button class="pay-method-btn" onclick="pay('stored')">
+                            <span class="pay-icon">&#x1F3C6;</span>
+                            <span>储值卡</span>
+                        </button>
+                        <button class="pay-method-btn" onclick="pay('combo')">
+                            <span class="pay-icon">&#x1F4CA;</span>
+                            <span>组合支付</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 挂单 / 取单 -->
+                <div class="order-actions">
+                    <button onclick="holdOrder()">&#x1F4DD; 挂单</button>
+                    <button onclick="fetchOrder()">&#x1F4C4; 取单 <span class="pending-badge">2</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部功能栏 -->
+        <div class="cashier-bottombar">
+            <button class="bottombar-btn" onclick="openQuery()">
+                <span class="bar-icon">&#x1F50D;</span> 交易查询
+            </button>
+            <button class="bottombar-btn" onclick="openRefund()">
+                <span class="bar-icon">&#x1F4E5;</span> 退款
+            </button>
+            <button class="bottombar-btn" onclick="openShift()">
+                <span class="bar-icon">&#x1F504;</span> 交接班
+            </button>
+            <button class="bottombar-btn" onclick="openSettings()">
+                <span class="bar-icon">&#x2699;&#xFE0F;</span> 设置
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 分类切换
+        document.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 数量增减
+        function changeQty(btn, delta) {
+            var input = btn.parentElement.querySelector('input');
+            var val = parseInt(input.value) + delta;
+            if (val < 1) val = 1;
+            if (val > 99) val = 99;
+            input.value = val;
+            updateSummary();
+        }
+
+        // 删除行
+        function deleteRow(btn) {
+            var row = btn.closest('tr');
+            row.style.transition = 'all 0.3s';
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(20px)';
+            setTimeout(function() {
+                row.remove();
+                reindex();
+                updateSummary();
+            }, 300);
+        }
+
+        // 清空购物车
+        function clearCart() {
+            if (!confirm('确定要清空购物车吗？')) return;
+            var tbody = document.getElementById('cartBody');
+            tbody.innerHTML = '';
+            updateSummary();
+        }
+
+        // 重新编号
+        function reindex() {
+            var rows = document.querySelectorAll('#cartBody tr');
+            rows.forEach(function(row, i) {
+                row.cells[0].textContent = i + 1;
+            });
+        }
+
+        // 更新汇总
+        function updateSummary() {
+            var rows = document.querySelectorAll('#cartBody tr');
+            var totalQty = 0;
+            var totalAmount = 0;
+            rows.forEach(function(row) {
+                var price = parseFloat(row.cells[2].textContent.replace('¥', ''));
+                var qty = parseInt(row.querySelector('.qty-control input').value);
+                var subtotal = price * qty;
+                row.cells[4].textContent = '¥' + subtotal.toFixed(2);
+                totalQty += qty;
+                totalAmount += subtotal;
+            });
+            var discount = 5.00;
+            var payAmount = totalAmount - discount;
+            document.getElementById('totalQty').textContent = totalQty + ' 件';
+            document.getElementById('totalAmount').textContent = '¥' + totalAmount.toFixed(2);
+            document.getElementById('discount').textContent = '-¥' + discount.toFixed(2);
+            document.getElementById('payAmount').textContent = '¥' + payAmount.toFixed(2);
+
+            // 更新购物车数量角标
+            var countBadge = document.querySelector('.cart-count');
+            if (countBadge) countBadge.textContent = rows.length;
+        }
+
+        // 会员查询
+        function queryMember() {
+            alert('会员查询功能');
+        }
+
+        // 优惠券
+        function openCoupon() {
+            alert('可用优惠券：\n1. 满50减3元\n2. 满80减5元（已使用）');
+        }
+
+        // 积分抵扣
+        function usePoints() {
+            alert('积分抵扣功能：当前可用积分 1,280');
+        }
+
+        // 支付
+        function pay(method) {
+            var methods = {
+                'cash': '现金支付',
+                'wechat': '微信支付',
+                'alipay': '支付宝',
+                'card': '银行卡',
+                'stored': '储值卡',
+                'combo': '组合支付'
+            };
+            alert('选择支付方式：' + methods[method] + '\n应付金额：¥81.50');
+        }
+
+        // 挂单
+        function holdOrder() {
+            alert('挂单成功！');
+        }
+
+        // 取单
+        function fetchOrder() {
+            alert('挂单列表：\n1. 订单 #20260526001 - ¥45.00\n2. 订单 #20260526002 - ¥128.50');
+        }
+
+        // 底部功能
+        function openQuery() { alert('交易查询'); }
+        function openRefund() { alert('退款操作'); }
+        function openShift() { alert('交接班管理'); }
+        function openSettings() { alert('系统设置'); }
+    </script>
+</body>
+</html>

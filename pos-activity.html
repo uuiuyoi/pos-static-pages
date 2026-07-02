@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动管理 - 智慧新零售云POS综合管理平台</title>
+    <link rel="stylesheet" href="pos-common.css">
+    <style>
+        /* 活动类型标签 */
+        .tag-manjian { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+        .tag-zhekou { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .tag-pintuan { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
+        .activity-type-tag { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; line-height: 1.8; white-space: nowrap; }
+
+        /* 活动状态标签 */
+        .tag-not-started { background: #f5f5f5; color: #8c8c8c; border: 1px solid #d9d9d9; }
+        .tag-ongoing { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .tag-ended { background: #fafafa; color: #bfbfbf; border: 1px solid #d9d9d9; }
+        .tag-paused { background: #fff2e8; color: #fa541c; border: 1px solid #ffbb96; }
+        .activity-status-tag { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; line-height: 1.8; white-space: nowrap; }
+
+        /* 操作链接 */
+        .action-link { color: #1890ff; cursor: pointer; font-size: 13px; }
+        .action-link:hover { color: #40a9ff; text-decoration: underline; }
+        .action-link + .action-link { margin-left: 12px; }
+        .action-link.danger { color: #ff4d4f; }
+        .action-link.danger:hover { color: #ff7875; }
+
+        /* 对话框宽度 */
+        .modal-xl { width: 680px; }
+
+        /* 新建活动标签页内容 */
+        .create-tab-content { display: none; }
+        .create-tab-content.active { display: block; }
+
+        /* 满减档位行 */
+        .tier-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .tier-row .pos-input { width: 120px; }
+        .tier-row .tier-remove { color: #ff4d4f; cursor: pointer; font-size: 18px; background: none; border: none; padding: 4px 8px; }
+        .tier-row .tier-remove:hover { background: #fff2f0; border-radius: 4px; }
+
+        /* 单选框样式 */
+        .pos-radio-group { display: flex; gap: 20px; }
+        .pos-radio { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px; color: #595959; user-select: none; }
+        .pos-radio input[type="radio"] { width: 16px; height: 16px; accent-color: #52c41a; cursor: pointer; }
+
+        /* 表单行 */
+        .form-row { display: flex; gap: 16px; margin-bottom: 20px; }
+        .form-row .pos-form-group { flex: 1; margin-bottom: 0; }
+    </style>
+</head>
+<body>
+    <div class="pos-layout">
+        <!-- 左侧菜单栏 -->
+        <aside class="pos-sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">P</div>
+                <div class="logo-text">智慧新零售云POS</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9776;</span>
+                        <span class="menu-title">首页概览</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9733;</span>
+                        <span class="menu-title">商品管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-product-list.html">商品列表</a>
+                        <a class="menu-child" href="pos-product-list.html">商品分类</a>
+                        <a class="menu-child" href="pos-product-list.html">库存管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent active expanded">
+                        <span class="menu-icon">&#9829;</span>
+                        <span class="menu-title">会员营销</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children open">
+                        <a class="menu-child" href="pos-member.html">会员管理</a>
+                        <a class="menu-child active" href="pos-activity.html">活动管理</a>
+                        <a class="menu-child" href="pos-activity.html">优惠券管理</a>
+                        <a class="menu-child" href="pos-member.html">积分管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9881;</span>
+                        <span class="menu-title">数据分析</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-data-dashboard.html">数据看板</a>
+                        <a class="menu-child" href="pos-data-dashboard.html">销售报表</a>
+                        <a class="menu-child" href="pos-data-dashboard.html">会员分析</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9888;</span>
+                        <span class="menu-title">系统设置</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-employee.html">门店管理</a>
+                        <a class="menu-child" href="pos-employee.html">员工管理</a>
+                        <a class="menu-child" href="pos-employee.html">角色权限</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 右侧主区域 -->
+        <div class="pos-main-wrapper">
+            <!-- 顶部导航栏 -->
+            <header class="pos-header">
+                <div class="header-left">
+                    <div class="header-breadcrumb">
+                        <a href="#">首页</a>
+                        <span>/</span>
+                        <a href="#">会员营销</a>
+                        <span>/</span>
+                        <span style="color:#262626;">活动管理</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-action" title="消息通知">
+                        &#128276;
+                        <span class="badge">5</span>
+                    </button>
+                    <div class="header-user">
+                        <div class="user-avatar">A</div>
+                        <span class="user-name">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 主内容区 -->
+            <main class="pos-content">
+                <!-- 查询条件 -->
+                <div class="pos-card mb-16">
+                    <div class="card-body">
+                        <div class="pos-search-bar">
+                            <input type="text" class="pos-input" placeholder="请输入活动名称" style="width:180px;">
+                            <select class="pos-select" style="width:140px;">
+                                <option>全部类型</option>
+                                <option>满减活动</option>
+                                <option>折扣活动</option>
+                                <option>拼团活动</option>
+                            </select>
+                            <select class="pos-select" style="width:140px;">
+                                <option>全部状态</option>
+                                <option>未开始</option>
+                                <option>进行中</option>
+                                <option>已结束</option>
+                                <option>已暂停</option>
+                            </select>
+                            <div class="search-actions">
+                                <button class="pos-btn pos-btn-primary">&#128269; 查询</button>
+                                <button class="pos-btn pos-btn-default">&#8634; 重置</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 活动列表 -->
+                <div class="pos-card">
+                    <div class="card-header">
+                        <span class="card-title">活动列表</span>
+                        <button class="pos-btn pos-btn-primary" onclick="openCreateModal()">+ 新建活动</button>
+                    </div>
+                    <div class="card-body" style="padding:0;">
+                        <div class="pos-table-wrapper">
+                            <table class="pos-table">
+                                <thead>
+                                    <tr>
+                                        <th>活动名称</th>
+                                        <th>活动类型</th>
+                                        <th>活动时间</th>
+                                        <th>适用范围</th>
+                                        <th>参与人数</th>
+                                        <th>优惠总额(元)</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="font-weight:500;">全场满100减20</td>
+                                        <td><span class="activity-type-tag tag-manjian">满减活动</span></td>
+                                        <td>2026-05-01 至 2026-05-31</td>
+                                        <td>全部商品</td>
+                                        <td>1,256</td>
+                                        <td>15,800.00</td>
+                                        <td><span class="activity-status-tag tag-ongoing">&#9679; 进行中</span></td>
+                                        <td>
+                                            <a class="action-link" onclick="showToast('info','查看活动详情')">详情</a>
+                                            <a class="action-link" onclick="showToast('info','编辑活动')">编辑</a>
+                                            <a class="action-link danger" onclick="showToast('warning','确认停止该活动？')">停止</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:500;">饮料品类8折</td>
+                                        <td><span class="activity-type-tag tag-zhekou">折扣活动</span></td>
+                                        <td>2026-05-15 至 2026-06-15</td>
+                                        <td>饮料分类</td>
+                                        <td>832</td>
+                                        <td>6,450.00</td>
+                                        <td><span class="activity-status-tag tag-ongoing">&#9679; 进行中</span></td>
+                                        <td>
+                                            <a class="action-link" onclick="showToast('info','查看活动详情')">详情</a>
+                                            <a class="action-link" onclick="showToast('info','编辑活动')">编辑</a>
+                                            <a class="action-link danger" onclick="showToast('warning','确认停止该活动？')">停止</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:500;">零食拼团3人成团</td>
+                                        <td><span class="activity-type-tag tag-pintuan">拼团活动</span></td>
+                                        <td>2026-05-20 至 2026-06-20</td>
+                                        <td>指定零食商品</td>
+                                        <td>456</td>
+                                        <td>3,280.00</td>
+                                        <td><span class="activity-status-tag tag-ongoing">&#9679; 进行中</span></td>
+                                        <td>
+                                            <a class="action-link" onclick="showToast('info','查看活动详情')">详情</a>
+                                            <a class="action-link" onclick="showToast('info','编辑活动')">编辑</a>
+                                            <a class="action-link danger" onclick="showToast('warning','确认停止该活动？')">停止</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:500;">满200减50</td>
+                                        <td><span class="activity-type-tag tag-manjian">满减活动</span></td>
+                                        <td>2026-06-01 至 2026-06-30</td>
+                                        <td>全部商品</td>
+                                        <td>0</td>
+                                        <td>0.00</td>
+                                        <td><span class="activity-status-tag tag-not-started">&#9675; 未开始</span></td>
+                                        <td>
+                                            <a class="action-link" onclick="showToast('info','查看活动详情')">详情</a>
+                                            <a class="action-link" onclick="showToast('info','编辑活动')">编辑</a>
+                                            <a class="action-link danger" style="color:#bfbfbf;cursor:not-allowed;">停止</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:500;">日用品满减促销</td>
+                                        <td><span class="activity-type-tag tag-manjian">满减活动</span></td>
+                                        <td>2026-04-01 至 2026-04-30</td>
+                                        <td>日用品分类</td>
+                                        <td>2,180</td>
+                                        <td>28,600.00</td>
+                                        <td><span class="activity-status-tag tag-ended">&#9675; 已结束</span></td>
+                                        <td>
+                                            <a class="action-link" onclick="showToast('info','查看活动详情')">详情</a>
+                                            <a class="action-link" style="color:#bfbfbf;cursor:not-allowed;">编辑</a>
+                                            <a class="action-link danger" style="color:#bfbfbf;cursor:not-allowed;">停止</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:500;">生鲜限时5折</td>
+                                        <td><span class="activity-type-tag tag-zhekou">折扣活动</span></td>
+                                        <td>2026-05-10 至 2026-05-17</td>
+                                        <td>生鲜分类</td>
+                                        <td>680</td>
+                                        <td>12,350.00</td>
+                                        <td><span class="activity-status-tag tag-paused">&#9679; 已暂停</span></td>
+                                        <td>
+                                            <a class="action-link" onclick="showToast('info','查看活动详情')">详情</a>
+                                            <a class="action-link" onclick="showToast('info','编辑活动')">编辑</a>
+                                            <a class="action-link danger" onclick="showToast('warning','确认停止该活动？')">停止</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 分页 -->
+                        <div style="padding:16px 20px;">
+                            <div class="pos-pagination">
+                                <span class="page-info">共 24 条记录</span>
+                                <button class="page-btn" disabled>&laquo;</button>
+                                <button class="page-btn active">1</button>
+                                <button class="page-btn">2</button>
+                                <button class="page-btn">&raquo;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- 底部状态栏 -->
+            <footer class="pos-footer">
+                <span>智慧新零售云POS综合管理平台 v1.0</span>
+                <span style="margin-left:auto;">Copyright &copy; 2026 智慧零售科技</span>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 新建活动对话框 -->
+    <div class="pos-modal-overlay" id="createModal">
+        <div class="pos-modal modal-xl">
+            <div class="modal-header">
+                <span class="modal-title">新建活动</span>
+                <button class="modal-close" onclick="closeCreateModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding:0;">
+                <!-- 活动类型标签页 -->
+                <div class="pos-tabs" style="padding:0 24px;">
+                    <button class="pos-tab active" onclick="switchCreateTab(this, 'create-manjian')">满减活动</button>
+                    <button class="pos-tab" onclick="switchCreateTab(this, 'create-zhekou')">折扣活动</button>
+                    <button class="pos-tab" onclick="switchCreateTab(this, 'create-pintuan')">拼团活动</button>
+                </div>
+
+                <!-- 满减活动 -->
+                <div class="create-tab-content active" id="create-manjian" style="padding:24px;">
+                    <!-- 基本信息 -->
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;">基本信息</div>
+                    <div class="pos-form-group">
+                        <label class="pos-form-label"><span class="required">*</span>活动名称</label>
+                        <input type="text" class="pos-input" placeholder="请输入活动名称">
+                    </div>
+                    <div class="form-row">
+                        <div class="pos-form-group">
+                            <label class="pos-form-label"><span class="required">*</span>开始时间</label>
+                            <input type="date" class="pos-input">
+                        </div>
+                        <div class="pos-form-group">
+                            <label class="pos-form-label"><span class="required">*</span>结束时间</label>
+                            <input type="date" class="pos-input">
+                        </div>
+                    </div>
+                    <div class="pos-form-group">
+                        <label class="pos-form-label">活动描述</label>
+                        <textarea class="pos-textarea" placeholder="请输入活动描述"></textarea>
+                    </div>
+
+                    <!-- 满减规则 -->
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;margin-top:24px;">满减规则</div>
+                    <div id="tierList">
+                        <div class="tier-row">
+                            <span style="font-size:14px;color:#595959;white-space:nowrap;">满</span>
+                            <input type="number" class="pos-input" placeholder="金额" value="100">
+                            <span style="font-size:14px;color:#595959;white-space:nowrap;">减</span>
+                            <input type="number" class="pos-input" placeholder="金额" value="20">
+                            <span style="font-size:14px;color:#595959;white-space:nowrap;">元</span>
+                            <button class="tier-remove" onclick="removeTier(this)" title="删除档位">&#10005;</button>
+                        </div>
+                        <div class="tier-row">
+                            <span style="font-size:14px;color:#595959;white-space:nowrap;">满</span>
+                            <input type="number" class="pos-input" placeholder="金额" value="200">
+                            <span style="font-size:14px;color:#595959;white-space:nowrap;">减</span>
+                            <input type="number" class="pos-input" placeholder="金额" value="50">
+                            <span style="font-size:14px;color:#595959;white-space:nowrap;">元</span>
+                            <button class="tier-remove" onclick="removeTier(this)" title="删除档位">&#10005;</button>
+                        </div>
+                        <div class="tier-row">
+                            <span style="font-size:14px;color:#595959;white-space:nowrap;">满</span>
+                            <input type="number" class="pos-input" placeholder="金额" value="300">
+                            <span style="font-size:14px;color:#595959;white-space:nowrap;">减</span>
+                            <input type="number" class="pos-input" placeholder="金额" value="80">
+                            <span style="font-size:14px;color:#595959;white-space:nowrap;">元</span>
+                            <button class="tier-remove" onclick="removeTier(this)" title="删除档位">&#10005;</button>
+                        </div>
+                    </div>
+                    <button class="pos-btn pos-btn-default" onclick="addTier()" style="margin-top:4px;">+ 添加档位</button>
+
+                    <!-- 适用范围 -->
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;margin-top:24px;">适用范围</div>
+                    <div class="pos-radio-group" style="margin-bottom:20px;">
+                        <label class="pos-radio"><input type="radio" name="scope" checked> 全部商品</label>
+                        <label class="pos-radio"><input type="radio" name="scope"> 指定分类</label>
+                        <label class="pos-radio"><input type="radio" name="scope"> 指定商品</label>
+                    </div>
+
+                    <!-- 适用渠道 -->
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;">适用渠道</div>
+                    <div style="display:flex;gap:20px;margin-bottom:20px;">
+                        <label class="pos-checkbox"><input type="checkbox" checked> 全部渠道</label>
+                        <label class="pos-checkbox"><input type="checkbox"> 仅线下</label>
+                        <label class="pos-checkbox"><input type="checkbox"> 仅线上</label>
+                    </div>
+
+                    <!-- 适用对象 -->
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;">适用对象</div>
+                    <div class="pos-radio-group" style="margin-bottom:20px;">
+                        <label class="pos-radio"><input type="radio" name="target" checked> 全部顾客</label>
+                        <label class="pos-radio"><input type="radio" name="target"> 仅会员</label>
+                    </div>
+
+                    <!-- 活动预算 -->
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;">活动预算</div>
+                    <div class="form-row">
+                        <div class="pos-form-group">
+                            <label class="pos-form-label">总优惠上限(元)</label>
+                            <input type="number" class="pos-input" placeholder="请输入总优惠上限">
+                        </div>
+                        <div class="pos-form-group">
+                            <label class="pos-form-label">每人限用次数</label>
+                            <input type="number" class="pos-input" placeholder="请输入限用次数" value="1">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 折扣活动 -->
+                <div class="create-tab-content" id="create-zhekou" style="padding:24px;">
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;">基本信息</div>
+                    <div class="pos-form-group">
+                        <label class="pos-form-label"><span class="required">*</span>活动名称</label>
+                        <input type="text" class="pos-input" placeholder="请输入活动名称">
+                    </div>
+                    <div class="form-row">
+                        <div class="pos-form-group">
+                            <label class="pos-form-label"><span class="required">*</span>开始时间</label>
+                            <input type="date" class="pos-input">
+                        </div>
+                        <div class="pos-form-group">
+                            <label class="pos-form-label"><span class="required">*</span>结束时间</label>
+                            <input type="date" class="pos-input">
+                        </div>
+                    </div>
+                    <div class="pos-form-group">
+                        <label class="pos-form-label">活动描述</label>
+                        <textarea class="pos-textarea" placeholder="请输入活动描述"></textarea>
+                    </div>
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;margin-top:24px;">折扣设置</div>
+                    <div class="form-row">
+                        <div class="pos-form-group">
+                            <label class="pos-form-label"><span class="required">*</span>折扣力度</label>
+                            <select class="pos-select">
+                                <option>9折</option>
+                                <option>8折</option>
+                                <option selected>7折</option>
+                                <option>6折</option>
+                                <option>5折</option>
+                            </select>
+                        </div>
+                        <div class="pos-form-group">
+                            <label class="pos-form-label">折扣上限(元)</label>
+                            <input type="number" class="pos-input" placeholder="最多优惠金额">
+                        </div>
+                    </div>
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;margin-top:24px;">适用范围</div>
+                    <div class="pos-radio-group" style="margin-bottom:20px;">
+                        <label class="pos-radio"><input type="radio" name="scope2" checked> 全部商品</label>
+                        <label class="pos-radio"><input type="radio" name="scope2"> 指定分类</label>
+                        <label class="pos-radio"><input type="radio" name="scope2"> 指定商品</label>
+                    </div>
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;">适用渠道</div>
+                    <div style="display:flex;gap:20px;margin-bottom:20px;">
+                        <label class="pos-checkbox"><input type="checkbox" checked> 全部渠道</label>
+                        <label class="pos-checkbox"><input type="checkbox"> 仅线下</label>
+                        <label class="pos-checkbox"><input type="checkbox"> 仅线上</label>
+                    </div>
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;">适用对象</div>
+                    <div class="pos-radio-group" style="margin-bottom:20px;">
+                        <label class="pos-radio"><input type="radio" name="target2" checked> 全部顾客</label>
+                        <label class="pos-radio"><input type="radio" name="target2"> 仅会员</label>
+                    </div>
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;">活动预算</div>
+                    <div class="form-row">
+                        <div class="pos-form-group">
+                            <label class="pos-form-label">总优惠上限(元)</label>
+                            <input type="number" class="pos-input" placeholder="请输入总优惠上限">
+                        </div>
+                        <div class="pos-form-group">
+                            <label class="pos-form-label">每人限用次数</label>
+                            <input type="number" class="pos-input" placeholder="请输入限用次数" value="1">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 拼团活动 -->
+                <div class="create-tab-content" id="create-pintuan" style="padding:24px;">
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;">基本信息</div>
+                    <div class="pos-form-group">
+                        <label class="pos-form-label"><span class="required">*</span>活动名称</label>
+                        <input type="text" class="pos-input" placeholder="请输入活动名称">
+                    </div>
+                    <div class="form-row">
+                        <div class="pos-form-group">
+                            <label class="pos-form-label"><span class="required">*</span>开始时间</label>
+                            <input type="date" class="pos-input">
+                        </div>
+                        <div class="pos-form-group">
+                            <label class="pos-form-label"><span class="required">*</span>结束时间</label>
+                            <input type="date" class="pos-input">
+                        </div>
+                    </div>
+                    <div class="pos-form-group">
+                        <label class="pos-form-label">活动描述</label>
+                        <textarea class="pos-textarea" placeholder="请输入活动描述"></textarea>
+                    </div>
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;margin-top:24px;">拼团设置</div>
+                    <div class="form-row">
+                        <div class="pos-form-group">
+                            <label class="pos-form-label"><span class="required">*</span>成团人数</label>
+                            <input type="number" class="pos-input" placeholder="几人成团" value="3">
+                        </div>
+                        <div class="pos-form-group">
+                            <label class="pos-form-label"><span class="required">*</span>拼团价格(元)</label>
+                            <input type="number" class="pos-input" placeholder="拼团价">
+                        </div>
+                    </div>
+                    <div class="pos-form-group">
+                        <label class="pos-form-label">拼团有效期(小时)</label>
+                        <input type="number" class="pos-input" placeholder="开团后多少小时内有效" value="24" style="width:200px;">
+                    </div>
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;margin-top:24px;">适用范围</div>
+                    <div class="pos-radio-group" style="margin-bottom:20px;">
+                        <label class="pos-radio"><input type="radio" name="scope3"> 全部商品</label>
+                        <label class="pos-radio"><input type="radio" name="scope3"> 指定分类</label>
+                        <label class="pos-radio"><input type="radio" name="scope3" checked> 指定商品</label>
+                    </div>
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;">适用渠道</div>
+                    <div style="display:flex;gap:20px;margin-bottom:20px;">
+                        <label class="pos-checkbox"><input type="checkbox" checked> 全部渠道</label>
+                        <label class="pos-checkbox"><input type="checkbox"> 仅线下</label>
+                        <label class="pos-checkbox"><input type="checkbox"> 仅线上</label>
+                    </div>
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;">适用对象</div>
+                    <div class="pos-radio-group" style="margin-bottom:20px;">
+                        <label class="pos-radio"><input type="radio" name="target3" checked> 全部顾客</label>
+                        <label class="pos-radio"><input type="radio" name="target3"> 仅会员</label>
+                    </div>
+                    <div style="font-size:15px;font-weight:600;color:#262626;margin-bottom:16px;">活动预算</div>
+                    <div class="form-row">
+                        <div class="pos-form-group">
+                            <label class="pos-form-label">总优惠上限(元)</label>
+                            <input type="number" class="pos-input" placeholder="请输入总优惠上限">
+                        </div>
+                        <div class="pos-form-group">
+                            <label class="pos-form-label">每人限用次数</label>
+                            <input type="number" class="pos-input" placeholder="请输入限用次数" value="1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeCreateModal()">取消</button>
+                <button class="pos-btn pos-btn-primary" onclick="saveActivity()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div class="pos-toast toast-success" id="toast">
+        <span id="toastMsg">操作成功</span>
+    </div>
+
+    <script>
+        // 打开新建活动
+        function openCreateModal() {
+            document.getElementById('createModal').classList.add('show');
+        }
+
+        // 关闭新建活动
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('show');
+        }
+
+        // 切换活动类型标签页
+        function switchCreateTab(el, tabId) {
+            var tabs = el.parentElement.querySelectorAll('.pos-tab');
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            el.classList.add('active');
+            var contents = el.closest('.modal-body').querySelectorAll('.create-tab-content');
+            contents.forEach(function(c) { c.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // 添加满减档位
+        function addTier() {
+            var tierList = document.getElementById('tierList');
+            var row = document.createElement('div');
+            row.className = 'tier-row';
+            row.innerHTML = '<span style="font-size:14px;color:#595959;white-space:nowrap;">满</span>' +
+                '<input type="number" class="pos-input" placeholder="金额">' +
+                '<span style="font-size:14px;color:#595959;white-space:nowrap;">减</span>' +
+                '<input type="number" class="pos-input" placeholder="金额">' +
+                '<span style="font-size:14px;color:#595959;white-space:nowrap;">元</span>' +
+                '<button class="tier-remove" onclick="removeTier(this)" title="删除档位">&#10005;</button>';
+            tierList.appendChild(row);
+        }
+
+        // 删除满减档位
+        function removeTier(btn) {
+            var tierList = document.getElementById('tierList');
+            if (tierList.children.length > 1) {
+                btn.parentElement.remove();
+            } else {
+                showToast('warning', '至少保留一个档位');
+            }
+        }
+
+        // 保存活动
+        function saveActivity() {
+            showToast('success', '活动创建成功');
+            setTimeout(closeCreateModal, 800);
+        }
+
+        // Toast 提示
+        function showToast(type, msg) {
+            var toast = document.getElementById('toast');
+            var toastMsg = document.getElementById('toastMsg');
+            toast.className = 'pos-toast toast-' + type + ' show';
+            toastMsg.textContent = msg;
+            setTimeout(function() {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // 点击遮罩关闭对话框
+        document.getElementById('createModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCreateModal();
+        });
+    </script>
+    <script src="pos-common.js"></script>
+</body>
+</html>

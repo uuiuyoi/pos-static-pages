@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>员工管理 - 智慧新零售云POS综合管理平台</title>
+    <link rel="stylesheet" href="pos-common.css">
+    <style>
+        .action-btns { display: flex; gap: 4px; align-items: center; }
+        .action-btns .btn-link { font-size: 13px; }
+        .action-btns .btn-divider {
+            width: 1px;
+            height: 14px;
+            background: #e8e8e8;
+            margin: 0 2px;
+        }
+        .emp-avatar-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .emp-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .emp-avatar.bg-blue { background: #1890ff; }
+        .emp-avatar.bg-green { background: #52c41a; }
+        .emp-avatar.bg-purple { background: #722ed1; }
+        .emp-avatar.bg-orange { background: #fa8c16; }
+        .emp-avatar.bg-cyan { background: #13c2c2; }
+        .emp-avatar.bg-red { background: #ff4d4f; }
+        .emp-avatar.bg-gold { background: #d48806; }
+        .emp-avatar.bg-pink { background: #eb2f96; }
+        .emp-name-cell .emp-name { font-weight: 500; color: #333; }
+        .emp-name-cell .emp-id { font-size: 12px; color: #999; margin-top: 2px; }
+        .role-tag { margin-right: 4px; margin-bottom: 2px; }
+        .account-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .account-check .check-icon {
+            font-size: 16px;
+        }
+        .account-check .check-icon.available { color: #52c41a; }
+        .account-check .check-icon.unavailable { color: #ff4d4f; }
+        /* 自定义标签样式 */
+        .tag { padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+        .tag-blue { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .tag-green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .tag-purple { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
+        .tag-orange { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+        .tag-cyan { background: #e6fffb; color: #13c2c2; border: 1px solid #87e8de; }
+        .tag-red { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+        .tag-gold { background: #fffbe6; color: #d48806; border: 1px solid #ffe58f; }
+        /* 表单样式 */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .form-group label {
+            font-size: 14px;
+            color: #333;
+        }
+        .form-group label .required {
+            color: #ff4d4f;
+            margin-right: 2px;
+        }
+        .form-group input, .form-group select {
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #52c41a;
+            box-shadow: 0 0 0 2px rgba(82, 196, 26, 0.1);
+        }
+        .form-tip {
+            font-size: 12px;
+            color: #8c8c8c;
+        }
+        .form-tip.error { color: #ff4d4f; }
+        .form-tip.success { color: #52c41a; }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #52c41a;
+        }
+        .detail-section {
+            margin-bottom: 24px;
+        }
+        .detail-section:last-child {
+            margin-bottom: 0;
+        }
+        .detail-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .detail-section-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 14px;
+            background: #52c41a;
+            border-radius: 2px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="pos-layout">
+        <!-- 左侧菜单栏 -->
+        <aside class="pos-sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">POS</div>
+                <div class="logo-text">智慧新零售云POS</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-group">
+                    <a class="menu-parent" href="pos-main-dashboard.html">
+                        <span class="menu-icon">&#x1F4CA;</span>
+                        <span class="menu-title">首页看板</span>
+                    </a>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F4E6;</span>
+                        <span class="menu-title">商品管理</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-product-list.html">商品列表</a>
+                        <a class="menu-child" href="pos-product-list.html">分类管理</a>
+                        <a class="menu-child" href="pos-product-list.html">库存管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F4C3;</span>
+                        <span class="menu-title">订单管理</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-order-list.html">订单列表</a>
+                        <a class="menu-child" href="pos-order-list.html">退款管理</a>
+                        <a class="menu-child" href="pos-order-list.html">订单统计</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F465;</span>
+                        <span class="menu-title">会员管理</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-member.html">会员列表</a>
+                        <a class="menu-child" href="pos-member.html">积分管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F3AB;</span>
+                        <span class="menu-title">营销中心</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-activity.html">优惠券</a>
+                        <a class="menu-child" href="pos-activity.html">促销活动</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent expanded" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F3E0;</span>
+                        <span class="menu-title">综合管理</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children open">
+                        <a class="menu-child" href="pos-employee.html">门店管理</a>
+                        <a class="menu-child active" href="pos-employee.html">员工管理</a>
+                        <a class="menu-child" href="pos-system-settings.html">系统配置</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 右侧主体 -->
+        <div class="pos-main-wrapper">
+            <!-- 顶部导航栏 -->
+            <header class="pos-header">
+                <div class="header-left">
+                    <div class="header-breadcrumb">
+                        <a href="#">首页</a>
+                        <span>/</span>
+                        <a href="#">综合管理</a>
+                        <span>/</span>
+                        <span>员工管理</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-action" title="消息通知">&#x1F514;<span class="badge">3</span></button>
+                    <button class="header-action" title="帮助">&#x2753;</button>
+                    <div class="header-user">
+                        <div class="user-avatar">A</div>
+                        <span class="user-name">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 主工作区 -->
+            <main class="pos-content">
+                <h2 class="page-title" style="font-size: 20px; font-weight: 600; margin-bottom: 16px;">员工管理</h2>
+
+                <!-- 查询条件 -->
+                <div class="pos-card" style="margin-bottom: 16px;">
+                    <div class="card-body">
+                        <div class="pos-search-bar">
+                            <input type="text" class="pos-input" placeholder="请输入员工姓名" style="width: 160px;">
+                            <input type="text" class="pos-input" placeholder="请输入工号" style="width: 160px;">
+                            <select class="pos-select" style="width: 140px;">
+                                <option>全部部门</option>
+                                <option>运营部</option>
+                                <option>技术部</option>
+                                <option>财务部</option>
+                                <option>仓储部</option>
+                                <option>门店</option>
+                            </select>
+                            <select class="pos-select" style="width: 120px;">
+                                <option>全部状态</option>
+                                <option>正常</option>
+                                <option>禁用</option>
+                            </select>
+                            <div class="search-actions">
+                                <button class="pos-btn pos-btn-primary">&#x1F50D; 查询</button>
+                                <button class="pos-btn pos-btn-default">&#x21BB; 重置</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 工具栏 -->
+                <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <button class="pos-btn pos-btn-primary" onclick="showAddEmployee()">&#x2795; 新增员工</button>
+                    </div>
+                    <div>
+                        <button class="pos-btn pos-btn-default">&#x1F4E4; 导出</button>
+                    </div>
+                </div>
+
+                <!-- 员工列表表格 -->
+                <div class="pos-card">
+                    <div class="pos-table-wrapper">
+                        <table class="pos-table">
+                            <thead>
+                                <tr>
+                                    <th>工号</th>
+                                    <th>姓名</th>
+                                    <th>部门</th>
+                                    <th>岗位</th>
+                                    <th>手机号</th>
+                                    <th>角色</th>
+                                    <th>状态</th>
+                                    <th>最后登录</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="font-family:'Courier New',monospace;">EMP001</td>
+                                    <td>
+                                        <div class="emp-avatar-cell">
+                                            <div class="emp-avatar bg-blue">张</div>
+                                            <div class="emp-name-cell">
+                                                <div class="emp-name">Lily Zhang</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>门店</td>
+                                    <td>Cashier</td>
+                                    <td>138****5678</td>
+                                    <td><span class="tag tag-blue role-tag">Cashier</span></td>
+                                    <td><span class="tag tag-green">正常</span></td>
+                                    <td>2026-05-26 10:28</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" onclick="showEditEmployee('EMP001')">编辑</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" style="color:#ff4d4f;">禁用</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm">重置密码</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family:'Courier New',monospace;">EMP002</td>
+                                    <td>
+                                        <div class="emp-avatar-cell">
+                                            <div class="emp-avatar bg-green">刘</div>
+                                            <div class="emp-name-cell">
+                                                <div class="emp-name">Jason Liu</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>门店</td>
+                                    <td>Store Manager</td>
+                                    <td>139****2345</td>
+                                    <td><span class="tag tag-purple role-tag">Store Manager</span></td>
+                                    <td><span class="tag tag-green">正常</span></td>
+                                    <td>2026-05-26 09:15</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" onclick="showEditEmployee('EMP002')">编辑</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" style="color:#ff4d4f;">禁用</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm">重置密码</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family:'Courier New',monospace;">EMP003</td>
+                                    <td>
+                                        <div class="emp-avatar-cell">
+                                            <div class="emp-avatar bg-orange">王</div>
+                                            <div class="emp-name-cell">
+                                                <div class="emp-name">王大伟</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>运营部</td>
+                                    <td>运营经理</td>
+                                    <td>136****7890</td>
+                                    <td><span class="tag tag-orange role-tag">营销人员</span></td>
+                                    <td><span class="tag tag-green">正常</span></td>
+                                    <td>2026-05-26 08:42</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" onclick="showEditEmployee('EMP003')">编辑</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" style="color:#ff4d4f;">禁用</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm">重置密码</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family:'Courier New',monospace;">EMP004</td>
+                                    <td>
+                                        <div class="emp-avatar-cell">
+                                            <div class="emp-avatar bg-cyan">李</div>
+                                            <div class="emp-name-cell">
+                                                <div class="emp-name">Amy Li</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>财务部</td>
+                                    <td>Finance Manager</td>
+                                    <td>137****4567</td>
+                                    <td><span class="tag tag-gold role-tag">Finance Staff</span></td>
+                                    <td><span class="tag tag-green">正常</span></td>
+                                    <td>2026-05-25 17:30</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" onclick="showEditEmployee('EMP004')">编辑</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" style="color:#ff4d4f;">禁用</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm">重置密码</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family:'Courier New',monospace;">EMP005</td>
+                                    <td>
+                                        <div class="emp-avatar-cell">
+                                            <div class="emp-avatar bg-purple">陈</div>
+                                            <div class="emp-name-cell">
+                                                <div class="emp-name">Kevin Chen</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>技术部</td>
+                                    <td>Tech Lead</td>
+                                    <td>135****8901</td>
+                                    <td><span class="tag tag-red role-tag">System Admin</span></td>
+                                    <td><span class="tag tag-green">正常</span></td>
+                                    <td>2026-05-26 11:05</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" onclick="showEditEmployee('EMP005')">编辑</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" style="color:#ff4d4f;">禁用</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm">重置密码</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family:'Courier New',monospace;">EMP006</td>
+                                    <td>
+                                        <div class="emp-avatar-cell">
+                                            <div class="emp-avatar bg-red">赵</div>
+                                            <div class="emp-name-cell">
+                                                <div class="emp-name">David Zhao</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>仓储部</td>
+                                    <td>Warehouse Keeper</td>
+                                    <td>158****3456</td>
+                                    <td><span class="tag tag-cyan role-tag">Warehouse Keeper</span></td>
+                                    <td><span class="tag tag-green">正常</span></td>
+                                    <td>2026-05-26 07:50</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" onclick="showEditEmployee('EMP006')">编辑</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" style="color:#ff4d4f;">禁用</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm">重置密码</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family:'Courier New',monospace;">EMP007</td>
+                                    <td>
+                                        <div class="emp-avatar-cell">
+                                            <div class="emp-avatar bg-pink">孙</div>
+                                            <div class="emp-name-cell">
+                                                <div class="emp-name">Lisa Sun</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>门店</td>
+                                    <td>Cashier</td>
+                                    <td>152****6789</td>
+                                    <td><span class="tag tag-blue role-tag">Cashier</span></td>
+                                    <td><span class="tag tag-red">禁用</span></td>
+                                    <td>2026-05-20 14:22</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" onclick="showEditEmployee('EMP007')">编辑</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" style="color:#52c41a;">启用</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm">重置密码</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family:'Courier New',monospace;">EMP008</td>
+                                    <td>
+                                        <div class="emp-avatar-cell">
+                                            <div class="emp-avatar bg-gold">周</div>
+                                            <div class="emp-name-cell">
+                                                <div class="emp-name">周明辉</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>运营部</td>
+                                    <td>活动策划</td>
+                                    <td>186****0123</td>
+                                    <td><span class="tag tag-orange role-tag">营销人员</span></td>
+                                    <td><span class="tag tag-green">正常</span></td>
+                                    <td>2026-05-26 09:38</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" onclick="showEditEmployee('EMP008')">编辑</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" style="color:#ff4d4f;">禁用</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm">重置密码</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family:'Courier New',monospace;">EMP009</td>
+                                    <td>
+                                        <div class="emp-avatar-cell">
+                                            <div class="emp-avatar bg-blue">吴</div>
+                                            <div class="emp-name-cell">
+                                                <div class="emp-name">Tina Wu</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>门店</td>
+                                    <td>Sales Associate</td>
+                                    <td>133****5670</td>
+                                    <td><span class="tag tag-blue role-tag">Cashier</span></td>
+                                    <td><span class="tag tag-green">正常</span></td>
+                                    <td>2026-05-25 18:10</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" onclick="showEditEmployee('EMP009')">编辑</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" style="color:#ff4d4f;">禁用</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm">重置密码</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family:'Courier New',monospace;">EMP010</td>
+                                    <td>
+                                        <div class="emp-avatar-cell">
+                                            <div class="emp-avatar bg-green">郑</div>
+                                            <div class="emp-name-cell">
+                                                <div class="emp-name">Kevin Zheng</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>仓储部</td>
+                                    <td>Delivery Staff</td>
+                                    <td>155****9876</td>
+                                    <td><span class="tag tag-cyan role-tag">Warehouse Keeper</span></td>
+                                    <td><span class="tag tag-red">禁用</span></td>
+                                    <td>2026-05-18 09:30</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" onclick="showEditEmployee('EMP010')">编辑</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm" style="color:#52c41a;">启用</button>
+                                            <span class="btn-divider"></span>
+                                            <button class="pos-btn pos-btn-default pos-btn-sm">重置密码</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="pos-pagination">
+                        <span class="page-info">共 <b>48</b> 条，第 <b>1</b>/<b>5</b> 页</span>
+                        <span class="page-btn">&laquo;</span>
+                        <span class="page-btn">&lsaquo;</span>
+                        <span class="page-btn active">1</span>
+                        <span class="page-btn">2</span>
+                        <span class="page-btn">3</span>
+                        <span class="page-btn">4</span>
+                        <span class="page-btn">5</span>
+                        <span class="page-btn">&rsaquo;</span>
+                        <span class="page-btn">&raquo;</span>
+                    </div>
+                </div>
+            </main>
+
+            <!-- 底部状态栏 -->
+            <footer class="pos-footer">
+                <span>智慧新零售云POS综合管理平台 v3.2.0</span>
+                <span>Current Store：旗舰店 | 收银终端：POS-001 | Operator：Admin</span>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 新增/编辑员工对话框 -->
+    <div class="pos-modal-overlay" id="employeeModal">
+        <div class="pos-modal" style="width: 640px;">
+            <div class="modal-header">
+                <span class="modal-title" id="employeeModalTitle">新增员工</span>
+                <button class="modal-close" onclick="closeEmployeeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 基本信息 -->
+                <div class="detail-section">
+                    <div class="detail-section-title">基本信息</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span class="required">*</span> 姓名</label>
+                            <input type="text" id="empName" placeholder="请输入员工姓名">
+                        </div>
+                        <div class="form-group">
+                            <label><span class="required">*</span> 工号</label>
+                            <input type="text" id="empCode" placeholder="请输入工号，如 EMP011">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span class="required">*</span> 手机号</label>
+                            <input type="text" id="empPhone" placeholder="请输入手机号" maxlength="11">
+                        </div>
+                        <div class="form-group">
+                            <label>邮箱</label>
+                            <input type="email" id="empEmail" placeholder="请输入邮箱地址">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span class="required">*</span> 所属部门</label>
+                            <select id="empDept">
+                                <option value="">请选择部门</option>
+                                <option value="运营部">运营部</option>
+                                <option value="技术部">技术部</option>
+                                <option value="财务部">财务部</option>
+                                <option value="仓储部">仓储部</option>
+                                <option value="门店">门店</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>岗位</label>
+                            <input type="text" id="empPosition" placeholder="请输入岗位名称">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>入职日期</label>
+                            <input type="date" id="empJoinDate">
+                        </div>
+                        <div class="form-group"></div>
+                    </div>
+                </div>
+
+                <!-- 角色分配 -->
+                <div class="detail-section">
+                    <div class="detail-section-title">角色分配</div>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" value="System Admin"> System Admin
+                        </label>
+                        <label>
+                            <input type="checkbox" value="Store Manager"> Store Manager
+                        </label>
+                        <label>
+                            <input type="checkbox" value="Cashier" checked> Cashier
+                        </label>
+                        <label>
+                            <input type="checkbox" value="Warehouse Keeper"> Warehouse Keeper
+                        </label>
+                        <label>
+                            <input type="checkbox" value="营销人员"> 营销人员
+                        </label>
+                        <label>
+                            <input type="checkbox" value="Finance Staff"> Finance Staff
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 登录账号 -->
+                <div class="detail-section">
+                    <div class="detail-section-title">登录账号</div>
+                    <div class="form-group">
+                        <label><span class="required">*</span> 登录账号</label>
+                        <input type="text" id="empAccount" placeholder="请输入登录账号" oninput="checkAccountAvailability(this.value)">
+                        <div class="form-tip" id="accountCheckTip">请输入4-20位字母、数字或下划线</div>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="required">*</span> 初始密码</label>
+                        <input type="password" id="empPassword" placeholder="请输入初始密码（至少6位）">
+                        <div class="form-tip">初始密码需至少6位，建议包含字母和数字</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeEmployeeModal()">取消</button>
+                <button class="pos-btn pos-btn-primary" onclick="saveEmployee()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 菜单展开/收起
+        function toggleMenu(el) {
+            const children = el.nextElementSibling;
+            if (children && children.classList.contains('menu-children')) {
+                children.classList.toggle('open');
+                el.classList.toggle('expanded');
+            }
+        }
+
+        // 显示新增员工对话框
+        function showAddEmployee() {
+            document.getElementById('employeeModalTitle').textContent = '新增员工';
+            // 清空表单
+            document.getElementById('empName').value = '';
+            document.getElementById('empCode').value = '';
+            document.getElementById('empPhone').value = '';
+            document.getElementById('empEmail').value = '';
+            document.getElementById('empDept').value = '';
+            document.getElementById('empPosition').value = '';
+            document.getElementById('empJoinDate').value = '';
+            document.getElementById('empAccount').value = '';
+            document.getElementById('empPassword').value = '';
+            document.getElementById('accountCheckTip').textContent = '请输入4-20位字母、数字或下划线';
+            document.getElementById('accountCheckTip').className = 'form-tip';
+            // 重置角色复选框
+            const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+            document.getElementById('employeeModal').classList.add('show');
+        }
+
+        // 显示编辑员工对话框
+        function showEditEmployee(empId) {
+            document.getElementById('employeeModalTitle').textContent = '编辑员工 - ' + empId;
+            // 模拟填充数据
+            const empData = {
+                'EMP001': { name: 'Lily Zhang', code: 'EMP001', phone: '13812345678', email: 'zhangxh@pos.com', dept: '门店', position: 'Cashier', joinDate: '2024-03-15', account: 'zhangxh', roles: ['Cashier'] },
+                'EMP002': { name: 'Jason Liu', code: 'EMP002', phone: '13923452345', email: 'liujg@pos.com', dept: '门店', position: 'Store Manager', joinDate: '2023-06-01', account: 'liujg', roles: ['Store Manager'] },
+                'EMP003': { name: '王大伟', code: 'EMP003', phone: '13678907890', email: 'wangdw@pos.com', dept: '运营部', position: '运营经理', joinDate: '2023-09-20', account: 'wangdw', roles: ['营销人员'] },
+                'EMP004': { name: 'Amy Li', code: 'EMP004', phone: '13745674567', email: 'lixm@pos.com', dept: '财务部', position: 'Finance Manager', joinDate: '2022-11-10', account: 'lixm', roles: ['Finance Staff'] },
+                'EMP005': { name: 'Kevin Chen', code: 'EMP005', phone: '13589018901', email: 'chenzq@pos.com', dept: '技术部', position: 'Tech Lead', joinDate: '2022-05-08', account: 'chenzq', roles: ['System Admin'] },
+                'EMP006': { name: 'David Zhao', code: 'EMP006', phone: '15834563456', email: 'zhaoxg@pos.com', dept: '仓储部', position: 'Warehouse Keeper', joinDate: '2024-01-22', account: 'zhaoxg', roles: ['Warehouse Keeper'] },
+                'EMP007': { name: 'Lisa Sun', code: 'EMP007', phone: '15267896789', email: 'sunll@pos.com', dept: '门店', position: 'Cashier', joinDate: '2024-07-01', account: 'sunll', roles: ['Cashier'] },
+                'EMP008': { name: '周明辉', code: 'EMP008', phone: '18601230123', email: 'zhoumh@pos.com', dept: '运营部', position: '活动策划', joinDate: '2024-04-18', account: 'zhoumh', roles: ['营销人员'] },
+                'EMP009': { name: 'Tina Wu', code: 'EMP009', phone: '13356705670', email: 'wutt@pos.com', dept: '门店', position: 'Sales Associate', joinDate: '2025-02-10', account: 'wutt', roles: ['Cashier'] },
+                'EMP010': { name: 'Kevin Zheng', code: 'EMP010', phone: '15598769876', email: 'zhengkw@pos.com', dept: '仓储部', position: 'Delivery Staff', joinDate: '2024-08-05', account: 'zhengkw', roles: ['Warehouse Keeper'] },
+            };
+
+            const data = empData[empId];
+            if (data) {
+                document.getElementById('empName').value = data.name;
+                document.getElementById('empCode').value = data.code;
+                document.getElementById('empPhone').value = data.phone;
+                document.getElementById('empEmail').value = data.email;
+                document.getElementById('empDept').value = data.dept;
+                document.getElementById('empPosition').value = data.position;
+                document.getElementById('empJoinDate').value = data.joinDate;
+                document.getElementById('empAccount').value = data.account;
+                document.getElementById('empPassword').value = '';
+                document.getElementById('accountCheckTip').innerHTML = '<span class="check-icon available">&#10003;</span> 账号可用';
+                document.getElementById('accountCheckTip').className = 'form-tip success';
+
+                const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
+                checkboxes.forEach(cb => {
+                    cb.checked = data.roles.includes(cb.value);
+                });
+            }
+
+            document.getElementById('employeeModal').classList.add('show');
+        }
+
+        // 关闭员工对话框
+        function closeEmployeeModal() {
+            document.getElementById('employeeModal').classList.remove('show');
+        }
+
+        // 实时检测账号可用性
+        let checkTimer = null;
+        function checkAccountAvailability(value) {
+            const tip = document.getElementById('accountCheckTip');
+            clearTimeout(checkTimer);
+
+            if (!value) {
+                tip.textContent = '请输入4-20位字母、数字或下划线';
+                tip.className = 'form-tip';
+                return;
+            }
+
+            if (value.length < 4) {
+                tip.textContent = '账号长度不能少于4位';
+                tip.className = 'form-tip error';
+                return;
+            }
+
+            if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+                tip.textContent = '账号只能包含字母、数字和下划线';
+                tip.className = 'form-tip error';
+                return;
+            }
+
+            // 模拟异步检测
+            tip.textContent = '检测中...';
+            tip.className = 'form-tip';
+
+            checkTimer = setTimeout(() => {
+                // 模拟已有账号列表
+                const existingAccounts = ['admin', 'zhangxh', 'liujg', 'wangdw', 'lixm', 'chenzq', 'zhaoxg', 'sunll', 'zhoumh', 'wutt', 'zhengkw'];
+                if (existingAccounts.includes(value.toLowerCase())) {
+                    tip.innerHTML = '<span class="check-icon unavailable">&#10007;</span> 该账号已被占用，请更换';
+                    tip.className = 'form-tip error';
+                } else {
+                    tip.innerHTML = '<span class="check-icon available">&#10003;</span> 账号可用';
+                    tip.className = 'form-tip success';
+                }
+            }, 500);
+        }
+
+        // 保存员工
+        function saveEmployee() {
+            const name = document.getElementById('empName').value.trim();
+            const code = document.getElementById('empCode').value.trim();
+            const phone = document.getElementById('empPhone').value.trim();
+            const dept = document.getElementById('empDept').value;
+            const account = document.getElementById('empAccount').value.trim();
+            const password = document.getElementById('empPassword').value;
+
+            // 简单验证
+            if (!name) { alert('请输入员工姓名'); return; }
+            if (!code) { alert('请输入工号'); return; }
+            if (!phone) { alert('请输入手机号'); return; }
+            if (!dept) { alert('请选择所属部门'); return; }
+            if (!account) { alert('请输入登录账号'); return; }
+            if (!password || password.length < 6) { alert('请输入至少6位的初始密码'); return; }
+
+            alert('保存成功！');
+            closeEmployeeModal();
+        }
+
+        // 点击遮罩关闭
+        document.getElementById('employeeModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEmployeeModal();
+        });
+    </script>
+    <script src="pos-common.js"></script>
+</body>
+</html>

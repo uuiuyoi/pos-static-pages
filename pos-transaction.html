@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交易流水 - 智慧新零售云POS综合管理平台</title>
+    <link rel="stylesheet" href="pos-common.css">
+    <style>
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary-green);
+            border-radius: 2px;
+        }
+        .search-panel {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .search-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .search-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .search-item label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .search-item .pos-input,
+        .search-item .pos-select {
+            width: 180px;
+        }
+        .search-item .date-range-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .search-item .date-range-wrap span {
+            color: var(--text-disabled);
+        }
+        .search-item .date-range-wrap .pos-input {
+            width: 150px;
+        }
+        .search-item .amount-range-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .search-item .amount-range-wrap span {
+            color: var(--text-disabled);
+        }
+        .search-item .amount-range-wrap .pos-input {
+            width: 100px;
+        }
+        .search-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .toolbar-left {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .amount-green { color: var(--success-color); font-weight: 600; }
+        .amount-red { color: var(--error-color); font-weight: 600; }
+        .tx-no { font-family: "Courier New", monospace; font-weight: 500; color: var(--auxiliary-blue); }
+        .detail-row {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-color-light);
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            width: 100px;
+            color: var(--text-tertiary);
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .detail-value {
+            flex: 1;
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="pos-layout">
+        <!-- 左侧菜单栏 -->
+        <aside class="pos-sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">P</div>
+                <div class="logo-text">智慧新零售云POS</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9776;</span>
+                        <span class="menu-title">工作台</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128722;</span>
+                        <span class="menu-title">收银台</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128196;</span>
+                        <span class="menu-title">订单管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-order-list.html">订单列表</a>
+                        <a class="menu-child" href="pos-order-list.html">退款管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128230;</span>
+                        <span class="menu-title">商品管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-product-list.html">商品列表</a>
+                        <a class="menu-child" href="pos-product-list.html">分类管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent expanded active">
+                        <span class="menu-icon">&#128176;</span>
+                        <span class="menu-title">财务管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children open">
+                        <a class="menu-child active" href="pos-transaction.html">交易流水</a>
+                        <a class="menu-child" href="pos-transaction.html">日结对账</a>
+                        <a class="menu-child" href="pos-transaction.html">多渠道对账</a>
+                        <a class="menu-child" href="pos-invoice.html">发票管理</a>
+                        <a class="menu-child" href="pos-invoice.html">成本分析</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128101;</span>
+                        <span class="menu-title">员工管理</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128179;</span>
+                        <span class="menu-title">会员管理</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9881;</span>
+                        <span class="menu-title">系统设置</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-system-settings.html">基本设置</a>
+                        <a class="menu-child" href="pos-system-settings.html">打印设置</a>
+                        <a class="menu-child" href="pos-system-settings.html">数据备份</a>
+                        <a class="menu-child" href="pos-system-settings.html">日志管理</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 右侧主体 -->
+        <div class="pos-main-wrapper">
+            <!-- 顶部导航栏 -->
+            <header class="pos-header">
+                <div class="header-left">
+                    <div class="header-breadcrumb">
+                        <a href="#">首页</a>
+                        <span>/</span>
+                        <a href="#">财务管理</a>
+                        <span>/</span>
+                        <span style="color:var(--text-primary);">交易流水</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-action" title="消息通知">
+                        &#128276;
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="header-action" title="帮助">&#10067;</button>
+                    <div class="header-user">
+                        <div class="user-avatar">A</div>
+                        <span class="user-name">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 主工作区 -->
+            <main class="pos-content">
+                <div class="page-title">交易流水</div>
+
+                <!-- 查询条件 -->
+                <div class="search-panel">
+                    <div class="search-row">
+                        <div class="search-item">
+                            <label>交易日期</label>
+                            <div class="date-range-wrap">
+                                <input type="date" class="pos-input" value="2026-05-26">
+                                <span>~</span>
+                                <input type="date" class="pos-input" value="2026-05-26">
+                            </div>
+                        </div>
+                        <div class="search-item">
+                            <label>交易类型</label>
+                            <select class="pos-select">
+                                <option>全部</option>
+                                <option>收入</option>
+                                <option>退款</option>
+                            </select>
+                        </div>
+                        <div class="search-item">
+                            <label>支付方式</label>
+                            <select class="pos-select">
+                                <option>全部</option>
+                                <option>现金</option>
+                                <option>微信支付</option>
+                                <option>支付宝</option>
+                                <option>银行卡</option>
+                                <option>储值卡</option>
+                            </select>
+                        </div>
+                        <div class="search-item">
+                            <label>交易金额</label>
+                            <div class="amount-range-wrap">
+                                <input type="number" class="pos-input" placeholder="最小金额">
+                                <span>-</span>
+                                <input type="number" class="pos-input" placeholder="最大金额">
+                            </div>
+                        </div>
+                        <div class="search-item">
+                            <label>交易单号</label>
+                            <input type="text" class="pos-input" placeholder="请输入交易单号" style="width:180px;">
+                        </div>
+                        <div class="search-actions">
+                            <button class="pos-btn pos-btn-primary">查询</button>
+                            <button class="pos-btn pos-btn-default">重置</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 工具栏 -->
+                <div class="toolbar">
+                    <div class="toolbar-left">共查询到 <strong>356</strong> 条记录</div>
+                    <button class="pos-btn pos-btn-default">&#128229; 导出</button>
+                </div>
+
+                <!-- 统计卡片 -->
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon green">&#8593;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">总收入</div>
+                            <div class="stat-value amount-green">&#165;128,560.00</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">&#8595;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">总退款</div>
+                            <div class="stat-value amount-red">&#165;2,350.00</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">&#9878;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">净收入</div>
+                            <div class="stat-value">&#165;126,210.00</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">&#128203;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">交易笔数</div>
+                            <div class="stat-value">356</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 交易流水表格 -->
+                <div class="pos-card">
+                    <div class="pos-table-wrapper">
+                        <table class="pos-table">
+                            <thead>
+                                <tr>
+                                    <th>交易时间</th>
+                                    <th>交易单号</th>
+                                    <th>交易类型</th>
+                                    <th>支付方式</th>
+                                    <th>交易金额</th>
+                                    <th>账户余额</th>
+                                    <th>Cashier</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2026-05-26 10:30:15</td>
+                                    <td><span class="tx-no">TX20260526001</span></td>
+                                    <td><span class="pos-tag pos-tag-success">收入</span></td>
+                                    <td>微信支付</td>
+                                    <td class="amount-green">+&#165;86.50</td>
+                                    <td>&#165;52,368.50</td>
+                                    <td>Lily Zhang</td>
+                                    <td><a href="javascript:void(0)" onclick="showDetail('TX20260526001')" style="color:var(--auxiliary-blue);">详情</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-26 10:15:42</td>
+                                    <td><span class="tx-no">TX20260526002</span></td>
+                                    <td><span class="pos-tag pos-tag-success">收入</span></td>
+                                    <td>支付宝</td>
+                                    <td class="amount-green">+&#165;128.00</td>
+                                    <td>&#165;52,282.00</td>
+                                    <td>李大明</td>
+                                    <td><a href="javascript:void(0)" onclick="showDetail('TX20260526002')" style="color:var(--auxiliary-blue);">详情</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-26 09:58:30</td>
+                                    <td><span class="tx-no">TX20260526003</span></td>
+                                    <td><span class="pos-tag pos-tag-error">退款</span></td>
+                                    <td>微信支付</td>
+                                    <td class="amount-red">-&#165;45.00</td>
+                                    <td>&#165;52,154.00</td>
+                                    <td>Lily Zhang</td>
+                                    <td><a href="javascript:void(0)" onclick="showDetail('TX20260526003')" style="color:var(--auxiliary-blue);">详情</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-26 09:45:18</td>
+                                    <td><span class="tx-no">TX20260526004</span></td>
+                                    <td><span class="pos-tag pos-tag-success">收入</span></td>
+                                    <td>银行卡</td>
+                                    <td class="amount-green">+&#165;356.00</td>
+                                    <td>&#165;52,199.00</td>
+                                    <td>Jason Wang</td>
+                                    <td><a href="javascript:void(0)" onclick="showDetail('TX20260526004')" style="color:var(--auxiliary-blue);">详情</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-26 09:32:05</td>
+                                    <td><span class="tx-no">TX20260526005</span></td>
+                                    <td><span class="pos-tag pos-tag-success">收入</span></td>
+                                    <td>现金</td>
+                                    <td class="amount-green">+&#165;23.50</td>
+                                    <td>&#165;51,843.00</td>
+                                    <td>Lily Zhang</td>
+                                    <td><a href="javascript:void(0)" onclick="showDetail('TX20260526005')" style="color:var(--auxiliary-blue);">详情</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-26 09:20:33</td>
+                                    <td><span class="tx-no">TX20260526006</span></td>
+                                    <td><span class="pos-tag pos-tag-success">收入</span></td>
+                                    <td>储值卡</td>
+                                    <td class="amount-green">+&#165;68.00</td>
+                                    <td>&#165;51,819.50</td>
+                                    <td>李大明</td>
+                                    <td><a href="javascript:void(0)" onclick="showDetail('TX20260526006')" style="color:var(--auxiliary-blue);">详情</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-26 09:08:47</td>
+                                    <td><span class="tx-no">TX20260526007</span></td>
+                                    <td><span class="pos-tag pos-tag-error">退款</span></td>
+                                    <td>支付宝</td>
+                                    <td class="amount-red">-&#165;199.00</td>
+                                    <td>&#165;51,751.50</td>
+                                    <td>Jason Wang</td>
+                                    <td><a href="javascript:void(0)" onclick="showDetail('TX20260526007')" style="color:var(--auxiliary-blue);">详情</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-26 08:55:12</td>
+                                    <td><span class="tx-no">TX20260526008</span></td>
+                                    <td><span class="pos-tag pos-tag-success">收入</span></td>
+                                    <td>微信支付</td>
+                                    <td class="amount-green">+&#165;42.80</td>
+                                    <td>&#165;51,950.50</td>
+                                    <td>Lily Zhang</td>
+                                    <td><a href="javascript:void(0)" onclick="showDetail('TX20260526008')" style="color:var(--auxiliary-blue);">详情</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-26 08:40:56</td>
+                                    <td><span class="tx-no">TX20260526009</span></td>
+                                    <td><span class="pos-tag pos-tag-success">收入</span></td>
+                                    <td>银行卡</td>
+                                    <td class="amount-green">+&#165;520.00</td>
+                                    <td>&#165;51,907.70</td>
+                                    <td>李大明</td>
+                                    <td><a href="javascript:void(0)" onclick="showDetail('TX20260526009')" style="color:var(--auxiliary-blue);">详情</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-26 08:28:03</td>
+                                    <td><span class="tx-no">TX20260526010</span></td>
+                                    <td><span class="pos-tag pos-tag-success">收入</span></td>
+                                    <td>微信支付</td>
+                                    <td class="amount-green">+&#165;15.60</td>
+                                    <td>&#165;51,387.70</td>
+                                    <td>Lily Zhang</td>
+                                    <td><a href="javascript:void(0)" onclick="showDetail('TX20260526010')" style="color:var(--auxiliary-blue);">详情</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-26 08:15:29</td>
+                                    <td><span class="tx-no">TX20260526011</span></td>
+                                    <td><span class="pos-tag pos-tag-error">退款</span></td>
+                                    <td>现金</td>
+                                    <td class="amount-red">-&#165;88.00</td>
+                                    <td>&#165;51,372.10</td>
+                                    <td>Jason Wang</td>
+                                    <td><a href="javascript:void(0)" onclick="showDetail('TX20260526011')" style="color:var(--auxiliary-blue);">详情</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-05-26 08:02:41</td>
+                                    <td><span class="tx-no">TX20260526012</span></td>
+                                    <td><span class="pos-tag pos-tag-success">收入</span></td>
+                                    <td>支付宝</td>
+                                    <td class="amount-green">+&#165;299.00</td>
+                                    <td>&#165;51,460.10</td>
+                                    <td>李大明</td>
+                                    <td><a href="javascript:void(0)" onclick="showDetail('TX20260526012')" style="color:var(--auxiliary-blue);">详情</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- 分页 -->
+                    <div class="pos-pagination" style="padding: 16px 20px;">
+                        <span class="page-info">共 356 条 / 每页 10 条</span>
+                        <button class="page-btn" disabled>&laquo;</button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">2</button>
+                        <button class="page-btn">3</button>
+                        <button class="page-btn">...</button>
+                        <button class="page-btn">36</button>
+                        <button class="page-btn">&raquo;</button>
+                    </div>
+                </div>
+            </main>
+
+            <!-- 底部状态栏 -->
+            <footer class="pos-footer">
+                <span>&copy; 2026 智慧新零售云POS综合管理平台 v1.0</span>
+                <span style="margin-left:auto;">当前时间：2026-05-26 10:30:00</span>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 交易详情对话框 -->
+    <div class="pos-modal-overlay" id="detailModal">
+        <div class="pos-modal" style="width:560px;">
+            <div class="modal-header">
+                <span class="modal-title">交易详情</span>
+                <button class="modal-close" onclick="closeDetail()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-row">
+                    <div class="detail-label">交易编号</div>
+                    <div class="detail-value" id="detailTxNo">TX20260526001</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">交易时间</div>
+                    <div class="detail-value" id="detailTime">2026-05-26 10:30:15</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">交易类型</div>
+                    <div class="detail-value" id="detailType"><span class="pos-tag pos-tag-success">收入</span></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">交易金额</div>
+                    <div class="detail-value" id="detailAmount" style="font-weight:600;color:var(--success-color);">&#165;86.50</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">支付方式</div>
+                    <div class="detail-value" id="detailPay">微信支付</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">关联订单</div>
+                    <div class="detail-value" id="detailOrder"><a href="#" style="color:var(--auxiliary-blue);">ORD20260526001</a></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Cashier</div>
+                    <div class="detail-value" id="detailCashier">Lily Zhang</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">操作时间</div>
+                    <div class="detail-value" id="detailOpTime">2026-05-26 10:30:15</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeDetail()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟交易详情数据
+        var txData = {
+            'TX20260526001': { time: '2026-05-26 10:30:15', type: '<span class="pos-tag pos-tag-success">收入</span>', amount: '+&#165;86.50', amountColor: 'var(--success-color)', pay: '微信支付', order: 'ORD20260526001', cashier: 'Lily Zhang', opTime: '2026-05-26 10:30:15' },
+            'TX20260526002': { time: '2026-05-26 10:15:42', type: '<span class="pos-tag pos-tag-success">收入</span>', amount: '+&#165;128.00', amountColor: 'var(--success-color)', pay: '支付宝', order: 'ORD20260526002', cashier: '李大明', opTime: '2026-05-26 10:15:42' },
+            'TX20260526003': { time: '2026-05-26 09:58:30', type: '<span class="pos-tag pos-tag-error">退款</span>', amount: '-&#165;45.00', amountColor: 'var(--error-color)', pay: '微信支付', order: 'ORD20260525018', cashier: 'Lily Zhang', opTime: '2026-05-26 09:58:30' },
+            'TX20260526004': { time: '2026-05-26 09:45:18', type: '<span class="pos-tag pos-tag-success">收入</span>', amount: '+&#165;356.00', amountColor: 'var(--success-color)', pay: '银行卡', order: 'ORD20260526003', cashier: 'Jason Wang', opTime: '2026-05-26 09:45:18' },
+            'TX20260526005': { time: '2026-05-26 09:32:05', type: '<span class="pos-tag pos-tag-success">收入</span>', amount: '+&#165;23.50', amountColor: 'var(--success-color)', pay: '现金', order: 'ORD20260526004', cashier: 'Lily Zhang', opTime: '2026-05-26 09:32:05' },
+            'TX20260526006': { time: '2026-05-26 09:20:33', type: '<span class="pos-tag pos-tag-success">收入</span>', amount: '+&#165;68.00', amountColor: 'var(--success-color)', pay: '储值卡', order: 'ORD20260526005', cashier: '李大明', opTime: '2026-05-26 09:20:33' },
+            'TX20260526007': { time: '2026-05-26 09:08:47', type: '<span class="pos-tag pos-tag-error">退款</span>', amount: '-&#165;199.00', amountColor: 'var(--error-color)', pay: '支付宝', order: 'ORD20260524009', cashier: 'Jason Wang', opTime: '2026-05-26 09:08:47' },
+            'TX20260526008': { time: '2026-05-26 08:55:12', type: '<span class="pos-tag pos-tag-success">收入</span>', amount: '+&#165;42.80', amountColor: 'var(--success-color)', pay: '微信支付', order: 'ORD20260526006', cashier: 'Lily Zhang', opTime: '2026-05-26 08:55:12' },
+            'TX20260526009': { time: '2026-05-26 08:40:56', type: '<span class="pos-tag pos-tag-success">收入</span>', amount: '+&#165;520.00', amountColor: 'var(--success-color)', pay: '银行卡', order: 'ORD20260526007', cashier: '李大明', opTime: '2026-05-26 08:40:56' },
+            'TX20260526010': { time: '2026-05-26 08:28:03', type: '<span class="pos-tag pos-tag-success">收入</span>', amount: '+&#165;15.60', amountColor: 'var(--success-color)', pay: '微信支付', order: 'ORD20260526008', cashier: 'Lily Zhang', opTime: '2026-05-26 08:28:03' },
+            'TX20260526011': { time: '2026-05-26 08:15:29', type: '<span class="pos-tag pos-tag-error">退款</span>', amount: '-&#165;88.00', amountColor: 'var(--error-color)', pay: '现金', order: 'ORD20260523015', cashier: 'Jason Wang', opTime: '2026-05-26 08:15:29' },
+            'TX20260526012': { time: '2026-05-26 08:02:41', type: '<span class="pos-tag pos-tag-success">收入</span>', amount: '+&#165;299.00', amountColor: 'var(--success-color)', pay: '支付宝', order: 'ORD20260526009', cashier: '李大明', opTime: '2026-05-26 08:02:41' }
+        };
+
+        function showDetail(txNo) {
+            var data = txData[txNo];
+            if (!data) return;
+            document.getElementById('detailTxNo').textContent = txNo;
+            document.getElementById('detailTime').textContent = data.time;
+            document.getElementById('detailType').innerHTML = data.type;
+            document.getElementById('detailAmount').innerHTML = data.amount;
+            document.getElementById('detailAmount').style.color = data.amountColor;
+            document.getElementById('detailPay').textContent = data.pay;
+            document.getElementById('detailOrder').innerHTML = '<a href="#" style="color:var(--auxiliary-blue);">' + data.order + '</a>';
+            document.getElementById('detailCashier').textContent = data.cashier;
+            document.getElementById('detailOpTime').textContent = data.opTime;
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        function closeDetail() {
+            document.getElementById('detailModal').classList.remove('show');
+        }
+
+        // 点击遮罩关闭
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDetail();
+        });
+    </script>
+    <script src="pos-common.js"></script>
+</body>
+</html>

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据看板 - 智慧新零售云POS综合管理平台</title>
+    <link rel="stylesheet" href="pos-common.css">
+    <style>
+        /* 日期筛选栏 */
+        .date-filter { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+        .date-btn { padding: 6px 16px; border: 1px solid #e8e8e8; border-radius: 4px; background: #fff; color: #595959; font-size: 13px; cursor: pointer; transition: all 0.3s; }
+        .date-btn:hover { color: #52c41a; border-color: #52c41a; }
+        .date-btn.active { background: #52c41a; color: #fff; border-color: #52c41a; }
+        .date-range { display: flex; align-items: center; gap: 6px; margin-left: 8px; }
+        .date-range input[type="date"] { height: 32px; padding: 0 10px; border: 1px solid #e8e8e8; border-radius: 4px; font-size: 13px; color: #262626; }
+        .date-range input[type="date"]:focus { border-color: #52c41a; box-shadow: 0 0 0 2px rgba(82,196,26,0.15); outline: none; }
+
+        /* 图表区域 */
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+        /* CSS 折线图 */
+        .line-chart-container { position: relative; padding: 20px 40px 40px 60px; }
+        .line-chart-y-axis { position: absolute; left: 0; top: 20px; bottom: 40px; width: 50px; display: flex; flex-direction: column; justify-content: space-between; }
+        .line-chart-y-axis span { font-size: 11px; color: #8c8c8c; text-align: right; padding-right: 10px; }
+        .line-chart-area { position: relative; height: 200px; border-left: 1px solid #e8e8e8; border-bottom: 1px solid #e8e8e8; }
+        .line-chart-grid { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+        .line-chart-grid .grid-line { position: absolute; left: 0; right: 0; height: 1px; background: #f0f0f0; }
+        .line-chart-x-axis { position: absolute; bottom: 0; left: 60px; right: 40px; height: 30px; display: flex; justify-content: space-around; align-items: center; }
+        .line-chart-x-axis span { font-size: 11px; color: #8c8c8c; }
+
+        /* SVG 折线 */
+        .line-chart-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .line-path { fill: none; stroke: #52c41a; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .line-area { fill: url(#lineGradient); opacity: 0.3; }
+        .line-dot { fill: #52c41a; stroke: #fff; stroke-width: 2; }
+        .line-dot:hover { r: 5; }
+        .line-label { font-size: 11px; fill: #595959; text-anchor: middle; font-weight: 600; }
+
+        /* CSS 饼图 (conic-gradient) */
+        .category-pie { width: 180px; height: 180px; border-radius: 50%; background: conic-gradient(
+            #52c41a 0% 30%,
+            #1890ff 30% 55%,
+            #faad14 55% 75%,
+            #ff4d4f 75% 90%,
+            #8c8c8c 90% 100%
+        ); position: relative; }
+        .category-pie::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80px; height: 80px; border-radius: 50%; background: #fff; }
+
+        /* 会员消费占比饼图 */
+        .member-pie { width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(
+            #52c41a 0% 72%,
+            #faad14 72% 100%
+        ); position: relative; flex-shrink: 0; }
+        .member-pie::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 60px; height: 60px; border-radius: 50%; background: #fff; }
+
+        /* 排名样式 */
+        .rank-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+        .rank-1 { background: linear-gradient(135deg, #ffd700, #ffb800); color: #fff; }
+        .rank-2 { background: linear-gradient(135deg, #c0c0c0, #a8a8a8); color: #fff; }
+        .rank-3 { background: linear-gradient(135deg, #cd7f32, #b8690e); color: #fff; }
+        .rank-other { background: #f5f5f5; color: #8c8c8c; }
+
+        /* 环比增长 */
+        .growth-up { color: #52c41a; font-size: 12px; }
+        .growth-down { color: #ff4d4f; font-size: 12px; }
+
+        /* 会员消费占比卡片 */
+        .member-ratio-card { display: flex; align-items: center; gap: 32px; padding: 24px; }
+        .member-ratio-info { flex: 1; }
+        .member-ratio-info .ratio-title { font-size: 15px; font-weight: 600; color: #262626; margin-bottom: 16px; }
+        .ratio-item { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .ratio-item .ratio-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+        .ratio-item .ratio-label { font-size: 13px; color: #595959; flex: 1; }
+        .ratio-item .ratio-value { font-size: 14px; font-weight: 600; color: #262626; }
+
+        @media screen and (max-width: 1200px) {
+            .chart-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="pos-layout">
+        <!-- 左侧菜单栏 -->
+        <aside class="pos-sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">P</div>
+                <div class="logo-text">智慧新零售云POS</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9776;</span>
+                        <span class="menu-title">首页概览</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9733;</span>
+                        <span class="menu-title">商品管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-product-list.html">商品列表</a>
+                        <a class="menu-child" href="pos-product-list.html">商品分类</a>
+                        <a class="menu-child" href="pos-product-list.html">库存管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9829;</span>
+                        <span class="menu-title">会员营销</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-member.html">会员管理</a>
+                        <a class="menu-child" href="pos-activity.html">活动管理</a>
+                        <a class="menu-child" href="pos-activity.html">优惠券管理</a>
+                        <a class="menu-child" href="pos-member.html">积分管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent active expanded">
+                        <span class="menu-icon">&#9881;</span>
+                        <span class="menu-title">数据分析</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children open">
+                        <a class="menu-child active" href="pos-data-dashboard.html">数据看板</a>
+                        <a class="menu-child" href="pos-data-dashboard.html">销售报表</a>
+                        <a class="menu-child" href="pos-data-dashboard.html">会员分析</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9888;</span>
+                        <span class="menu-title">系统设置</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-employee.html">门店管理</a>
+                        <a class="menu-child" href="pos-employee.html">员工管理</a>
+                        <a class="menu-child" href="pos-employee.html">角色权限</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 右侧主区域 -->
+        <div class="pos-main-wrapper">
+            <!-- 顶部导航栏 -->
+            <header class="pos-header">
+                <div class="header-left">
+                    <div class="header-breadcrumb">
+                        <a href="#">首页</a>
+                        <span>/</span>
+                        <a href="#">数据分析</a>
+                        <span>/</span>
+                        <span style="color:#262626;">数据看板</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-action" title="消息通知">
+                        &#128276;
+                        <span class="badge">5</span>
+                    </button>
+                    <div class="header-user">
+                        <div class="user-avatar">A</div>
+                        <span class="user-name">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 主内容区 -->
+            <main class="pos-content">
+                <!-- 日期筛选 -->
+                <div class="date-filter">
+                    <button class="date-btn" onclick="selectDate(this)">今日</button>
+                    <button class="date-btn" onclick="selectDate(this)">昨日</button>
+                    <button class="date-btn" onclick="selectDate(this)">本周</button>
+                    <button class="date-btn active" onclick="selectDate(this)">本月</button>
+                    <button class="date-btn" onclick="selectDate(this)">本年</button>
+                    <div class="date-range">
+                        <input type="date" value="2026-05-01">
+                        <span style="color:#8c8c8c;">至</span>
+                        <input type="date" value="2026-05-26">
+                    </div>
+                </div>
+
+                <!-- 销售指标卡片 -->
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon green">&#128176;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">今日销售额</div>
+                            <div class="stat-value">&yen;128,560</div>
+                            <div class="stat-trend up">&#9650; 12.5%</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">&#128230;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">今日订单</div>
+                            <div class="stat-value">356</div>
+                            <div class="stat-trend up">&#9650; 8.3%</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">&#128179;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">客单价</div>
+                            <div class="stat-value">&yen;361.13</div>
+                            <div class="stat-trend up">&#9650; 3.8%</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">&#8635;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">今日退款</div>
+                            <div class="stat-value">&yen;2,350</div>
+                            <div class="stat-trend down">&#9660; 15.2%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图表区域 -->
+                <div class="chart-grid">
+                    <!-- 销售趋势折线图 -->
+                    <div class="pos-card">
+                        <div class="card-header">
+                            <span class="card-title">销售趋势（近7天）</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="line-chart-container">
+                                <!-- Y轴 -->
+                                <div class="line-chart-y-axis">
+                                    <span>15万</span>
+                                    <span>12万</span>
+                                    <span>9万</span>
+                                    <span>6万</span>
+                                    <span>3万</span>
+                                    <span>0</span>
+                                </div>
+                                <!-- 图表区域 -->
+                                <div class="line-chart-area">
+                                    <!-- 网格线 -->
+                                    <div class="line-chart-grid">
+                                        <div class="grid-line" style="top:0%;"></div>
+                                        <div class="grid-line" style="top:20%;"></div>
+                                        <div class="grid-line" style="top:40%;"></div>
+                                        <div class="grid-line" style="top:60%;"></div>
+                                        <div class="grid-line" style="top:80%;"></div>
+                                        <div class="grid-line" style="top:100%;"></div>
+                                    </div>
+                                    <!-- SVG 折线 -->
+                                    <svg class="line-chart-svg" viewBox="0 0 500 200" preserveAspectRatio="none">
+                                        <defs>
+                                            <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="0%" stop-color="#52c41a" stop-opacity="0.4"/>
+                                                <stop offset="100%" stop-color="#52c41a" stop-opacity="0.02"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <!-- 面积 -->
+                                        <polygon class="line-area" points="0,120 83,100 167,80 250,60 333,90 417,40 500,50 500,200 0,200"/>
+                                        <!-- 折线 -->
+                                        <polyline class="line-path" points="0,120 83,100 167,80 250,60 333,90 417,40 500,50"/>
+                                        <!-- 数据点 -->
+                                        <circle class="line-dot" cx="0" cy="120" r="4"/>
+                                        <circle class="line-dot" cx="83" cy="100" r="4"/>
+                                        <circle class="line-dot" cx="167" cy="80" r="4"/>
+                                        <circle class="line-dot" cx="250" cy="60" r="4"/>
+                                        <circle class="line-dot" cx="333" cy="90" r="4"/>
+                                        <circle class="line-dot" cx="417" cy="40" r="4"/>
+                                        <circle class="line-dot" cx="500" cy="50" r="4"/>
+                                        <!-- 数据标签 -->
+                                        <text class="line-label" x="0" y="110">8.5万</text>
+                                        <text class="line-label" x="83" y="90">9.8万</text>
+                                        <text class="line-label" x="167" y="70">10.6万</text>
+                                        <text class="line-label" x="250" y="50">12.1万</text>
+                                        <text class="line-label" x="333" y="80">10.8万</text>
+                                        <text class="line-label" x="417" y="30">13.5万</text>
+                                        <text class="line-label" x="500" y="40">12.9万</text>
+                                    </svg>
+                                </div>
+                                <!-- X轴 -->
+                                <div class="line-chart-x-axis">
+                                    <span>05-20</span>
+                                    <span>05-21</span>
+                                    <span>05-22</span>
+                                    <span>05-23</span>
+                                    <span>05-24</span>
+                                    <span>05-25</span>
+                                    <span>05-26</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品分类销售占比饼图 -->
+                    <div class="pos-card">
+                        <div class="card-header">
+                            <span class="card-title">商品分类销售占比</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="pie-chart-wrapper">
+                                <div class="category-pie"></div>
+                                <div class="pie-legend">
+                                    <div class="pie-legend-item">
+                                        <span class="legend-dot" style="background:#52c41a;"></span>
+                                        <span>饮料</span>
+                                        <span class="legend-value">30%</span>
+                                    </div>
+                                    <div class="pie-legend-item">
+                                        <span class="legend-dot" style="background:#1890ff;"></span>
+                                        <span>零食</span>
+                                        <span class="legend-value">25%</span>
+                                    </div>
+                                    <div class="pie-legend-item">
+                                        <span class="legend-dot" style="background:#faad14;"></span>
+                                        <span>日用品</span>
+                                        <span class="legend-value">20%</span>
+                                    </div>
+                                    <div class="pie-legend-item">
+                                        <span class="legend-dot" style="background:#ff4d4f;"></span>
+                                        <span>生鲜</span>
+                                        <span class="legend-value">15%</span>
+                                    </div>
+                                    <div class="pie-legend-item">
+                                        <span class="legend-dot" style="background:#8c8c8c;"></span>
+                                        <span>其他</span>
+                                        <span class="legend-value">10%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 热销商品TOP10 -->
+                <div class="pos-card mb-24">
+                    <div class="card-header">
+                        <span class="card-title">热销商品 TOP10</span>
+                    </div>
+                    <div class="card-body" style="padding:0;">
+                        <div class="pos-table-wrapper">
+                            <table class="pos-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:60px;">排名</th>
+                                        <th>商品名称</th>
+                                        <th>分类</th>
+                                        <th>销量</th>
+                                        <th>销售额(元)</th>
+                                        <th>环比增长</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="rank-num rank-1">1</span></td>
+                                        <td style="font-weight:500;">农夫山泉饮用天然水550ml</td>
+                                        <td>饮料</td>
+                                        <td>2,580</td>
+                                        <td>5,160.00</td>
+                                        <td><span class="growth-up">&#9650; 18.5%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="rank-num rank-2">2</span></td>
+                                        <td style="font-weight:500;">乐事薯片原味75g</td>
+                                        <td>零食</td>
+                                        <td>1,860</td>
+                                        <td>7,440.00</td>
+                                        <td><span class="growth-up">&#9650; 12.3%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="rank-num rank-3">3</span></td>
+                                        <td style="font-weight:500;">伊利纯牛奶250ml*12</td>
+                                        <td>饮料</td>
+                                        <td>1,520</td>
+                                        <td>9,120.00</td>
+                                        <td><span class="growth-up">&#9650; 8.6%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="rank-num rank-other">4</span></td>
+                                        <td style="font-weight:500;">三只松鼠坚果礼盒</td>
+                                        <td>零食</td>
+                                        <td>1,280</td>
+                                        <td>12,800.00</td>
+                                        <td><span class="growth-up">&#9650; 22.1%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="rank-num rank-other">5</span></td>
+                                        <td style="font-weight:500;">维达抽纸巾3连包</td>
+                                        <td>日用品</td>
+                                        <td>1,150</td>
+                                        <td>6,900.00</td>
+                                        <td><span class="growth-down">&#9660; 3.2%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="rank-num rank-other">6</span></td>
+                                        <td style="font-weight:500;">可口可乐330ml*6</td>
+                                        <td>饮料</td>
+                                        <td>1,080</td>
+                                        <td>5,400.00</td>
+                                        <td><span class="growth-up">&#9650; 5.8%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="rank-num rank-other">7</span></td>
+                                        <td style="font-weight:500;">蒙牛酸奶200g*8</td>
+                                        <td>饮料</td>
+                                        <td>960</td>
+                                        <td>5,760.00</td>
+                                        <td><span class="growth-up">&#9650; 15.4%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="rank-num rank-other">8</span></td>
+                                        <td style="font-weight:500;">海天酱油500ml</td>
+                                        <td>日用品</td>
+                                        <td>890</td>
+                                        <td>3,560.00</td>
+                                        <td><span class="growth-down">&#9660; 1.5%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="rank-num rank-other">9</span></td>
+                                        <td style="font-weight:500;">新鲜草莓500g</td>
+                                        <td>生鲜</td>
+                                        <td>820</td>
+                                        <td>6,560.00</td>
+                                        <td><span class="growth-up">&#9650; 35.2%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="rank-num rank-other">10</span></td>
+                                        <td style="font-weight:500;">奥利奥饼干388g</td>
+                                        <td>零食</td>
+                                        <td>780</td>
+                                        <td>4,680.00</td>
+                                        <td><span class="growth-up">&#9650; 6.9%</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 会员消费占比 -->
+                <div class="pos-card">
+                    <div class="card-header">
+                        <span class="card-title">会员消费占比</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="member-ratio-card">
+                            <div class="member-pie"></div>
+                            <div class="member-ratio-info">
+                                <div class="ratio-title">会员消费分析</div>
+                                <div class="ratio-item">
+                                    <span class="ratio-dot" style="background:#52c41a;"></span>
+                                    <span class="ratio-label">会员消费</span>
+                                    <span class="ratio-value">72%</span>
+                                </div>
+                                <div class="ratio-item">
+                                    <span class="ratio-dot" style="background:#faad14;"></span>
+                                    <span class="ratio-label">非会员消费</span>
+                                    <span class="ratio-value">28%</span>
+                                </div>
+                                <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0;">
+                                    <div style="font-size:13px;color:#8c8c8c;margin-bottom:6px;">会员消费金额</div>
+                                    <div style="font-size:20px;font-weight:700;color:#262626;">&yen;92,563.20</div>
+                                </div>
+                                <div style="margin-top:12px;">
+                                    <div style="font-size:13px;color:#8c8c8c;margin-bottom:6px;">非会员消费金额</div>
+                                    <div style="font-size:20px;font-weight:700;color:#262626;">&yen;35,996.80</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- 底部状态栏 -->
+            <footer class="pos-footer">
+                <span>智慧新零售云POS综合管理平台 v1.0</span>
+                <span style="margin-left:auto;">Copyright &copy; 2026 智慧零售科技</span>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // 日期筛选切换
+        function selectDate(btn) {
+            var btns = document.querySelectorAll('.date-btn');
+            btns.forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+    </script>
+    <script src="pos-common.js"></script>
+</body>
+</html>

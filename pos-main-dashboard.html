@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据看板 - 智慧新零售云POS综合管理平台</title>
+    <link rel="stylesheet" href="pos-common.css">
+    <style>
+        /* Dashboard specific styles */
+        .dashboard-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dashboard-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary-green);
+            border-radius: 2px;
+        }
+
+        /* Quick date filter */
+        .date-filter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .date-filter .date-btn {
+            padding: 5px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: #fff;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .date-filter .date-btn:hover,
+        .date-filter .date-btn.active {
+            color: var(--primary-green);
+            border-color: var(--primary-green);
+            background: var(--primary-green-light);
+        }
+
+        .date-filter .date-range {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        /* Bar chart specific */
+        .bar-chart-container {
+            padding: 8px 0;
+        }
+
+        .bar-chart {
+            height: 220px;
+            align-items: flex-end;
+            gap: 16px;
+            padding: 0 4px;
+        }
+
+        .bar-item .bar {
+            max-width: 52px;
+            min-width: 28px;
+        }
+
+        .bar-item .bar-value {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+        }
+
+        .bar-item .bar-label {
+            font-size: 11px;
+            margin-top: 8px;
+            max-width: 56px;
+            line-height: 1.3;
+        }
+
+        /* Pie chart CSS conic-gradient */
+        .pie-chart {
+            width: 150px;
+            height: 150px;
+            background: conic-gradient(
+                #52c41a 0deg 234deg,
+                #1890ff 234deg 324deg,
+                #faad14 324deg 360deg
+            );
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .pie-chart::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .pie-center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 2;
+        }
+
+        .pie-center-text .pie-total {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .pie-center-text .pie-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        /* Table actions */
+        .table-action {
+            color: var(--auxiliary-blue);
+            cursor: pointer;
+            font-size: 13px;
+            margin: 0 4px;
+        }
+
+        .table-action:hover {
+            color: var(--primary-green);
+        }
+
+        .table-action.danger {
+            color: var(--error-color);
+        }
+
+        .table-action.danger:hover {
+            color: #cf1322;
+        }
+
+        /* Inventory warning row */
+        .warning-row td {
+            background: var(--warning-bg) !important;
+        }
+
+        /* Mobile menu toggle */
+        .mobile-menu-toggle {
+            display: none;
+            width: 36px;
+            height: 36px;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text-secondary);
+            border-radius: 6px;
+        }
+
+        .mobile-menu-toggle:hover {
+            background: var(--body-bg);
+        }
+
+        @media screen and (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+        }
+
+        /* Card more link */
+        .card-more {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .card-more:hover {
+            color: var(--primary-green);
+        }
+
+        /* Rank number */
+        .rank-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .rank-num.top1 { background: #fff7e6; color: #fa8c16; }
+        .rank-num.top2 { background: #f0f0f0; color: #8c8c8c; }
+        .rank-num.top3 { background: #fff1f0; color: #ff4d4f; }
+        .rank-num.normal { background: #fafafa; color: #8c8c8c; }
+
+        /* Stock bar */
+        .stock-bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stock-bar {
+            flex: 1;
+            height: 6px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .stock-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+
+        .stock-text {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            min-width: 36px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="pos-layout">
+        <!-- ==================== Sidebar ==================== -->
+        <aside class="pos-sidebar" id="sidebar">
+            <!-- Logo -->
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
+                </div>
+                <span class="logo-text">智慧新零售云POS</span>
+            </div>
+
+            <!-- Menu -->
+            <nav class="sidebar-menu">
+                <!-- 首页看板 -->
+                <div class="menu-group">
+                    <div class="menu-parent active" onclick="location.href='pos-main-dashboard.html'">
+                        <span class="menu-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                        </span>
+                        <span class="menu-title">首页看板</span>
+                    </div>
+                </div>
+
+                <!-- 智能收银 -->
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 2H7v2h10V2zm4 4H3v2h18V6zM4 20h16v-2H4v2zm1-4h14V8H5v8z"/></svg>
+                        </span>
+                        <span class="menu-title">智能收银</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-cashier.html">收银交易</a>
+                        <a class="menu-child" href="pos-transaction.html">交易查询</a>
+                        <a class="menu-child" href="pos-cashier.html">交接班管理</a>
+                    </div>
+                </div>
+
+                <!-- 商品管理 -->
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z"/></svg>
+                        </span>
+                        <span class="menu-title">商品管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-product-list.html">商品列表</a>
+                        <a class="menu-child" href="pos-product-list.html">分类管理</a>
+                        <a class="menu-child" href="pos-product-list.html">库存管理</a>
+                        <a class="menu-child" href="pos-product-list.html">库存盘点</a>
+                        <a class="menu-child" href="pos-product-list.html">库存调拨</a>
+                        <a class="menu-child" href="pos-product-list.html">库存预警</a>
+                    </div>
+                </div>
+
+                <!-- 订单管理 -->
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        </span>
+                        <span class="menu-title">订单管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-order-list.html">订单列表</a>
+                        <a class="menu-child" href="pos-order-list.html">配送管理</a>
+                        <a class="menu-child" href="pos-order-list.html">退款管理</a>
+                    </div>
+                </div>
+
+                <!-- 综合管理 -->
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </span>
+                        <span class="menu-title">综合管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-employee.html">组织架构</a>
+                        <a class="menu-child" href="pos-employee.html">员工管理</a>
+                        <a class="menu-child" href="pos-employee.html">角色权限</a>
+                        <a class="menu-child" href="pos-employee.html">供应商管理</a>
+                        <a class="menu-child" href="pos-employee.html">IoT设备</a>
+                        <a class="menu-child" href="pos-employee.html">采购管理</a>
+                    </div>
+                </div>
+
+                <!-- 会员营销 -->
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        </span>
+                        <span class="menu-title">会员营销</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-member.html">会员管理</a>
+                        <a class="menu-child" href="pos-member.html">积分管理</a>
+                        <a class="menu-child" href="pos-member.html">储值管理</a>
+                        <a class="menu-child" href="pos-member.html">会员等级</a>
+                        <a class="menu-child" href="pos-activity.html">活动管理</a>
+                        <a class="menu-child" href="pos-activity.html">优惠券管理</a>
+                        <a class="menu-child" href="pos-activity.html">营销分析</a>
+                    </div>
+                </div>
+
+                <!-- 数据分析 -->
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                        </span>
+                        <span class="menu-title">数据分析</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-data-dashboard.html">数据看板</a>
+                        <a class="menu-child" href="pos-data-dashboard.html">销售报表</a>
+                        <a class="menu-child" href="pos-data-dashboard.html">库存报表</a>
+                        <a class="menu-child" href="pos-data-dashboard.html">会员报表</a>
+                        <a class="menu-child" href="pos-data-dashboard.html">AI预测</a>
+                    </div>
+                </div>
+
+                <!-- 财务管理 -->
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+                        </span>
+                        <span class="menu-title">财务管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-transaction.html">交易流水</a>
+                        <a class="menu-child" href="pos-transaction.html">日结对账</a>
+                        <a class="menu-child" href="pos-transaction.html">多渠道对账</a>
+                        <a class="menu-child" href="pos-invoice.html">发票管理</a>
+                        <a class="menu-child" href="pos-invoice.html">成本分析</a>
+                    </div>
+                </div>
+
+                <!-- 系统设置 -->
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                        </span>
+                        <span class="menu-title">系统设置</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-system-settings.html">基本设置</a>
+                        <a class="menu-child" href="pos-system-settings.html">打印设置</a>
+                        <a class="menu-child" href="pos-system-settings.html">数据备份</a>
+                        <a class="menu-child" href="pos-system-settings.html">日志管理</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- ==================== Main Content ==================== -->
+        <div class="pos-main-wrapper">
+            <!-- Header -->
+            <header class="pos-header">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
+                    <div class="header-breadcrumb">
+                        <a href="javascript:void(0);">首页</a>
+                        <span>/</span>
+                        <span style="color: var(--text-primary);">数据看板</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <!-- Search -->
+                    <button class="header-action" title="搜索">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    </button>
+                    <!-- Notification -->
+                    <button class="header-action" title="消息通知">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                        <span class="badge">5</span>
+                    </button>
+                    <!-- Fullscreen -->
+                    <button class="header-action" title="全屏" onclick="toggleFullscreen()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                    </button>
+                    <!-- Theme -->
+                    <button class="header-action" title="主题切换">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
+                    </button>
+                    <!-- User -->
+                    <div class="header-user" onclick="toggleUserMenu()">
+                        <div class="user-avatar">A</div>
+                        <span class="user-name">Admin</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color: var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="pos-content">
+                <!-- Dashboard Title -->
+                <div class="dashboard-title">数据看板</div>
+
+                <!-- Date Filter -->
+                <div class="date-filter">
+                    <button class="date-btn active">今日</button>
+                    <button class="date-btn">昨日</button>
+                    <button class="date-btn">本周</button>
+                    <button class="date-btn">本月</button>
+                    <button class="date-btn">本年</button>
+                    <div class="date-range">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+                        2026-05-26
+                    </div>
+                </div>
+
+                <!-- ========== Stat Cards ========== -->
+                <div class="stat-cards">
+                    <!-- 今日销售额 -->
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">今日销售额</div>
+                            <div class="stat-value">&yen;128,560.00</div>
+                            <div class="stat-trend up">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
+                                12.5% 较昨日
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 今日订单数 -->
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">今日订单数</div>
+                            <div class="stat-value">356<span style="font-size:14px;font-weight:400;color:var(--text-tertiary);"> 笔</span></div>
+                            <div class="stat-trend up">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
+                                8.3% 较昨日
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 客单价 -->
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">客单价</div>
+                            <div class="stat-value">&yen;361.13</div>
+                            <div class="stat-trend up">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
+                                3.8% 较昨日
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 今日退款 -->
+                    <div class="stat-card">
+                        <div class="stat-icon red">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 6.9c1.78 0 3.22 1.44 3.22 3.22 0 1.78-1.44 3.22-3.22 3.22-1.78 0-3.22-1.44-3.22-3.22 0-1.78 1.44-3.22 3.22-3.22M12.5 5C9.46 5 7 7.46 7 10.5c0 3.04 2.46 5.5 5.5 5.5 3.04 0 5.5-2.46 5.5-5.5C18 7.46 15.54 5 12.5 5zM5 9c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zm0-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zm14 2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zm0-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zm-7-3c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5z"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">今日退款</div>
+                            <div class="stat-value">&yen;2,350.00</div>
+                            <div class="stat-trend down">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                                15.2% 较昨日
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== Charts Row ========== -->
+                <div class="grid-2 mb-24">
+                    <!-- Hot Products Bar Chart -->
+                    <div class="pos-card">
+                        <div class="card-header">
+                            <span class="card-title">热销商品 TOP10</span>
+                            <span class="card-more">查看全部 &gt;</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="bar-chart-container">
+                                <div class="bar-chart">
+                                    <div class="bar-item">
+                                        <div class="bar-value">256</div>
+                                        <div class="bar green" style="height: 100%;"></div>
+                                        <div class="bar-label">有机牛奶</div>
+                                    </div>
+                                    <div class="bar-item">
+                                        <div class="bar-value">198</div>
+                                        <div class="bar green" style="height: 77%;"></div>
+                                        <div class="bar-label">进口红酒</div>
+                                    </div>
+                                    <div class="bar-item">
+                                        <div class="bar-value">175</div>
+                                        <div class="bar green" style="height: 68%;"></div>
+                                        <div class="bar-label">精品咖啡</div>
+                                    </div>
+                                    <div class="bar-item">
+                                        <div class="bar-value">152</div>
+                                        <div class="bar green" style="height: 59%;"></div>
+                                        <div class="bar-label">新鲜水果</div>
+                                    </div>
+                                    <div class="bar-item">
+                                        <div class="bar-value">128</div>
+                                        <div class="bar green" style="height: 50%;"></div>
+                                        <div class="bar-label">零食礼盒</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Channel Pie Chart -->
+                    <div class="pos-card">
+                        <div class="card-header">
+                            <span class="card-title">各渠道销售占比</span>
+                            <span class="card-more">查看详情 &gt;</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="pie-chart-wrapper">
+                                <div style="position: relative;">
+                                    <div class="pie-chart"></div>
+                                    <div class="pie-center-text">
+                                        <div class="pie-total">&yen;128K</div>
+                                        <div class="pie-label">总销售额</div>
+                                    </div>
+                                </div>
+                                <div class="pie-legend">
+                                    <div class="pie-legend-item">
+                                        <span class="legend-dot" style="background: #52c41a;"></span>
+                                        <span>线下门店</span>
+                                        <span class="legend-value">65%</span>
+                                    </div>
+                                    <div class="pie-legend-item">
+                                        <span class="legend-dot" style="background: #1890ff;"></span>
+                                        <span>线上商城</span>
+                                        <span class="legend-value">25%</span>
+                                    </div>
+                                    <div class="pie-legend-item">
+                                        <span class="legend-dot" style="background: #faad14;"></span>
+                                        <span>第三方平台</span>
+                                        <span class="legend-value">10%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== Tables Row ========== -->
+                <div class="grid-2">
+                    <!-- Store Sales Ranking -->
+                    <div class="pos-card">
+                        <div class="card-header">
+                            <span class="card-title">各门店销售排名</span>
+                            <span class="card-more">查看全部 &gt;</span>
+                        </div>
+                        <div class="card-body" style="padding: 0;">
+                            <div class="pos-table-wrapper">
+                                <table class="pos-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 60px;">排名</th>
+                                            <th>门店名称</th>
+                                            <th>销售额</th>
+                                            <th>订单数</th>
+                                            <th>完成率</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="rank-num top1">1</span></td>
+                                            <td>星链旗舰店</td>
+                                            <td style="font-weight: 600; color: var(--text-primary);">&yen;45,280.00</td>
+                                            <td>126</td>
+                                            <td>
+                                                <div class="stock-bar-wrapper">
+                                                    <div class="stock-bar">
+                                                        <div class="stock-bar-fill" style="width: 95%; background: var(--success-color);"></div>
+                                                    </div>
+                                                    <span class="stock-text">95%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="rank-num top2">2</span></td>
+                                            <td>万达广场店</td>
+                                            <td style="font-weight: 600; color: var(--text-primary);">&yen;38,650.00</td>
+                                            <td>108</td>
+                                            <td>
+                                                <div class="stock-bar-wrapper">
+                                                    <div class="stock-bar">
+                                                        <div class="stock-bar-fill" style="width: 88%; background: var(--auxiliary-blue);"></div>
+                                                    </div>
+                                                    <span class="stock-text">88%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="rank-num top3">3</span></td>
+                                            <td>龙岩万达店</td>
+                                            <td style="font-weight: 600; color: var(--text-primary);">&yen;25,430.00</td>
+                                            <td>72</td>
+                                            <td>
+                                                <div class="stock-bar-wrapper">
+                                                    <div class="stock-bar">
+                                                        <div class="stock-bar-fill" style="width: 76%; background: var(--auxiliary-blue);"></div>
+                                                    </div>
+                                                    <span class="stock-text">76%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="rank-num normal">4</span></td>
+                                            <td>新罗区店</td>
+                                            <td style="font-weight: 600; color: var(--text-primary);">&yen;12,800.00</td>
+                                            <td>35</td>
+                                            <td>
+                                                <div class="stock-bar-wrapper">
+                                                    <div class="stock-bar">
+                                                        <div class="stock-bar-fill" style="width: 62%; background: var(--warning-color);"></div>
+                                                    </div>
+                                                    <span class="stock-text">62%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="rank-num normal">5</span></td>
+                                            <td>永定区店</td>
+                                            <td style="font-weight: 600; color: var(--text-primary);">&yen;6,400.00</td>
+                                            <td>15</td>
+                                            <td>
+                                                <div class="stock-bar-wrapper">
+                                                    <div class="stock-bar">
+                                                        <div class="stock-bar-fill" style="width: 45%; background: var(--error-color);"></div>
+                                                    </div>
+                                                    <span class="stock-text">45%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Warning -->
+                    <div class="pos-card">
+                        <div class="card-header">
+                            <span class="card-title">库存预警商品</span>
+                            <span class="card-more" style="color: var(--error-color);">5件商品预警 &gt;</span>
+                        </div>
+                        <div class="card-body" style="padding: 0;">
+                            <div class="pos-table-wrapper">
+                                <table class="pos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>商品名称</th>
+                                            <th>SKU</th>
+                                            <th>当前库存</th>
+                                            <th>预警值</th>
+                                            <th>状态</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="warning-row">
+                                            <td>有机纯牛奶 1L</td>
+                                            <td style="color: var(--text-tertiary);">SKU-001256</td>
+                                            <td style="color: var(--error-color); font-weight: 600;">12</td>
+                                            <td>50</td>
+                                            <td><span class="pos-tag pos-tag-error">紧急</span></td>
+                                        </tr>
+                                        <tr class="warning-row">
+                                            <td>进口红酒 750ml</td>
+                                            <td style="color: var(--text-tertiary);">SKU-002389</td>
+                                            <td style="color: var(--error-color); font-weight: 600;">8</td>
+                                            <td>30</td>
+                                            <td><span class="pos-tag pos-tag-error">紧急</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>精品咖啡豆 500g</td>
+                                            <td style="color: var(--text-tertiary);">SKU-003456</td>
+                                            <td style="color: var(--warning-color); font-weight: 600;">25</td>
+                                            <td>40</td>
+                                            <td><span class="pos-tag pos-tag-warning">预警</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>零食大礼包</td>
+                                            <td style="color: var(--text-tertiary);">SKU-004782</td>
+                                            <td style="color: var(--warning-color); font-weight: 600;">18</td>
+                                            <td>35</td>
+                                            <td><span class="pos-tag pos-tag-warning">预警</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>矿泉水 550ml</td>
+                                            <td style="color: var(--text-tertiary);">SKU-005123</td>
+                                            <td style="color: var(--warning-color); font-weight: 600;">45</td>
+                                            <td>60</td>
+                                            <td><span class="pos-tag pos-tag-warning">预警</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="pos-footer">
+                <div style="display: flex; align-items: center; gap: 24px; width: 100%; flex-wrap: wrap;">
+                    <span>Current User：<strong style="color: var(--text-secondary);">Admin</strong></span>
+                    <span>|</span>
+                    <span>门店：<strong style="color: var(--text-secondary);">星链旗舰店</strong></span>
+                    <span>|</span>
+                    <span>数据同步：<strong style="color: var(--text-secondary);">2026-05-26 10:30</strong></span>
+                    <span>|</span>
+                    <span>版本：<strong style="color: var(--text-secondary);">V1.0</strong></span>
+                    <span style="margin-left: auto;">网络：<span class="status-dot online"></span><strong style="color: var(--success-color);">已连接</strong></span>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Toggle sidebar menu expand/collapse
+        function toggleMenu(el) {
+            const children = el.nextElementSibling;
+            if (!children || !children.classList.contains('menu-children')) return;
+
+            const isOpen = children.classList.contains('open');
+
+            // Close all other menus
+            document.querySelectorAll('.menu-children.open').forEach(function(menu) {
+                menu.classList.remove('open');
+                menu.previousElementSibling.classList.remove('expanded');
+            });
+
+            if (!isOpen) {
+                children.classList.add('open');
+                el.classList.add('expanded');
+            }
+        }
+
+        // Toggle mobile sidebar
+        function toggleMobileMenu() {
+            document.getElementById('sidebar').classList.toggle('mobile-open');
+        }
+
+        // Fullscreen toggle
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(function() {});
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Date filter buttons
+        document.querySelectorAll('.date-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.date-btn').forEach(function(b) {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // User menu toggle (placeholder)
+        function toggleUserMenu() {
+            // Placeholder for user dropdown
+        }
+
+        // Close mobile sidebar when clicking outside
+        document.addEventListener('click', function(e) {
+            var sidebar = document.getElementById('sidebar');
+            var toggle = document.querySelector('.mobile-menu-toggle');
+            if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
+                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                    sidebar.classList.remove('mobile-open');
+                }
+            }
+        });
+    </script>
+    <script src="pos-common.js"></script>
+</body>
+</html>

@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单列表 - 智慧新零售云POS综合管理平台</title>
+    <link rel="stylesheet" href="pos-common.css">
+    <style>
+        .order-no { font-family: "Courier New", monospace; font-weight: 500; color: #1890ff; }
+        .amount { font-weight: 600; color: #333; }
+        .action-btns { display: flex; gap: 4px; }
+        .detail-section { margin-bottom: 24px; }
+        .detail-section:last-child { margin-bottom: 0; }
+        .detail-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .detail-section-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 14px;
+            background: #1890ff;
+            border-radius: 2px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .goods-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccc;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .goods-info-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .goods-info-cell .goods-name {
+            font-size: 13px;
+            color: #333;
+        }
+        .goods-info-cell .goods-spec {
+            font-size: 12px;
+            color: #999;
+            margin-top: 2px;
+        }
+        /* 自定义标签样式 */
+        .tag { padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+        .tag-green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .tag-blue { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .tag-orange { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+        .tag-red { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+        .tag-gold { background: #fffbe6; color: #d48806; border: 1px solid #ffe58f; }
+        .tag-purple { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
+        .tag-cyan { background: #e6fffb; color: #13c2c2; border: 1px solid #87e8de; }
+        .tag-gray { background: #fafafa; color: #8c8c8c; border: 1px solid #d9d9d9; }
+    </style>
+</head>
+<body>
+    <div class="pos-layout">
+        <!-- 左侧菜单栏 -->
+        <aside class="pos-sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">POS</div>
+                <div class="logo-text">智慧新零售云POS</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-group">
+                    <a class="menu-parent" href="pos-main-dashboard.html">
+                        <span class="menu-icon">&#x1F4CA;</span>
+                        <span class="menu-title">首页看板</span>
+                    </a>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F4E6;</span>
+                        <span class="menu-title">商品管理</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-product-list.html">商品列表</a>
+                        <a class="menu-child" href="pos-product-list.html">分类管理</a>
+                        <a class="menu-child" href="pos-product-list.html">库存管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent expanded" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F4C3;</span>
+                        <span class="menu-title">订单管理</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children open">
+                        <a class="menu-child active" href="pos-order-list.html">订单列表</a>
+                        <a class="menu-child" href="pos-order-list.html">退款管理</a>
+                        <a class="menu-child" href="pos-order-list.html">订单统计</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F465;</span>
+                        <span class="menu-title">会员管理</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-member.html">会员列表</a>
+                        <a class="menu-child" href="pos-member.html">积分管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F3AB;</span>
+                        <span class="menu-title">营销中心</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-activity.html">优惠券</a>
+                        <a class="menu-child" href="pos-activity.html">促销活动</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F3E0;</span>
+                        <span class="menu-title">综合管理</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-employee.html">门店管理</a>
+                        <a class="menu-child" href="pos-employee.html">员工管理</a>
+                        <a class="menu-child" href="pos-system-settings.html">系统配置</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 右侧主体 -->
+        <div class="pos-main-wrapper">
+            <!-- 顶部导航栏 -->
+            <header class="pos-header">
+                <div class="header-left">
+                    <div class="header-breadcrumb">
+                        <a href="#">首页</a>
+                        <span>/</span>
+                        <a href="#">订单管理</a>
+                        <span>/</span>
+                        <span>订单列表</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-action" title="消息通知">&#x1F514;<span class="badge">3</span></button>
+                    <button class="header-action" title="帮助">&#x2753;</button>
+                    <div class="header-user">
+                        <div class="user-avatar">A</div>
+                        <span class="user-name">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 主工作区 -->
+            <main class="pos-content">
+                <h2 class="page-title" style="font-size: 20px; font-weight: 600; margin-bottom: 16px;">订单列表</h2>
+
+                <!-- 统计卡片 -->
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">&#x1F4C3;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">今日订单</div>
+                            <div class="stat-value">356<span style="font-size:14px;font-weight:400;">单</span></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">&#xA5;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">今日销售额</div>
+                            <div class="stat-value">&#xA5;128,560</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">&#x1F4E6;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">待发货</div>
+                            <div class="stat-value">12<span style="font-size:14px;font-weight:400;">单</span></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">&#x21BB;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">退款中</div>
+                            <div class="stat-value">5<span style="font-size:14px;font-weight:400;">单</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 查询条件 -->
+                <div class="pos-card" style="margin-bottom: 16px;">
+                    <div class="card-body">
+                        <div class="pos-search-bar">
+                            <input type="text" class="pos-input" placeholder="请输入订单号" style="width: 180px;">
+                            <select class="pos-select" style="width: 140px;">
+                                <option>全部来源</option>
+                                <option>线下门店</option>
+                                <option>线上商城</option>
+                                <option>第三方平台</option>
+                            </select>
+                            <select class="pos-select" style="width: 140px;">
+                                <option>全部状态</option>
+                                <option>待支付</option>
+                                <option>已支付</option>
+                                <option>待发货</option>
+                                <option>已发货</option>
+                                <option>已完成</option>
+                                <option>已取消</option>
+                                <option>退款中</option>
+                            </select>
+                            <input type="date" class="pos-input" value="2026-05-26" style="width: 140px;">
+                            <select class="pos-select" style="width: 140px;">
+                                <option>全部支付方式</option>
+                                <option>现金</option>
+                                <option>微信支付</option>
+                                <option>支付宝</option>
+                                <option>银行卡</option>
+                                <option>储值卡</option>
+                            </select>
+                            <div class="search-actions">
+                                <button class="pos-btn pos-btn-primary">&#x1F50D; 查询</button>
+                                <button class="pos-btn pos-btn-default">&#x21BB; 重置</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 工具栏 -->
+                <div style="margin-bottom: 16px; display: flex; justify-content: flex-end;">
+                    <button class="pos-btn pos-btn-default">&#x1F4E4; 导出</button>
+                </div>
+
+                <!-- 订单列表表格 -->
+                <div class="pos-card">
+                    <div class="pos-table-wrapper">
+                        <table class="pos-table">
+                            <thead>
+                                <tr>
+                                    <th>订单号</th>
+                                    <th>下单时间</th>
+                                    <th>订单来源</th>
+                                    <th>Cashier/Order Taker</th>
+                                    <th>商品数</th>
+                                    <th>订单金额</th>
+                                    <th>支付方式</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="order-no">DD20260526001</span></td>
+                                    <td>2026-05-26 10:30:00</td>
+                                    <td><span class="tag tag-green">线下门店</span></td>
+                                    <td>Lily Zhang</td>
+                                    <td>3</td>
+                                    <td><span class="amount">&#xA5;86.50</span></td>
+                                    <td>微信支付</td>
+                                    <td><span class="tag tag-green">已完成</span></td>
+                                    <td><button class="pos-btn pos-btn-default pos-btn-sm" onclick="showOrderDetail('DD20260526001')">详情</button></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="order-no">DD20260526002</span></td>
+                                    <td>2026-05-26 10:15:22</td>
+                                    <td><span class="tag tag-blue">线上商城</span></td>
+                                    <td>李明（用户）</td>
+                                    <td>5</td>
+                                    <td><span class="amount">&#xA5;328.00</span></td>
+                                    <td>支付宝</td>
+                                    <td><span class="tag tag-cyan">已发货</span></td>
+                                    <td><button class="pos-btn pos-btn-default pos-btn-sm" onclick="showOrderDetail('DD20260526002')">详情</button></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="order-no">DD20260526003</span></td>
+                                    <td>2026-05-26 09:58:10</td>
+                                    <td><span class="tag tag-orange">第三方平台</span></td>
+                                    <td>王芳（美团）</td>
+                                    <td>2</td>
+                                    <td><span class="amount">&#xA5;45.80</span></td>
+                                    <td>微信支付</td>
+                                    <td><span class="tag tag-gold">待发货</span></td>
+                                    <td><button class="pos-btn pos-btn-default pos-btn-sm" onclick="showOrderDetail('DD20260526003')">详情</button></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="order-no">DD20260526004</span></td>
+                                    <td>2026-05-26 09:42:35</td>
+                                    <td><span class="tag tag-green">线下门店</span></td>
+                                    <td>Lily Zhang</td>
+                                    <td>1</td>
+                                    <td><span class="amount">&#xA5;1,280.00</span></td>
+                                    <td>银行卡</td>
+                                    <td><span class="tag tag-green">已完成</span></td>
+                                    <td><button class="pos-btn pos-btn-default pos-btn-sm" onclick="showOrderDetail('DD20260526004')">详情</button></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="order-no">DD20260526005</span></td>
+                                    <td>2026-05-26 09:30:18</td>
+                                    <td><span class="tag tag-blue">线上商城</span></td>
+                                    <td>赵磊（用户）</td>
+                                    <td>4</td>
+                                    <td><span class="amount">&#xA5;215.60</span></td>
+                                    <td>支付宝</td>
+                                    <td><span class="tag tag-purple">已支付</span></td>
+                                    <td><button class="pos-btn pos-btn-default pos-btn-sm" onclick="showOrderDetail('DD20260526005')">详情</button></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="order-no">DD20260526006</span></td>
+                                    <td>2026-05-26 09:12:05</td>
+                                    <td><span class="tag tag-green">线下门店</span></td>
+                                    <td>Jason Liu</td>
+                                    <td>2</td>
+                                    <td><span class="amount">&#xA5;56.00</span></td>
+                                    <td>现金</td>
+                                    <td><span class="tag tag-green">已完成</span></td>
+                                    <td><button class="pos-btn pos-btn-default pos-btn-sm" onclick="showOrderDetail('DD20260526006')">详情</button></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="order-no">DD20260526007</span></td>
+                                    <td>2026-05-26 08:55:42</td>
+                                    <td><span class="tag tag-blue">线上商城</span></td>
+                                    <td>陈静（用户）</td>
+                                    <td>6</td>
+                                    <td><span class="amount">&#xA5;468.00</span></td>
+                                    <td>微信支付</td>
+                                    <td><span class="tag tag-red">退款中</span></td>
+                                    <td><button class="pos-btn pos-btn-default pos-btn-sm" onclick="showOrderDetail('DD20260526007')">详情</button></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="order-no">DD20260526008</span></td>
+                                    <td>2026-05-26 08:30:00</td>
+                                    <td><span class="tag tag-green">线下门店</span></td>
+                                    <td>Lily Zhang</td>
+                                    <td>1</td>
+                                    <td><span class="amount">&#xA5;35.00</span></td>
+                                    <td>储值卡</td>
+                                    <td><span class="tag tag-gray">已取消</span></td>
+                                    <td><button class="pos-btn pos-btn-default pos-btn-sm" onclick="showOrderDetail('DD20260526008')">详情</button></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="order-no">DD20260526009</span></td>
+                                    <td>2026-05-26 08:15:33</td>
+                                    <td><span class="tag tag-orange">第三方平台</span></td>
+                                    <td>周伟（饿了么）</td>
+                                    <td>3</td>
+                                    <td><span class="amount">&#xA5;92.50</span></td>
+                                    <td>微信支付</td>
+                                    <td><span class="tag tag-gold">待发货</span></td>
+                                    <td><button class="pos-btn pos-btn-default pos-btn-sm" onclick="showOrderDetail('DD20260526009')">详情</button></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="order-no">DD20260526010</span></td>
+                                    <td>2026-05-26 07:50:20</td>
+                                    <td><span class="tag tag-blue">线上商城</span></td>
+                                    <td>吴婷（用户）</td>
+                                    <td>2</td>
+                                    <td><span class="amount">&#xA5;159.90</span></td>
+                                    <td>支付宝</td>
+                                    <td><span class="tag tag-red">退款中</span></td>
+                                    <td><button class="pos-btn pos-btn-default pos-btn-sm" onclick="showOrderDetail('DD20260526010')">详情</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="pos-pagination">
+                        <span class="page-info">共 <b>356</b> 条，第 <b>1</b>/<b>36</b> 页</span>
+                        <span class="page-btn">&laquo;</span>
+                        <span class="page-btn">&lsaquo;</span>
+                        <span class="page-btn active">1</span>
+                        <span class="page-btn">2</span>
+                        <span class="page-btn">3</span>
+                        <span class="page-btn">4</span>
+                        <span class="page-btn">5</span>
+                        <span style="color:#999;">...</span>
+                        <span class="page-btn">36</span>
+                        <span class="page-btn">&rsaquo;</span>
+                        <span class="page-btn">&raquo;</span>
+                    </div>
+                </div>
+            </main>
+
+            <!-- 底部状态栏 -->
+            <footer class="pos-footer">
+                <span>智慧新零售云POS综合管理平台 v3.2.0</span>
+                <span>Current Store：旗舰店 | 收银终端：POS-001 | Operator：Admin</span>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 订单详情对话框 -->
+    <div class="pos-modal-overlay" id="orderDetailModal">
+        <div class="pos-modal" style="width: 800px;">
+            <div class="modal-header">
+                <span class="modal-title">订单详情 - <span id="detailOrderNo">DD20260526001</span></span>
+                <button class="modal-close" onclick="closeOrderDetail()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 订单基本信息 -->
+                <div class="detail-section">
+                    <div class="detail-section-title">订单基本信息</div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 14px;">
+                        <div><span style="color:#8c8c8c;">订单号：</span><span style="font-family:'Courier New',monospace;">DD20260526001</span></div>
+                        <div><span style="color:#8c8c8c;">下单时间：</span>2026-05-26 10:30:00</div>
+                        <div><span style="color:#8c8c8c;">订单来源：</span><span class="tag tag-green">线下门店</span></div>
+                        <div><span style="color:#8c8c8c;">订单状态：</span><span class="tag tag-green">已完成</span></div>
+                        <div><span style="color:#8c8c8c;">Cashier：</span>Lily Zhang</div>
+                        <div><span style="color:#8c8c8c;">所属门店：</span>旗舰店</div>
+                        <div><span style="color:#8c8c8c;">订单备注：</span>-</div>
+                        <div><span style="color:#8c8c8c;">会员信息：</span>VIP会员 张先生 (138****5678)</div>
+                    </div>
+                </div>
+
+                <!-- 商品明细 -->
+                <div class="detail-section">
+                    <div class="detail-section-title">商品明细</div>
+                    <div class="pos-table-wrapper" style="border: 1px solid #f0f0f0; border-radius: 6px;">
+                        <table class="pos-table">
+                            <thead>
+                                <tr>
+                                    <th>商品信息</th>
+                                    <th>单价</th>
+                                    <th>数量</th>
+                                    <th>小计</th>
+                                    <th>优惠</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="goods-info-cell">
+                                            <div class="goods-img">&#x1F37C;</div>
+                                            <div>
+                                                <div class="goods-name">蒙牛纯牛奶 250ml*12盒</div>
+                                                <div class="goods-spec">规格：整箱装 | 条码：6907992500863</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>&#xA5;52.00</td>
+                                    <td>1</td>
+                                    <td>&#xA5;52.00</td>
+                                    <td>&#xA5;0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="goods-info-cell">
+                                            <div class="goods-img">&#x1F369;</div>
+                                            <div>
+                                                <div class="goods-name">三只松鼠坚果礼盒 1.32kg</div>
+                                                <div class="goods-spec">规格：礼盒装 | 条码：6970428210186</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>&#xA5;29.90</td>
+                                    <td>1</td>
+                                    <td>&#xA5;29.90</td>
+                                    <td>-&#xA5;5.00</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="goods-info-cell">
+                                            <div class="goods-img">&#x1F37A;</div>
+                                            <div>
+                                                <div class="goods-name">农夫山泉饮用水 550ml</div>
+                                                <div class="goods-spec">规格：瓶装 | 条码：6921168509256</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>&#xA5;2.00</td>
+                                    <td>3</td>
+                                    <td>&#xA5;6.00</td>
+                                    <td>&#xA5;0.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="text-align:right; margin-top:12px; font-size:13px; color:#666; line-height:24px;">
+                        <div>商品总额：&#xA5;87.90</div>
+                        <div>优惠减免：-&#xA5;5.00</div>
+                        <div style="font-size:16px; font-weight:600; color:#333; margin-top:4px;">实付金额：&#xA5;<span style="color:#ff4d4f;">82.90</span></div>
+                    </div>
+                </div>
+
+                <!-- 支付信息 -->
+                <div class="detail-section">
+                    <div class="detail-section-title">支付信息</div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 14px;">
+                        <div><span style="color:#8c8c8c;">支付方式：</span>微信支付</div>
+                        <div><span style="color:#8c8c8c;">支付金额：</span><span style="font-weight:600; color:#ff4d4f;">&#xA5;82.90</span></div>
+                        <div><span style="color:#8c8c8c;">支付时间：</span>2026-05-26 10:30:15</div>
+                        <div><span style="color:#8c8c8c;">交易流水号：</span><span style="font-family:'Courier New',monospace; font-size:12px;">WX20260526103015001</span></div>
+                    </div>
+                </div>
+
+                <!-- 收货信息（线上订单示例） -->
+                <div class="detail-section" id="shippingInfoSection" style="display:none;">
+                    <div class="detail-section-title">收货信息</div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 14px;">
+                        <div><span style="color:#8c8c8c;">收货人：</span>李明</div>
+                        <div><span style="color:#8c8c8c;">联系电话：</span>139****1234</div>
+                        <div style="grid-column: 1 / -1;"><span style="color:#8c8c8c;">收货地址：</span>北京市朝阳区建国路88号SOHO现代城A座1205室</div>
+                        <div><span style="color:#8c8c8c;">配送方式：</span>快递配送</div>
+                        <div><span style="color:#8c8c8c;">快递单号：</span><span style="font-family:'Courier New',monospace;">SF1234567890123</span></div>
+                    </div>
+                </div>
+
+                <!-- 操作日志时间轴 -->
+                <div class="detail-section">
+                    <div class="detail-section-title">操作日志</div>
+                    <div style="font-size: 13px;">
+                        <div style="display: flex; gap: 16px; padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
+                            <span style="color:#8c8c8c; width: 140px; flex-shrink: 0;">2026-05-26 10:35:20</span>
+                            <span>订单已完成</span>
+                            <span style="color:#8c8c8c; margin-left: auto;">Operator：系统自动</span>
+                        </div>
+                        <div style="display: flex; gap: 16px; padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
+                            <span style="color:#8c8c8c; width: 140px; flex-shrink: 0;">2026-05-26 10:30:15</span>
+                            <span>支付成功，微信支付 &#xA5;82.90</span>
+                            <span style="color:#8c8c8c; margin-left: auto;">Operator：系统自动</span>
+                        </div>
+                        <div style="display: flex; gap: 16px; padding: 8px 0;">
+                            <span style="color:#8c8c8c; width: 140px; flex-shrink: 0;">2026-05-26 10:30:00</span>
+                            <span>订单创建，商品共3件</span>
+                            <span style="color:#8c8c8c; margin-left: auto;">Operator：Lily Zhang（Cashier）</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeOrderDetail()">关闭</button>
+                <button class="pos-btn pos-btn-primary">&#x1F5A8; 打印小票</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 菜单展开/收起
+        function toggleMenu(el) {
+            const children = el.nextElementSibling;
+            if (children && children.classList.contains('menu-children')) {
+                children.classList.toggle('open');
+                el.classList.toggle('expanded');
+            }
+        }
+
+        // 显示订单详情
+        function showOrderDetail(orderNo) {
+            document.getElementById('detailOrderNo').textContent = orderNo;
+            // 根据订单号判断是否显示收货信息（线上订单才显示）
+            const shippingSection = document.getElementById('shippingInfoSection');
+            // DD02...02 和 DD02...05 等为线上订单
+            if (orderNo === 'DD20260526002' || orderNo === 'DD20260526005' || orderNo === 'DD20260526007' || orderNo === 'DD20260526010') {
+                shippingSection.style.display = 'block';
+            } else {
+                shippingSection.style.display = 'none';
+            }
+            document.getElementById('orderDetailModal').classList.add('show');
+        }
+
+        // 关闭订单详情
+        function closeOrderDetail() {
+            document.getElementById('orderDetailModal').classList.remove('show');
+        }
+
+        // 点击遮罩关闭
+        document.getElementById('orderDetailModal').addEventListener('click', function(e) {
+            if (e.target === this) closeOrderDetail();
+        });
+    </script>
+    <script src="pos-common.js"></script>
+</body>
+</html>

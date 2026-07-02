@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品管理 - 商品列表 - 智慧新零售云POS综合管理平台</title>
+    <link rel="stylesheet" href="pos-common.css">
+    <style>
+        /* 页面特有样式 */
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        /* 操作列链接 */
+        .op-link {
+            color: #1890ff;
+            cursor: pointer;
+            font-size: 13px;
+            margin: 0 4px;
+        }
+
+        .op-link:hover {
+            color: #40a9ff;
+            text-decoration: underline;
+        }
+
+        .op-link.danger {
+            color: #ff4d4f;
+        }
+
+        .op-link.danger:hover {
+            color: #ff7875;
+        }
+
+        .op-divider {
+            color: #e8e8e8;
+            margin: 0 2px;
+        }
+
+        /* 弹窗大对话框 */
+        .pos-modal.modal-lg {
+            width: 860px;
+            max-width: 95vw;
+        }
+
+        .modal-lg .pos-modal-body {
+            padding: 20px 28px;
+        }
+
+        /* 弹窗内分区标题 */
+        .form-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            padding: 12px 0 8px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-section-title::before {
+            content: "";
+            width: 3px;
+            height: 16px;
+            background: #1890ff;
+            border-radius: 2px;
+        }
+
+        /* 弹窗内表单网格 */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0 24px;
+        }
+
+        .form-grid .pos-form-item {
+            margin-bottom: 14px;
+        }
+
+        .form-grid .pos-form-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* 毛利率自动计算 */
+        .profit-rate {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 8px;
+            font-size: 13px;
+        }
+
+        .profit-rate .rate-value {
+            color: #52c41a;
+            font-weight: 600;
+        }
+
+        /* 图片上传区 */
+        .upload-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .upload-main {
+            width: 140px;
+            height: 140px;
+        }
+
+        .upload-sub {
+            width: 100px;
+            height: 100px;
+        }
+
+        .upload-area.main-upload {
+            width: 140px;
+            height: 140px;
+        }
+
+        .upload-area.sub-upload {
+            width: 100px;
+            height: 100px;
+            font-size: 12px;
+        }
+
+        .upload-area.sub-upload .upload-icon {
+            font-size: 24px;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        /* SKU配置 */
+        .sku-attrs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .sku-attr-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sku-attr-group label {
+            font-size: 13px;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .sku-attr-group input {
+            height: 30px;
+            padding: 0 8px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 13px;
+            outline: none;
+            width: 200px;
+        }
+
+        .sku-attr-group input:focus {
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.1);
+        }
+
+        .sku-attr-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .sku-tag {
+            padding: 3px 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sku-tag:hover, .sku-tag.active {
+            border-color: #1890ff;
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        /* 弹窗隐藏 */
+        .modal-hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="pos-layout">
+        <!-- 左侧菜单栏 -->
+        <aside class="pos-sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">POS</div>
+                <div class="logo-text">智慧新零售云POS</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-group">
+                    <a class="menu-parent" href="pos-main-dashboard.html">
+                        <span class="menu-icon">&#x1F4CA;</span>
+                        <span class="menu-title">首页看板</span>
+                    </a>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent expanded" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F4E6;</span>
+                        <span class="menu-title">商品管理</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children open">
+                        <a class="menu-child active" href="pos-product-list.html">商品列表</a>
+                        <a class="menu-child" href="pos-product-list.html">分类管理</a>
+                        <a class="menu-child" href="pos-product-list.html">库存管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F4C3;</span>
+                        <span class="menu-title">订单管理</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-order-list.html">订单列表</a>
+                        <a class="menu-child" href="pos-order-list.html">退款管理</a>
+                        <a class="menu-child" href="pos-order-list.html">订单统计</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F465;</span>
+                        <span class="menu-title">会员管理</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-member.html">会员列表</a>
+                        <a class="menu-child" href="pos-member.html">积分管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F3AB;</span>
+                        <span class="menu-title">营销中心</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-activity.html">优惠券</a>
+                        <a class="menu-child" href="pos-activity.html">促销活动</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent" onclick="toggleMenu(this)">
+                        <span class="menu-icon">&#x1F3E0;</span>
+                        <span class="menu-title">综合管理</span>
+                        <span class="menu-arrow">&#x25B6;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-employee.html">门店管理</a>
+                        <a class="menu-child" href="pos-employee.html">员工管理</a>
+                        <a class="menu-child" href="pos-system-settings.html">系统配置</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 右侧主体 -->
+        <div class="pos-main-wrapper">
+            <!-- 顶部导航栏 -->
+            <header class="pos-header">
+                <div class="header-left">
+                    <div class="header-breadcrumb">
+                        <a href="#">首页</a>
+                        <span>/</span>
+                        <a href="#">商品管理</a>
+                        <span>/</span>
+                        <span>商品列表</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <span class="text-muted" style="font-size:13px;">&#x1F4C5; 2026-05-26</span>
+                    <div class="header-user">
+                        <div class="user-avatar">A</div>
+                        <span class="user-name">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 主工作区 -->
+            <main class="pos-content">
+                <!-- 查询条件 -->
+                <div class="pos-card" style="margin-bottom: 16px;">
+                    <div class="card-body">
+                        <div class="pos-search-bar">
+                            <div class="pos-form-group" style="margin-bottom:0;">
+                                <input type="text" class="pos-input" placeholder="请输入商品名称" id="searchName" style="width: 180px;">
+                            </div>
+                            <div class="pos-form-group" style="margin-bottom:0;">
+                                <input type="text" class="pos-input" placeholder="请输入商品编码" id="searchCode" style="width: 180px;">
+                            </div>
+                            <div class="pos-form-group" style="margin-bottom:0;">
+                                <select class="pos-select" id="searchCategory" style="width: 140px;">
+                                    <option value="">全部分类</option>
+                                    <option value="drink">饮料</option>
+                                    <option value="snack">零食</option>
+                                    <option value="daily">日用品</option>
+                                    <option value="fresh">生鲜</option>
+                                    <option value="tobacco">烟酒</option>
+                                    <option value="dairy">乳制品</option>
+                                </select>
+                            </div>
+                            <div class="pos-form-group" style="margin-bottom:0;">
+                                <select class="pos-select" id="searchStatus" style="width: 120px;">
+                                    <option value="">全部状态</option>
+                                    <option value="on">上架</option>
+                                    <option value="off">下架</option>
+                                </select>
+                            </div>
+                            <div class="search-actions">
+                                <button class="pos-btn pos-btn-primary" onclick="searchProducts()">&#x1F50D; 查询</button>
+                                <button class="pos-btn pos-btn-default" onclick="resetSearch()">&#x1F504; 重置</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 工具栏 -->
+                <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 8px;">
+                        <button class="pos-btn pos-btn-primary" onclick="openAddModal()">&#x2795; 新增商品</button>
+                        <button class="pos-btn pos-btn-default" onclick="batchImport()">&#x1F4E5; 批量导入</button>
+                        <button class="pos-btn pos-btn-default" onclick="batchEdit()">&#x270F;&#xFE0F; 批量修改</button>
+                    </div>
+                    <div>
+                        <button class="pos-btn pos-btn-default" onclick="exportData()">&#x1F4E4; 导出</button>
+                    </div>
+                </div>
+
+                <!-- 商品列表 -->
+                <div class="pos-card">
+                    <div class="pos-table-wrapper">
+                        <table class="pos-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px;"><input type="checkbox" id="checkAll" onclick="toggleCheckAll()"></th>
+                                    <th>商品编码</th>
+                                    <th>商品名称</th>
+                                    <th>分类</th>
+                                    <th>品牌</th>
+                                    <th>规格</th>
+                                    <th style="text-align:right;">零售价</th>
+                                    <th style="text-align:right;">库存</th>
+                                    <th style="text-align:center;">状态</th>
+                                    <th style="text-align:center;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox" class="row-check"></td>
+                                    <td>SP20250001</td>
+                                    <td>可口可乐 330ml</td>
+                                    <td>饮料</td>
+                                    <td>可口可乐</td>
+                                    <td>330ml</td>
+                                    <td class="text-right">&#xA5;3.50</td>
+                                    <td class="text-right">580</td>
+                                    <td class="text-center"><span class="pos-tag pos-tag-success">上架</span></td>
+                                    <td class="text-center">
+                                        <span class="op-link" onclick="editProduct('SP20250001')">编辑</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link danger" onclick="toggleStatus(this)">下架</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link" onclick="viewProduct('SP20250001')">详情</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="row-check"></td>
+                                    <td>SP20250002</td>
+                                    <td>乐事薯片 75g</td>
+                                    <td>零食</td>
+                                    <td>乐事</td>
+                                    <td>75g</td>
+                                    <td class="text-right">&#xA5;6.90</td>
+                                    <td class="text-right">320</td>
+                                    <td class="text-center"><span class="pos-tag pos-tag-success">上架</span></td>
+                                    <td class="text-center">
+                                        <span class="op-link" onclick="editProduct('SP20250002')">编辑</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link danger" onclick="toggleStatus(this)">下架</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link" onclick="viewProduct('SP20250002')">详情</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="row-check"></td>
+                                    <td>SP20250003</td>
+                                    <td>农夫山泉 550ml</td>
+                                    <td>饮料</td>
+                                    <td>农夫山泉</td>
+                                    <td>550ml</td>
+                                    <td class="text-right">&#xA5;2.00</td>
+                                    <td class="text-right">1,200</td>
+                                    <td class="text-center"><span class="pos-tag pos-tag-success">上架</span></td>
+                                    <td class="text-center">
+                                        <span class="op-link" onclick="editProduct('SP20250003')">编辑</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link danger" onclick="toggleStatus(this)">下架</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link" onclick="viewProduct('SP20250003')">详情</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="row-check"></td>
+                                    <td>SP20250004</td>
+                                    <td>蒙牛纯牛奶 250ml</td>
+                                    <td>乳制品</td>
+                                    <td>蒙牛</td>
+                                    <td>250ml</td>
+                                    <td class="text-right">&#xA5;4.50</td>
+                                    <td class="text-right">450</td>
+                                    <td class="text-center"><span class="pos-tag pos-tag-success">上架</span></td>
+                                    <td class="text-center">
+                                        <span class="op-link" onclick="editProduct('SP20250004')">编辑</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link danger" onclick="toggleStatus(this)">下架</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link" onclick="viewProduct('SP20250004')">详情</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="row-check"></td>
+                                    <td>SP20250005</td>
+                                    <td>康师傅红烧牛肉面 桶装</td>
+                                    <td>零食</td>
+                                    <td>康师傅</td>
+                                    <td>桶装 115g</td>
+                                    <td class="text-right">&#xA5;5.80</td>
+                                    <td class="text-right">260</td>
+                                    <td class="text-center"><span class="pos-tag pos-tag-success">上架</span></td>
+                                    <td class="text-center">
+                                        <span class="op-link" onclick="editProduct('SP20250005')">编辑</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link danger" onclick="toggleStatus(this)">下架</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link" onclick="viewProduct('SP20250005')">详情</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="row-check"></td>
+                                    <td>SP20250006</td>
+                                    <td>中华香烟 软盒</td>
+                                    <td>烟酒</td>
+                                    <td>中华</td>
+                                    <td>20支/盒</td>
+                                    <td class="text-right">&#xA5;65.00</td>
+                                    <td class="text-right">80</td>
+                                    <td class="text-center"><span class="pos-tag pos-tag-success">上架</span></td>
+                                    <td class="text-center">
+                                        <span class="op-link" onclick="editProduct('SP20250006')">编辑</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link danger" onclick="toggleStatus(this)">下架</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link" onclick="viewProduct('SP20250006')">详情</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="row-check"></td>
+                                    <td>SP20250007</td>
+                                    <td>维达抽纸 3层130抽</td>
+                                    <td>日用品</td>
+                                    <td>维达</td>
+                                    <td>130抽/包</td>
+                                    <td class="text-right">&#xA5;5.90</td>
+                                    <td class="text-right">680</td>
+                                    <td class="text-center"><span class="pos-tag pos-tag-default">下架</span></td>
+                                    <td class="text-center">
+                                        <span class="op-link" onclick="editProduct('SP20250007')">编辑</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link" style="color:#52c41a;" onclick="toggleStatus(this)">上架</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link" onclick="viewProduct('SP20250007')">详情</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="row-check"></td>
+                                    <td>SP20250008</td>
+                                    <td>金龙鱼菜籽油 5L</td>
+                                    <td>粮油</td>
+                                    <td>金龙鱼</td>
+                                    <td>5L/桶</td>
+                                    <td class="text-right">&#xA5;59.90</td>
+                                    <td class="text-right">150</td>
+                                    <td class="text-center"><span class="pos-tag pos-tag-success">上架</span></td>
+                                    <td class="text-center">
+                                        <span class="op-link" onclick="editProduct('SP20250008')">编辑</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link danger" onclick="toggleStatus(this)">下架</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link" onclick="viewProduct('SP20250008')">详情</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="row-check"></td>
+                                    <td>SP20250009</td>
+                                    <td>百事可乐 500ml</td>
+                                    <td>饮料</td>
+                                    <td>百事可乐</td>
+                                    <td>500ml</td>
+                                    <td class="text-right">&#xA5;3.50</td>
+                                    <td class="text-right">420</td>
+                                    <td class="text-center"><span class="pos-tag pos-tag-success">上架</span></td>
+                                    <td class="text-center">
+                                        <span class="op-link" onclick="editProduct('SP20250009')">编辑</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link danger" onclick="toggleStatus(this)">下架</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link" onclick="viewProduct('SP20250009')">详情</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="row-check"></td>
+                                    <td>SP20250010</td>
+                                    <td>得力中性笔 0.5mm 黑色</td>
+                                    <td>文具</td>
+                                    <td>得力</td>
+                                    <td>0.5mm/支</td>
+                                    <td class="text-right">&#xA5;3.00</td>
+                                    <td class="text-right">960</td>
+                                    <td class="text-center"><span class="pos-tag pos-tag-default">下架</span></td>
+                                    <td class="text-center">
+                                        <span class="op-link" onclick="editProduct('SP20250010')">编辑</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link" style="color:#52c41a;" onclick="toggleStatus(this)">上架</span>
+                                        <span class="op-divider">|</span>
+                                        <span class="op-link" onclick="viewProduct('SP20250010')">详情</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- 分页 -->
+                    <div class="pos-pagination">
+                        <span class="page-info">共 <b>1,286</b> 条</span>
+                        <span class="page-btn" title="上一页">&laquo;</span>
+                        <span class="page-btn active">1</span>
+                        <span class="page-btn">2</span>
+                        <span class="page-btn">3</span>
+                        <span class="page-btn">4</span>
+                        <span class="page-btn">5</span>
+                        <span style="color:#999;">...</span>
+                        <span class="page-btn">129</span>
+                        <span class="page-btn" title="下一页">&raquo;</span>
+                    </div>
+                </div>
+            </main>
+
+            <!-- 底部状态栏 -->
+            <footer class="pos-footer">
+                <span>&copy; 2026 智慧新零售云POS综合管理平台 v2.0</span>
+                <span>Current User：Admin | 门店：星链旗舰店 | 会话时间：2026-05-26 14:30</span>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 新增商品对话框 -->
+    <div class="pos-modal-overlay modal-hidden" id="addModal" onclick="closeModalOutside(event)">
+        <div class="pos-modal modal-lg">
+            <div class="modal-header">
+                <span class="modal-title">&#x2795; 新增商品</span>
+                <button class="modal-close" onclick="closeAddModal()">&#x2715;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 基本信息 -->
+                <div class="form-section-title">基本信息</div>
+                <div class="form-grid">
+                    <div class="pos-form-item">
+                        <label class="pos-form-label"><span class="required">*</span> 商品名称</label>
+                        <input type="text" class="pos-input" placeholder="请输入商品名称" id="pName">
+                    </div>
+                    <div class="pos-form-item">
+                        <label class="pos-form-label"><span class="required">*</span> 商品编码</label>
+                        <input type="text" class="pos-input" value="SP20250011" readonly style="background:#f5f5f5;color:#999;">
+                    </div>
+                    <div class="pos-form-item">
+                        <label class="pos-form-label"><span class="required">*</span> 商品条码</label>
+                        <input type="text" class="pos-input" placeholder="请输入商品条码" id="pBarcode">
+                    </div>
+                    <div class="pos-form-item">
+                        <label class="pos-form-label"><span class="required">*</span> 商品分类</label>
+                        <select class="pos-select" id="pCategory">
+                            <option value="">请选择分类</option>
+                            <option value="drink">饮料</option>
+                            <option value="snack">零食</option>
+                            <option value="daily">日用品</option>
+                            <option value="fresh">生鲜</option>
+                            <option value="tobacco">烟酒</option>
+                            <option value="dairy">乳制品</option>
+                        </select>
+                    </div>
+                    <div class="pos-form-item">
+                        <label class="pos-form-label">品牌</label>
+                        <input type="text" class="pos-input" placeholder="请输入品牌" id="pBrand">
+                    </div>
+                    <div class="pos-form-item">
+                        <label class="pos-form-label">规格</label>
+                        <input type="text" class="pos-input" placeholder="请输入规格" id="pSpec">
+                    </div>
+                    <div class="pos-form-item">
+                        <label class="pos-form-label"><span class="required">*</span> 单位</label>
+                        <select class="pos-select" id="pUnit">
+                            <option value="">请选择</option>
+                            <option value="piece">件</option>
+                            <option value="bottle">瓶</option>
+                            <option value="can">罐</option>
+                            <option value="bag">袋</option>
+                            <option value="box">盒</option>
+                            <option value="barrel">桶</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 价格信息 -->
+                <div class="form-section-title">价格信息</div>
+                <div class="form-grid">
+                    <div class="pos-form-item">
+                        <label class="pos-form-label"><span class="required">*</span> 采购价</label>
+                        <input type="number" class="pos-input" placeholder="0.00" step="0.01" id="pCostPrice" oninput="calcProfit()">
+                    </div>
+                    <div class="pos-form-item">
+                        <label class="pos-form-label"><span class="required">*</span> 零售价</label>
+                        <input type="number" class="pos-input" placeholder="0.00" step="0.01" id="pRetailPrice" oninput="calcProfit()">
+                        <span class="profit-rate">毛利率：<span class="rate-value" id="profitRate">0.00%</span></span>
+                    </div>
+                    <div class="pos-form-item">
+                        <label class="pos-form-label">会员价</label>
+                        <input type="number" class="pos-input" placeholder="0.00" step="0.01" id="pVipPrice">
+                    </div>
+                    <div class="pos-form-item">
+                        <label class="pos-form-label">批发价</label>
+                        <input type="number" class="pos-input" placeholder="0.00" step="0.01" id="pWholesalePrice">
+                    </div>
+                </div>
+
+                <!-- 库存信息 -->
+                <div class="form-section-title">库存信息</div>
+                <div class="form-grid">
+                    <div class="pos-form-item">
+                        <label class="pos-form-label"><span class="required">*</span> 初始库存</label>
+                        <input type="number" class="pos-input" placeholder="0" id="pStock">
+                    </div>
+                    <div class="pos-form-item">
+                        <label class="pos-form-label">安全库存</label>
+                        <input type="number" class="pos-input" placeholder="0" id="pSafeStock">
+                    </div>
+                    <div class="pos-form-item">
+                        <label class="pos-form-label">库存上限</label>
+                        <input type="number" class="pos-input" placeholder="0" id="pMaxStock">
+                    </div>
+                </div>
+
+                <!-- 商品图片 -->
+                <div class="form-section-title">商品图片</div>
+                <div style="margin-bottom:16px;">
+                    <div style="font-size:13px;color:#666;margin-bottom:8px;">主图</div>
+                    <div class="upload-group">
+                        <div class="pos-upload-area main-upload" onclick="uploadImage('main')">
+                            <span class="upload-icon">&#x2795;</span>
+                            <span>上传主图</span>
+                        </div>
+                    </div>
+                    <div style="font-size:13px;color:#666;margin-bottom:8px;margin-top:12px;">辅图（最多5张）</div>
+                    <div class="upload-group">
+                        <div class="pos-upload-area sub-upload" onclick="uploadImage('sub1')">
+                            <span class="upload-icon">&#x2795;</span>
+                            <span>辅图1</span>
+                        </div>
+                        <div class="pos-upload-area sub-upload" onclick="uploadImage('sub2')">
+                            <span class="upload-icon">&#x2795;</span>
+                            <span>辅图2</span>
+                        </div>
+                        <div class="pos-upload-area sub-upload" onclick="uploadImage('sub3')">
+                            <span class="upload-icon">&#x2795;</span>
+                            <span>辅图3</span>
+                        </div>
+                        <div class="pos-upload-area sub-upload" onclick="uploadImage('sub4')">
+                            <span class="upload-icon">&#x2795;</span>
+                            <span>辅图4</span>
+                        </div>
+                        <div class="pos-upload-area sub-upload" onclick="uploadImage('sub5')">
+                            <span class="upload-icon">&#x2795;</span>
+                            <span>辅图5</span>
+                        </div>
+                    </div>
+                    <div class="upload-hint">支持 JPG、PNG 格式，单张不超过 5MB</div>
+                </div>
+
+                <!-- SKU配置 -->
+                <div class="form-section-title">SKU配置</div>
+                <div class="sku-attrs">
+                    <div class="sku-attr-group">
+                        <label>规格属性1：</label>
+                        <input type="text" placeholder="如：颜色" id="skuAttr1">
+                    </div>
+                    <div class="sku-attr-group">
+                        <label>规格属性2：</label>
+                        <input type="text" placeholder="如：尺码" id="skuAttr2">
+                    </div>
+                </div>
+                <div class="sku-attr-tags" id="skuTags" style="display:none;">
+                    <span class="sku-tag active">红色</span>
+                    <span class="sku-tag">蓝色</span>
+                    <span class="sku-tag">黑色</span>
+                    <span class="sku-tag">白色</span>
+                </div>
+                <div style="margin-top:12px;">
+                    <table class="pos-table" style="font-size:13px;" id="skuTable">
+                        <thead>
+                            <tr>
+                                <th>SKU编码</th>
+                                <th>规格</th>
+                                <th style="text-align:right;">零售价</th>
+                                <th style="text-align:right;">库存</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>SP20250011-01</td>
+                                <td>默认</td>
+                                <td class="text-right">&#xA5;0.00</td>
+                                <td class="text-right">0</td>
+                                <td><span class="op-link danger">删除</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeAddModal()">取消</button>
+                <button class="pos-btn pos-btn-primary" onclick="saveProduct()">&#x1F4BE; 保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 菜单展开/收起
+        function toggleMenu(el) {
+            const children = el.nextElementSibling;
+            if (children && children.classList.contains('menu-children')) {
+                children.classList.toggle('open');
+                el.classList.toggle('expanded');
+            }
+        }
+
+        // 全选 / 取消全选
+        function toggleCheckAll() {
+            var checked = document.getElementById('checkAll').checked;
+            document.querySelectorAll('.row-check').forEach(function(cb) {
+                cb.checked = checked;
+            });
+        }
+
+        // 查询
+        function searchProducts() {
+            alert('执行查询');
+        }
+
+        // 重置
+        function resetSearch() {
+            document.getElementById('searchName').value = '';
+            document.getElementById('searchCode').value = '';
+            document.getElementById('searchCategory').value = '';
+            document.getElementById('searchStatus').value = '';
+        }
+
+        // 新增商品弹窗
+        function openAddModal() {
+            document.getElementById('addModal').classList.remove('modal-hidden');
+            document.getElementById('addModal').classList.add('show');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.add('modal-hidden');
+            document.getElementById('addModal').classList.remove('show');
+        }
+
+        function closeModalOutside(e) {
+            if (e.target === document.getElementById('addModal')) {
+                closeAddModal();
+            }
+        }
+
+        // 保存商品
+        function saveProduct() {
+            var name = document.getElementById('pName').value;
+            if (!name) {
+                alert('请输入商品名称');
+                return;
+            }
+            alert('商品保存成功！');
+            closeAddModal();
+        }
+
+        // 计算毛利率
+        function calcProfit() {
+            var cost = parseFloat(document.getElementById('pCostPrice').value) || 0;
+            var retail = parseFloat(document.getElementById('pRetailPrice').value) || 0;
+            var rate = 0;
+            if (retail > 0 && cost > 0) {
+                rate = ((retail - cost) / retail * 100).toFixed(2);
+            }
+            document.getElementById('profitRate').textContent = rate + '%';
+            document.getElementById('profitRate').style.color = rate > 0 ? '#52c41a' : '#ff4d4f';
+        }
+
+        // 上架/下架切换
+        function toggleStatus(el) {
+            var row = el.closest('tr');
+            var tag = row.querySelector('.pos-tag');
+            if (tag.classList.contains('pos-tag-success')) {
+                tag.classList.remove('pos-tag-success');
+                tag.classList.add('pos-tag-default');
+                tag.textContent = '下架';
+                el.textContent = '上架';
+                el.classList.remove('danger');
+                el.style.color = '#52c41a';
+            } else {
+                tag.classList.remove('pos-tag-default');
+                tag.classList.add('pos-tag-success');
+                tag.textContent = '上架';
+                el.textContent = '下架';
+                el.classList.add('danger');
+                el.style.color = '';
+            }
+        }
+
+        // 编辑商品
+        function editProduct(code) {
+            openAddModal();
+            document.querySelector('.modal-title').textContent = '\u270F\uFE0F 编辑商品 - ' + code;
+        }
+
+        // 查看详情
+        function viewProduct(code) {
+            alert('查看商品详情：' + code);
+        }
+
+        // 批量操作
+        function batchImport() { alert('批量导入功能'); }
+        function batchEdit() {
+            var checked = document.querySelectorAll('.row-check:checked');
+            if (checked.length === 0) {
+                alert('请先选择商品');
+                return;
+            }
+            alert('已选择 ' + checked.length + ' 件商品进行批量修改');
+        }
+        function exportData() { alert('导出数据功能'); }
+
+        // 图片上传
+        function uploadImage(type) {
+            alert('上传图片：' + type);
+        }
+
+        // 分页点击
+        document.querySelectorAll('.pos-pagination .page-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                if (this.textContent === '...') return;
+                document.querySelectorAll('.pos-pagination .page-btn').forEach(function(b) {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+    </script>
+    <script src="pos-common.js"></script>
+</body>
+</html>

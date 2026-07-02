@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设置 - 智慧新零售云POS综合管理平台</title>
+    <link rel="stylesheet" href="pos-common.css">
+    <style>
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary-green);
+            border-radius: 2px;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .settings-form {
+            max-width: 680px;
+        }
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 0;
+        }
+        .form-row .pos-form-group {
+            flex: 1;
+        }
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+        .form-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 36px;
+            padding: 0 12px;
+            background: #fafafa;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        .form-display .display-label {
+            color: var(--text-tertiary);
+            font-size: 13px;
+        }
+        .form-actions {
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color-light);
+            margin-top: 24px;
+        }
+
+        /* 支付设置 */
+        .pay-section {
+            background: #fafafa;
+            border: 1px solid var(--border-color-light);
+            border-radius: var(--card-radius);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .pay-section:last-child {
+            margin-bottom: 0;
+        }
+        .pay-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .pay-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pay-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .pay-icon.wechat { background: #e6f7ff; color: #07c160; }
+        .pay-icon.alipay { background: #e6f7ff; color: #1677ff; }
+        .pay-icon.bank { background: #fff7e6; color: #fa8c16; }
+        .pay-icon.card { background: #f6ffed; color: #52c41a; }
+
+        /* 开关 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+            cursor: pointer;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch .slider {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #ccc;
+            border-radius: 22px;
+            transition: 0.3s;
+        }
+        .switch .slider::before {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 2px;
+            bottom: 2px;
+            background: #fff;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .switch input:checked + .slider {
+            background: var(--primary-green);
+        }
+        .switch input:checked + .slider::before {
+            transform: translateX(22px);
+        }
+        .switch-label {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin-left: 8px;
+        }
+        .switch-wrap {
+            display: flex;
+            align-items: center;
+        }
+
+        .pay-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .pay-fields .pos-form-group {
+            margin-bottom: 0;
+        }
+        .pay-fields.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* 税率配置 */
+        .tax-config-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .tax-config-header .pos-form-group {
+            margin-bottom: 0;
+        }
+        .tax-config-header .pos-input {
+            width: 120px;
+        }
+    </style>
+</head>
+<body>
+    <div class="pos-layout">
+        <!-- 左侧菜单栏 -->
+        <aside class="pos-sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">P</div>
+                <div class="logo-text">智慧新零售云POS</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9776;</span>
+                        <span class="menu-title">工作台</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128722;</span>
+                        <span class="menu-title">收银台</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128196;</span>
+                        <span class="menu-title">订单管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-order-list.html">订单列表</a>
+                        <a class="menu-child" href="pos-order-list.html">退款管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128230;</span>
+                        <span class="menu-title">商品管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-product-list.html">商品列表</a>
+                        <a class="menu-child" href="pos-product-list.html">分类管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128176;</span>
+                        <span class="menu-title">财务管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-transaction.html">交易流水</a>
+                        <a class="menu-child" href="pos-transaction.html">日结对账</a>
+                        <a class="menu-child" href="pos-transaction.html">多渠道对账</a>
+                        <a class="menu-child" href="pos-invoice.html">发票管理</a>
+                        <a class="menu-child" href="pos-invoice.html">成本分析</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128101;</span>
+                        <span class="menu-title">员工管理</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128179;</span>
+                        <span class="menu-title">会员管理</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent expanded active">
+                        <span class="menu-icon">&#9881;</span>
+                        <span class="menu-title">系统设置</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children open">
+                        <a class="menu-child active" href="pos-system-settings.html">基本设置</a>
+                        <a class="menu-child" href="pos-system-settings.html">打印设置</a>
+                        <a class="menu-child" href="pos-system-settings.html">数据备份</a>
+                        <a class="menu-child" href="pos-system-settings.html">日志管理</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 右侧主体 -->
+        <div class="pos-main-wrapper">
+            <!-- 顶部导航栏 -->
+            <header class="pos-header">
+                <div class="header-left">
+                    <div class="header-breadcrumb">
+                        <a href="#">首页</a>
+                        <span>/</span>
+                        <a href="#">系统设置</a>
+                        <span>/</span>
+                        <span style="color:var(--text-primary);">基本设置</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-action" title="消息通知">
+                        &#128276;
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="header-action" title="帮助">&#10067;</button>
+                    <div class="header-user">
+                        <div class="user-avatar">A</div>
+                        <span class="user-name">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 主工作区 -->
+            <main class="pos-content">
+                <div class="page-title">系统设置</div>
+
+                <div class="pos-card">
+                    <div class="pos-tabs">
+                        <button class="pos-tab active" onclick="switchTab('basic', this)">基本设置</button>
+                        <button class="pos-tab" onclick="switchTab('store', this)">门店信息</button>
+                        <button class="pos-tab" onclick="switchTab('payment', this)">支付设置</button>
+                        <button class="pos-tab" onclick="switchTab('tax', this)">税率配置</button>
+                    </div>
+
+                    <!-- 基本设置 -->
+                    <div class="tab-content active" id="tab-basic">
+                        <div class="card-body" style="padding:24px;">
+                            <div class="settings-form">
+                                <div class="pos-form-group">
+                                    <label class="pos-form-label">系统名称</label>
+                                    <input type="text" class="pos-input" value="智慧新零售云POS">
+                                </div>
+                                <div class="form-row">
+                                    <div class="pos-form-group">
+                                        <label class="pos-form-label">货币符号</label>
+                                        <input type="text" class="pos-input" value="￥">
+                                    </div>
+                                    <div class="pos-form-group">
+                                        <label class="pos-form-label">小数位数</label>
+                                        <select class="pos-select">
+                                            <option>0</option>
+                                            <option>1</option>
+                                            <option selected>2</option>
+                                            <option>3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="pos-form-group">
+                                    <label class="pos-form-label">自动挂单超时</label>
+                                    <input type="number" class="pos-input" value="1440" style="width:200px;">
+                                    <div class="form-hint">单位：分钟（当前设置 1440 分钟 = 24 小时）</div>
+                                </div>
+                                <div class="pos-form-group">
+                                    <label class="pos-form-label">订单超时时间</label>
+                                    <input type="number" class="pos-input" value="30" style="width:200px;">
+                                    <div class="form-hint">单位：分钟，超时未支付订单将自动取消</div>
+                                </div>
+                                <div class="pos-form-group">
+                                    <label class="pos-form-label">数据备份周期</label>
+                                    <input type="text" class="pos-input" value="每日凌晨2:00" style="width:300px;">
+                                </div>
+                                <div class="pos-form-group">
+                                    <label class="pos-form-label">日志保留天数</label>
+                                    <input type="number" class="pos-input" value="90" style="width:200px;">
+                                    <div class="form-hint">单位：天，超过保留期的日志将自动清理</div>
+                                </div>
+                                <div class="pos-form-group">
+                                    <label class="pos-form-label">密码策略</label>
+                                    <div class="form-display">
+                                        <span>最少8位，必须包含大写字母、小写字母和数字</span>
+                                    </div>
+                                    <div class="form-hint">当前密码策略已启用，修改后立即生效</div>
+                                </div>
+                                <div class="form-actions">
+                                    <button class="pos-btn pos-btn-primary">保存设置</button>
+                                    <button class="pos-btn pos-btn-default" style="margin-left:8px;">恢复默认</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 门店信息 -->
+                    <div class="tab-content" id="tab-store">
+                        <div class="card-body" style="padding:24px;">
+                            <div class="settings-form">
+                                <div class="pos-form-group">
+                                    <label class="pos-form-label">门店名称</label>
+                                    <input type="text" class="pos-input" value="智慧新零售旗舰店">
+                                </div>
+                                <div class="pos-form-group">
+                                    <label class="pos-form-label">门店地址</label>
+                                    <input type="text" class="pos-input" value="广东省深圳市南山区科技园南路88号智慧零售大厦1楼">
+                                </div>
+                                <div class="form-row">
+                                    <div class="pos-form-group">
+                                        <label class="pos-form-label">联系电话</label>
+                                        <input type="text" class="pos-input" value="0755-88886666">
+                                    </div>
+                                    <div class="pos-form-group">
+                                        <label class="pos-form-label">联系邮箱</label>
+                                        <input type="email" class="pos-input" value="store@smartretail.com">
+                                    </div>
+                                </div>
+                                <div class="pos-form-group">
+                                    <label class="pos-form-label">营业时间</label>
+                                    <div class="form-row" style="margin-top:6px;">
+                                        <div class="pos-form-group">
+                                            <input type="time" class="pos-input" value="08:00">
+                                        </div>
+                                        <div style="display:flex;align-items:center;color:var(--text-tertiary);padding-top:6px;">至</div>
+                                        <div class="pos-form-group">
+                                            <input type="time" class="pos-input" value="22:00">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pos-form-group">
+                                    <label class="pos-form-label">门店描述</label>
+                                    <textarea class="pos-textarea" rows="3">智慧新零售旗舰店，位于深圳市南山区核心商圈，是一家集线上线下于一体的智慧零售体验店，主营生鲜食品、日用百货、进口商品等。</textarea>
+                                </div>
+                                <div class="form-actions">
+                                    <button class="pos-btn pos-btn-primary">保存</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 支付设置 -->
+                    <div class="tab-content" id="tab-payment">
+                        <div class="card-body" style="padding:24px;">
+                            <!-- 微信支付 -->
+                            <div class="pay-section">
+                                <div class="pay-header">
+                                    <div class="pay-title">
+                                        <span class="pay-icon wechat">&#128172;</span>
+                                        微信支付
+                                    </div>
+                                    <div class="switch-wrap">
+                                        <label class="switch">
+                                            <input type="checkbox" checked onchange="togglePayFields('wechat', this.checked)">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="switch-label" id="wechat-status">已启用</span>
+                                    </div>
+                                </div>
+                                <div class="pay-fields" id="wechat-fields">
+                                    <div class="pos-form-group">
+                                        <label class="pos-form-label">商户号</label>
+                                        <input type="text" class="pos-input" value="1488860521">
+                                    </div>
+                                    <div class="pos-form-group">
+                                        <label class="pos-form-label">API密钥</label>
+                                        <input type="password" class="pos-input" value="wx_api_key_2026">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 支付宝 -->
+                            <div class="pay-section">
+                                <div class="pay-header">
+                                    <div class="pay-title">
+                                        <span class="pay-icon alipay">&#128179;</span>
+                                        支付宝
+                                    </div>
+                                    <div class="switch-wrap">
+                                        <label class="switch">
+                                            <input type="checkbox" checked onchange="togglePayFields('alipay', this.checked)">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="switch-label" id="alipay-status">已启用</span>
+                                    </div>
+                                </div>
+                                <div class="pay-fields" id="alipay-fields">
+                                    <div class="pos-form-group">
+                                        <label class="pos-form-label">商户号(PID)</label>
+                                        <input type="text" class="pos-input" value="2088123456789012">
+                                    </div>
+                                    <div class="pos-form-group">
+                                        <label class="pos-form-label">应用ID(AppID)</label>
+                                        <input type="text" class="pos-input" value="2021001234567890">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 银行卡 -->
+                            <div class="pay-section">
+                                <div class="pay-header">
+                                    <div class="pay-title">
+                                        <span class="pay-icon bank">&#127974;</span>
+                                        银行卡
+                                    </div>
+                                    <div class="switch-wrap">
+                                        <label class="switch">
+                                            <input type="checkbox" onchange="togglePayFields('bank', this.checked)">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="switch-label" id="bank-status">未启用</span>
+                                    </div>
+                                </div>
+                                <div class="pay-fields disabled" id="bank-fields">
+                                    <div class="pos-form-group">
+                                        <label class="pos-form-label">开户行</label>
+                                        <input type="text" class="pos-input" value="中国工商银行深圳科技园支行">
+                                    </div>
+                                    <div class="pos-form-group">
+                                        <label class="pos-form-label">商户号</label>
+                                        <input type="text" class="pos-input" value="MCC445200001">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 储值卡 -->
+                            <div class="pay-section">
+                                <div class="pay-header">
+                                    <div class="pay-title">
+                                        <span class="pay-icon card">&#128179;</span>
+                                        储值卡
+                                    </div>
+                                    <div class="switch-wrap">
+                                        <label class="switch">
+                                            <input type="checkbox" checked onchange="togglePayFields('card', this.checked)">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="switch-label" id="card-status">已启用</span>
+                                    </div>
+                                </div>
+                                <div style="font-size:13px;color:var(--text-tertiary);">储值卡支付无需额外配置，启用后顾客可使用已充值的储值卡进行消费。</div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button class="pos-btn pos-btn-primary">保存设置</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 税率配置 -->
+                    <div class="tab-content" id="tab-tax">
+                        <div class="card-body" style="padding:24px;">
+                            <div class="tax-config-header">
+                                <div class="pos-form-group" style="margin-bottom:0;">
+                                    <label class="pos-form-label">默认税率</label>
+                                    <div style="display:flex;align-items:center;gap:6px;">
+                                        <input type="number" class="pos-input" value="13" style="width:100px;">
+                                        <span style="color:var(--text-secondary);">%</span>
+                                    </div>
+                                </div>
+                                <button class="pos-btn pos-btn-primary" style="margin-top:18px;">保存</button>
+                            </div>
+
+                            <div class="pos-table-wrapper">
+                                <table class="pos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>税率名称</th>
+                                            <th>税率值</th>
+                                            <th>适用分类</th>
+                                            <th>状态</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>标准税率</td>
+                                            <td>13%</td>
+                                            <td>日用百货、食品饮料、服装鞋帽</td>
+                                            <td><span class="pos-tag pos-tag-success">启用</span></td>
+                                            <td>
+                                                <a href="javascript:void(0)" style="color:var(--auxiliary-blue);margin-right:8px;">编辑</a>
+                                                <a href="javascript:void(0)" style="color:var(--text-tertiary);">禁用</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>低税率</td>
+                                            <td>9%</td>
+                                            <td>生鲜农产品、图书报刊、交通服务</td>
+                                            <td><span class="pos-tag pos-tag-success">启用</span></td>
+                                            <td>
+                                                <a href="javascript:void(0)" style="color:var(--auxiliary-blue);margin-right:8px;">编辑</a>
+                                                <a href="javascript:void(0)" style="color:var(--text-tertiary);">禁用</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>零税率</td>
+                                            <td>0%</td>
+                                            <td>出口商品、跨境交易</td>
+                                            <td><span class="pos-tag pos-tag-success">启用</span></td>
+                                            <td>
+                                                <a href="javascript:void(0)" style="color:var(--auxiliary-blue);margin-right:8px;">编辑</a>
+                                                <a href="javascript:void(0)" style="color:var(--text-tertiary);">禁用</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>免税</td>
+                                            <td>免征</td>
+                                            <td>特定免税商品</td>
+                                            <td><span class="pos-tag pos-tag-success">启用</span></td>
+                                            <td>
+                                                <a href="javascript:void(0)" style="color:var(--auxiliary-blue);margin-right:8px;">编辑</a>
+                                                <a href="javascript:void(0)" style="color:var(--text-tertiary);">禁用</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>高税率</td>
+                                            <td>16%</td>
+                                            <td>奢侈品、烟草酒类、高档化妆品</td>
+                                            <td><span class="pos-tag pos-tag-default">禁用</span></td>
+                                            <td>
+                                                <a href="javascript:void(0)" style="color:var(--auxiliary-blue);margin-right:8px;">编辑</a>
+                                                <a href="javascript:void(0)" style="color:var(--success-color);">启用</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- 底部状态栏 -->
+            <footer class="pos-footer">
+                <span>&copy; 2026 智慧新零售云POS综合管理平台 v1.0</span>
+                <span style="margin-left:auto;">当前时间：2026-05-26 10:30:00</span>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabId, btn) {
+            var tabs = document.querySelectorAll('.pos-tab');
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            btn.classList.add('active');
+            var contents = document.querySelectorAll('.tab-content');
+            contents.forEach(function(c) { c.classList.remove('active'); });
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        function togglePayFields(type, checked) {
+            var fields = document.getElementById(type + '-fields');
+            var status = document.getElementById(type + '-status');
+            if (checked) {
+                if (fields) fields.classList.remove('disabled');
+                if (status) status.textContent = '已启用';
+            } else {
+                if (fields) fields.classList.add('disabled');
+                if (status) status.textContent = '未启用';
+            }
+        }
+    </script>
+    <script src="pos-common.js"></script>
+</body>
+</html>

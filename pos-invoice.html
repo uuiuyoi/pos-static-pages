@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发票管理 - 智慧新零售云POS综合管理平台</title>
+    <link rel="stylesheet" href="pos-common.css">
+    <style>
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary-green);
+            border-radius: 2px;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tx-no { font-family: "Courier New", monospace; font-weight: 500; color: var(--auxiliary-blue); }
+        .invoice-no { font-family: "Courier New", monospace; font-weight: 500; color: var(--text-primary); }
+
+        /* 发票开具对话框 */
+        .invoice-section {
+            margin-bottom: 20px;
+        }
+        .invoice-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        .invoice-section-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 14px;
+            background: var(--primary-green);
+            border-radius: 2px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .invoice-info-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        .invoice-info-row .info-item {
+            flex: 1;
+        }
+        .invoice-info-row .info-item label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+        }
+        .invoice-info-row .info-item .info-value {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .form-row .pos-form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        .radio-group {
+            display: flex;
+            gap: 24px;
+            margin-top: 6px;
+        }
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .radio-group input[type="radio"] {
+            accent-color: var(--primary-green);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        .goods-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        .goods-table thead th {
+            background: #fafafa;
+            padding: 8px 10px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            font-size: 12px;
+        }
+        .goods-table tbody td {
+            padding: 8px 10px;
+            text-align: center;
+            border: 1px solid var(--border-color-light);
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        .tax-summary {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 16px;
+            gap: 32px;
+        }
+        .tax-summary .summary-item {
+            text-align: right;
+        }
+        .tax-summary .summary-item .summary-label {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+        .tax-summary .summary-item .summary-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 2px;
+        }
+        .tax-summary .summary-item .summary-value.total {
+            color: var(--error-color);
+            font-size: 20px;
+        }
+        .tax-summary .summary-item .summary-unit {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            font-weight: 400;
+        }
+        .pos-modal.wide {
+            width: 780px;
+        }
+    </style>
+</head>
+<body>
+    <div class="pos-layout">
+        <!-- 左侧菜单栏 -->
+        <aside class="pos-sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">P</div>
+                <div class="logo-text">智慧新零售云POS</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9776;</span>
+                        <span class="menu-title">工作台</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128722;</span>
+                        <span class="menu-title">收银台</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128196;</span>
+                        <span class="menu-title">订单管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-order-list.html">订单列表</a>
+                        <a class="menu-child" href="pos-order-list.html">退款管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128230;</span>
+                        <span class="menu-title">商品管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-product-list.html">商品列表</a>
+                        <a class="menu-child" href="pos-product-list.html">分类管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent expanded active">
+                        <span class="menu-icon">&#128176;</span>
+                        <span class="menu-title">财务管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children open">
+                        <a class="menu-child" href="pos-transaction.html">交易流水</a>
+                        <a class="menu-child" href="pos-transaction.html">日结对账</a>
+                        <a class="menu-child" href="pos-transaction.html">多渠道对账</a>
+                        <a class="menu-child active" href="pos-invoice.html">发票管理</a>
+                        <a class="menu-child" href="pos-invoice.html">成本分析</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128101;</span>
+                        <span class="menu-title">员工管理</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#128179;</span>
+                        <span class="menu-title">会员管理</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9881;</span>
+                        <span class="menu-title">系统设置</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-system-settings.html">基本设置</a>
+                        <a class="menu-child" href="pos-system-settings.html">打印设置</a>
+                        <a class="menu-child" href="pos-system-settings.html">数据备份</a>
+                        <a class="menu-child" href="pos-system-settings.html">日志管理</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 右侧主体 -->
+        <div class="pos-main-wrapper">
+            <!-- 顶部导航栏 -->
+            <header class="pos-header">
+                <div class="header-left">
+                    <div class="header-breadcrumb">
+                        <a href="#">首页</a>
+                        <span>/</span>
+                        <a href="#">财务管理</a>
+                        <span>/</span>
+                        <span style="color:var(--text-primary);">发票管理</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-action" title="消息通知">
+                        &#128276;
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="header-action" title="帮助">&#10067;</button>
+                    <div class="header-user">
+                        <div class="user-avatar">A</div>
+                        <span class="user-name">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 主工作区 -->
+            <main class="pos-content">
+                <div class="page-title">发票管理</div>
+
+                <!-- 标签页 -->
+                <div class="pos-card">
+                    <div class="pos-tabs">
+                        <button class="pos-tab active" onclick="switchTab('pending', this)">待开票</button>
+                        <button class="pos-tab" onclick="switchTab('done', this)">已开发票</button>
+                        <button class="pos-tab" onclick="switchTab('cancelled', this)">已作废</button>
+                    </div>
+
+                    <!-- 待开票列表 -->
+                    <div class="tab-content active" id="tab-pending">
+                        <div class="pos-table-wrapper">
+                            <table class="pos-table">
+                                <thead>
+                                    <tr>
+                                        <th>交易单号</th>
+                                        <th>购买方</th>
+                                        <th>金额(&#165;)</th>
+                                        <th>开票类型</th>
+                                        <th>申请时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="tx-no">TX20260526001</span></td>
+                                        <td>个人-王先生</td>
+                                        <td>86.50</td>
+                                        <td><span class="pos-tag pos-tag-info">普票</span></td>
+                                        <td>2026-05-26 10:35:00</td>
+                                        <td><button class="pos-btn pos-btn-primary pos-btn-sm" onclick="openInvoice('TX20260526001','86.50','个人-王先生')">开具</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="tx-no">TX20260526002</span></td>
+                                        <td>深圳市创新科技有限公司</td>
+                                        <td>128.00</td>
+                                        <td><span class="pos-tag pos-tag-warning">专票</span></td>
+                                        <td>2026-05-26 10:20:00</td>
+                                        <td><button class="pos-btn pos-btn-primary pos-btn-sm" onclick="openInvoice('TX20260526002','128.00','深圳市创新科技有限公司')">开具</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="tx-no">TX20260526004</span></td>
+                                        <td>个人-李女士</td>
+                                        <td>356.00</td>
+                                        <td><span class="pos-tag pos-tag-info">普票</span></td>
+                                        <td>2026-05-26 09:50:00</td>
+                                        <td><button class="pos-btn pos-btn-primary pos-btn-sm" onclick="openInvoice('TX20260526004','356.00','个人-李女士')">开具</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="tx-no">TX20260526009</span></td>
+                                        <td>广州星辰贸易集团</td>
+                                        <td>520.00</td>
+                                        <td><span class="pos-tag pos-tag-warning">专票</span></td>
+                                        <td>2026-05-26 08:45:00</td>
+                                        <td><button class="pos-btn pos-btn-primary pos-btn-sm" onclick="openInvoice('TX20260526009','520.00','广州星辰贸易集团')">开具</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="tx-no">TX20260526012</span></td>
+                                        <td>个人-赵先生</td>
+                                        <td>299.00</td>
+                                        <td><span class="pos-tag pos-tag-info">普票</span></td>
+                                        <td>2026-05-26 08:10:00</td>
+                                        <td><button class="pos-btn pos-btn-primary pos-btn-sm" onclick="openInvoice('TX20260526012','299.00','个人-赵先生')">开具</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="tx-no">TX20260525018</span></td>
+                                        <td>个人-陈女士</td>
+                                        <td>168.00</td>
+                                        <td><span class="pos-tag pos-tag-info">普票</span></td>
+                                        <td>2026-05-25 17:30:00</td>
+                                        <td><button class="pos-btn pos-btn-primary pos-btn-sm" onclick="openInvoice('TX20260525018','168.00','个人-陈女士')">开具</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 已开发票列表 -->
+                    <div class="tab-content" id="tab-done">
+                        <div class="pos-table-wrapper">
+                            <table class="pos-table">
+                                <thead>
+                                    <tr>
+                                        <th>发票号码</th>
+                                        <th>发票代码</th>
+                                        <th>开票日期</th>
+                                        <th>购买方</th>
+                                        <th>金额(&#165;)</th>
+                                        <th>税额(&#165;)</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="invoice-no">044001800111</span></td>
+                                        <td>044002100311</td>
+                                        <td>2026-05-25</td>
+                                        <td>个人-周先生</td>
+                                        <td>215.52</td>
+                                        <td>34.48</td>
+                                        <td><span class="pos-tag pos-tag-success">正常</span></td>
+                                        <td>
+                                            <a href="javascript:void(0)" style="color:var(--auxiliary-blue);margin-right:8px;">查看</a>
+                                            <a href="javascript:void(0)" style="color:var(--error-color);">作废</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="invoice-no">044001800112</span></td>
+                                        <td>044002100311</td>
+                                        <td>2026-05-25</td>
+                                        <td>北京华联商贸有限公司</td>
+                                        <td>856.90</td>
+                                        <td>137.10</td>
+                                        <td><span class="pos-tag pos-tag-success">正常</span></td>
+                                        <td>
+                                            <a href="javascript:void(0)" style="color:var(--auxiliary-blue);margin-right:8px;">查看</a>
+                                            <a href="javascript:void(0)" style="color:var(--error-color);">作废</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="invoice-no">044001800113</span></td>
+                                        <td>044002100311</td>
+                                        <td>2026-05-24</td>
+                                        <td>个人-刘女士</td>
+                                        <td>129.31</td>
+                                        <td>20.69</td>
+                                        <td><span class="pos-tag pos-tag-success">正常</span></td>
+                                        <td>
+                                            <a href="javascript:void(0)" style="color:var(--auxiliary-blue);margin-right:8px;">查看</a>
+                                            <a href="javascript:void(0)" style="color:var(--error-color);">作废</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="invoice-no">044001800114</span></td>
+                                        <td>044002100311</td>
+                                        <td>2026-05-24</td>
+                                        <td>上海盛达实业集团</td>
+                                        <td>1,724.14</td>
+                                        <td>275.86</td>
+                                        <td><span class="pos-tag pos-tag-success">正常</span></td>
+                                        <td>
+                                            <a href="javascript:void(0)" style="color:var(--auxiliary-blue);margin-right:8px;">查看</a>
+                                            <a href="javascript:void(0)" style="color:var(--error-color);">作废</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="invoice-no">044001800115</span></td>
+                                        <td>044002100311</td>
+                                        <td>2026-05-23</td>
+                                        <td>个人-吴先生</td>
+                                        <td>86.21</td>
+                                        <td>13.79</td>
+                                        <td><span class="pos-tag pos-tag-success">正常</span></td>
+                                        <td>
+                                            <a href="javascript:void(0)" style="color:var(--auxiliary-blue);margin-right:8px;">查看</a>
+                                            <a href="javascript:void(0)" style="color:var(--error-color);">作废</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="invoice-no">044001800116</span></td>
+                                        <td>044002100311</td>
+                                        <td>2026-05-23</td>
+                                        <td>杭州云创网络科技</td>
+                                        <td>431.03</td>
+                                        <td>68.97</td>
+                                        <td><span class="pos-tag pos-tag-success">正常</span></td>
+                                        <td>
+                                            <a href="javascript:void(0)" style="color:var(--auxiliary-blue);margin-right:8px;">查看</a>
+                                            <a href="javascript:void(0)" style="color:var(--error-color);">作废</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 已作废列表 -->
+                    <div class="tab-content" id="tab-cancelled">
+                        <div class="pos-table-wrapper">
+                            <table class="pos-table">
+                                <thead>
+                                    <tr>
+                                        <th>发票号码</th>
+                                        <th>发票代码</th>
+                                        <th>开票日期</th>
+                                        <th>购买方</th>
+                                        <th>金额(&#165;)</th>
+                                        <th>税额(&#165;)</th>
+                                        <th>作废日期</th>
+                                        <th>作废原因</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="invoice-no">044001800098</span></td>
+                                        <td>044002100311</td>
+                                        <td>2026-05-20</td>
+                                        <td>个人-孙先生</td>
+                                        <td>172.41</td>
+                                        <td>27.59</td>
+                                        <td>2026-05-21</td>
+                                        <td>信息填写错误</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="invoice-no">044001800095</span></td>
+                                        <td>044002100311</td>
+                                        <td>2026-05-18</td>
+                                        <td>东莞恒通电子</td>
+                                        <td>646.55</td>
+                                        <td>103.45</td>
+                                        <td>2026-05-19</td>
+                                        <td>购方信息变更</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- 底部状态栏 -->
+            <footer class="pos-footer">
+                <span>&copy; 2026 智慧新零售云POS综合管理平台 v1.0</span>
+                <span style="margin-left:auto;">当前时间：2026-05-26 10:30:00</span>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 发票开具对话框 -->
+    <div class="pos-modal-overlay" id="invoiceModal">
+        <div class="pos-modal wide">
+            <div class="modal-header">
+                <span class="modal-title">开具发票</span>
+                <button class="modal-close" onclick="closeInvoice()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 关联交易信息 -->
+                <div class="invoice-section">
+                    <div class="invoice-section-title">关联交易信息</div>
+                    <div class="invoice-info-row">
+                        <div class="info-item">
+                            <label>交易单号</label>
+                            <div class="info-value" id="invTxNo">TX20260526001</div>
+                        </div>
+                        <div class="info-item">
+                            <label>交易金额</label>
+                            <div class="info-value" id="invTxAmount">&#165;86.50</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 购买方信息 -->
+                <div class="invoice-section">
+                    <div class="invoice-section-title">购买方信息</div>
+                    <div class="form-row">
+                        <div class="pos-form-group">
+                            <label class="pos-form-label"><span class="required">*</span>购买方名称</label>
+                            <input type="text" class="pos-input" id="invBuyerName" placeholder="个人姓名或企业名称">
+                        </div>
+                        <div class="pos-form-group">
+                            <label class="pos-form-label">纳税人识别号</label>
+                            <input type="text" class="pos-input" id="invTaxId" placeholder="企业开票必填">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="pos-form-group">
+                            <label class="pos-form-label">地址、电话</label>
+                            <input type="text" class="pos-input" placeholder="选填">
+                        </div>
+                        <div class="pos-form-group">
+                            <label class="pos-form-label">开户行及账号</label>
+                            <input type="text" class="pos-input" placeholder="选填">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 发票类型 -->
+                <div class="invoice-section">
+                    <div class="invoice-section-title">发票类型</div>
+                    <div class="radio-group">
+                        <label><input type="radio" name="invoiceType" value="normal" checked> 增值税普通发票</label>
+                        <label><input type="radio" name="invoiceType" value="special"> 增值税专用发票</label>
+                    </div>
+                </div>
+
+                <!-- 商品明细 -->
+                <div class="invoice-section">
+                    <div class="invoice-section-title">商品明细</div>
+                    <div class="pos-table-wrapper">
+                        <table class="goods-table">
+                            <thead>
+                                <tr>
+                                    <th>商品名称</th>
+                                    <th>规格</th>
+                                    <th>单位</th>
+                                    <th>数量</th>
+                                    <th>单价(&#165;)</th>
+                                    <th>金额(&#165;)</th>
+                                    <th>税率</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>有机纯牛奶</td>
+                                    <td>250ml*12盒</td>
+                                    <td>箱</td>
+                                    <td>1</td>
+                                    <td>68.00</td>
+                                    <td>68.00</td>
+                                    <td>16%</td>
+                                </tr>
+                                <tr>
+                                    <td>进口坚果礼盒</td>
+                                    <td>500g</td>
+                                    <td>盒</td>
+                                    <td>1</td>
+                                    <td>18.50</td>
+                                    <td>18.50</td>
+                                    <td>16%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 价税合计 -->
+                <div class="tax-summary">
+                    <div class="summary-item">
+                        <div class="summary-label">金额</div>
+                        <div class="summary-value">&#165;74.57</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">税额</div>
+                        <div class="summary-value">&#165;11.93</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">价税合计</div>
+                        <div class="summary-value total">&#165;86.50 <span class="summary-unit">(大写：捌拾陆元伍角整)</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeInvoice()">取消</button>
+                <button class="pos-btn pos-btn-primary" onclick="confirmInvoice()">确认开具</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabId, btn) {
+            // 切换标签按钮样式
+            var tabs = document.querySelectorAll('.pos-tab');
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            btn.classList.add('active');
+            // 切换内容
+            var contents = document.querySelectorAll('.tab-content');
+            contents.forEach(function(c) { c.classList.remove('active'); });
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        function openInvoice(txNo, amount, buyer) {
+            document.getElementById('invTxNo').textContent = txNo;
+            document.getElementById('invTxAmount').textContent = '\u00A5' + amount;
+            document.getElementById('invBuyerName').value = buyer;
+            document.getElementById('invTaxId').value = '';
+            document.getElementById('invoiceModal').classList.add('show');
+        }
+
+        function closeInvoice() {
+            document.getElementById('invoiceModal').classList.remove('show');
+        }
+
+        function confirmInvoice() {
+            var buyerName = document.getElementById('invBuyerName').value.trim();
+            if (!buyerName) {
+                alert('请填写购买方名称');
+                return;
+            }
+            alert('发票开具成功！');
+            closeInvoice();
+        }
+
+        // 点击遮罩关闭
+        document.getElementById('invoiceModal').addEventListener('click', function(e) {
+            if (e.target === this) closeInvoice();
+        });
+    </script>
+    <script src="pos-common.js"></script>
+</body>
+</html>

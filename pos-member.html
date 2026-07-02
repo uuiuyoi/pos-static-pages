@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会员管理 - 智慧新零售云POS综合管理平台</title>
+    <link rel="stylesheet" href="pos-common.css">
+    <style>
+        /* 会员等级标签 */
+        .tag-normal { background: #f5f5f5; color: #8c8c8c; border: 1px solid #d9d9d9; }
+        .tag-silver { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .tag-gold { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+        .tag-diamond { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
+        .member-tag { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; line-height: 1.8; white-space: nowrap; }
+
+        /* 详情对话框标签页内容 */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* 详情信息网格 */
+        .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .info-item { }
+        .info-item .info-label { font-size: 13px; color: #8c8c8c; margin-bottom: 4px; }
+        .info-item .info-value { font-size: 14px; color: #262626; font-weight: 500; }
+
+        /* 对话框宽度 */
+        .modal-lg { width: 720px; }
+
+        /* 操作链接 */
+        .action-link { color: #1890ff; cursor: pointer; font-size: 13px; }
+        .action-link:hover { color: #40a9ff; text-decoration: underline; }
+        .action-link + .action-link { margin-left: 12px; }
+    </style>
+</head>
+<body>
+    <div class="pos-layout">
+        <!-- 左侧菜单栏 -->
+        <aside class="pos-sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">P</div>
+                <div class="logo-text">智慧新零售云POS</div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9776;</span>
+                        <span class="menu-title">首页概览</span>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9733;</span>
+                        <span class="menu-title">商品管理</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-product-list.html">商品列表</a>
+                        <a class="menu-child" href="pos-product-list.html">商品分类</a>
+                        <a class="menu-child" href="pos-product-list.html">库存管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent active expanded">
+                        <span class="menu-icon">&#9829;</span>
+                        <span class="menu-title">会员营销</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children open">
+                        <a class="menu-child active" href="pos-member.html">会员管理</a>
+                        <a class="menu-child" href="pos-activity.html">活动管理</a>
+                        <a class="menu-child" href="pos-activity.html">优惠券管理</a>
+                        <a class="menu-child" href="pos-member.html">积分管理</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9881;</span>
+                        <span class="menu-title">数据分析</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-data-dashboard.html">数据看板</a>
+                        <a class="menu-child" href="pos-data-dashboard.html">销售报表</a>
+                        <a class="menu-child" href="pos-data-dashboard.html">会员分析</a>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-parent">
+                        <span class="menu-icon">&#9888;</span>
+                        <span class="menu-title">系统设置</span>
+                        <span class="menu-arrow">&#9654;</span>
+                    </div>
+                    <div class="menu-children">
+                        <a class="menu-child" href="pos-employee.html">门店管理</a>
+                        <a class="menu-child" href="pos-employee.html">员工管理</a>
+                        <a class="menu-child" href="pos-employee.html">角色权限</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 右侧主区域 -->
+        <div class="pos-main-wrapper">
+            <!-- 顶部导航栏 -->
+            <header class="pos-header">
+                <div class="header-left">
+                    <div class="header-breadcrumb">
+                        <a href="#">首页</a>
+                        <span>/</span>
+                        <a href="#">会员营销</a>
+                        <span>/</span>
+                        <span style="color:#262626;">会员管理</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-action" title="消息通知">
+                        &#128276;
+                        <span class="badge">5</span>
+                    </button>
+                    <div class="header-user">
+                        <div class="user-avatar">A</div>
+                        <span class="user-name">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 主内容区 -->
+            <main class="pos-content">
+                <!-- 查询条件 -->
+                <div class="pos-card mb-16">
+                    <div class="card-body">
+                        <div class="pos-search-bar">
+                            <input type="text" class="pos-input" placeholder="请输入姓名" style="width:160px;">
+                            <input type="text" class="pos-input" placeholder="请输入手机号" style="width:160px;">
+                            <input type="text" class="pos-input" placeholder="请输入会员卡号" style="width:180px;">
+                            <select class="pos-select" style="width:140px;">
+                                <option>全部等级</option>
+                                <option>普通会员</option>
+                                <option>银卡会员</option>
+                                <option>金卡会员</option>
+                                <option>钻石会员</option>
+                            </select>
+                            <div class="search-actions">
+                                <button class="pos-btn pos-btn-primary">&#128269; 查询</button>
+                                <button class="pos-btn pos-btn-default">&#8634; 重置</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 统计卡片 -->
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon green">&#128101;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">总会员数</div>
+                            <div class="stat-value">15,680</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">&#128200;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">本月新增</div>
+                            <div class="stat-value">386</div>
+                            <div class="stat-trend up">&#9650; 12.5%</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">&#128293;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">活跃会员</div>
+                            <div class="stat-value">5,230</div>
+                            <div class="stat-trend up">&#9650; 8.3%</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">&#128176;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">会员消费占比</div>
+                            <div class="stat-value">72%</div>
+                            <div class="stat-trend up">&#9650; 3.2%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 会员列表 -->
+                <div class="pos-card">
+                    <div class="card-header">
+                        <span class="card-title">会员列表</span>
+                        <div class="flex gap-8">
+                            <button class="pos-btn pos-btn-primary" onclick="showToast('success','新增会员功能已打开')">+ 新增会员</button>
+                            <button class="pos-btn pos-btn-default" onclick="showToast('info','导出数据中...')">&#128228; 导出</button>
+                        </div>
+                    </div>
+                    <div class="card-body" style="padding:0;">
+                        <div class="pos-table-wrapper">
+                            <table class="pos-table">
+                                <thead>
+                                    <tr>
+                                        <th>会员卡号</th>
+                                        <th>姓名</th>
+                                        <th>手机号</th>
+                                        <th>等级</th>
+                                        <th>积分余额</th>
+                                        <th>储值余额(元)</th>
+                                        <th>累计消费(元)</th>
+                                        <th>最近消费时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="font-weight:600;color:#1890ff;">VIP20250001</td>
+                                        <td>王女士</td>
+                                        <td>138****5678</td>
+                                        <td><span class="member-tag tag-gold">&#9733; 金卡会员</span></td>
+                                        <td>1,280</td>
+                                        <td>500.00</td>
+                                        <td>12,580.00</td>
+                                        <td>2026-05-25</td>
+                                        <td>
+                                            <a class="action-link" onclick="openDetail()">详情</a>
+                                            <a class="action-link" onclick="showToast('info','编辑会员信息')">编辑</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:600;color:#1890ff;">VIP20250002</td>
+                                        <td>李先生</td>
+                                        <td>139****2345</td>
+                                        <td><span class="member-tag tag-diamond">&#9830; 钻石会员</span></td>
+                                        <td>5,680</td>
+                                        <td>2,000.00</td>
+                                        <td>38,650.00</td>
+                                        <td>2026-05-25</td>
+                                        <td>
+                                            <a class="action-link" onclick="openDetail()">详情</a>
+                                            <a class="action-link" onclick="showToast('info','编辑会员信息')">编辑</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:600;color:#1890ff;">VIP20250003</td>
+                                        <td>张女士</td>
+                                        <td>136****8901</td>
+                                        <td><span class="member-tag tag-silver">&#9670; 银卡会员</span></td>
+                                        <td>620</td>
+                                        <td>200.00</td>
+                                        <td>4,320.00</td>
+                                        <td>2026-05-24</td>
+                                        <td>
+                                            <a class="action-link" onclick="openDetail()">详情</a>
+                                            <a class="action-link" onclick="showToast('info','编辑会员信息')">编辑</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:600;color:#1890ff;">VIP20250004</td>
+                                        <td>赵先生</td>
+                                        <td>158****6789</td>
+                                        <td><span class="member-tag tag-normal">普通会员</span></td>
+                                        <td>150</td>
+                                        <td>0.00</td>
+                                        <td>860.00</td>
+                                        <td>2026-05-23</td>
+                                        <td>
+                                            <a class="action-link" onclick="openDetail()">详情</a>
+                                            <a class="action-link" onclick="showToast('info','编辑会员信息')">编辑</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:600;color:#1890ff;">VIP20250005</td>
+                                        <td>陈女士</td>
+                                        <td>137****4321</td>
+                                        <td><span class="member-tag tag-gold">&#9733; 金卡会员</span></td>
+                                        <td>2,100</td>
+                                        <td>800.00</td>
+                                        <td>18,960.00</td>
+                                        <td>2026-05-25</td>
+                                        <td>
+                                            <a class="action-link" onclick="openDetail()">详情</a>
+                                            <a class="action-link" onclick="showToast('info','编辑会员信息')">编辑</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:600;color:#1890ff;">VIP20250006</td>
+                                        <td>刘先生</td>
+                                        <td>186****7890</td>
+                                        <td><span class="member-tag tag-diamond">&#9830; 钻石会员</span></td>
+                                        <td>8,920</td>
+                                        <td>5,000.00</td>
+                                        <td>56,780.00</td>
+                                        <td>2026-05-24</td>
+                                        <td>
+                                            <a class="action-link" onclick="openDetail()">详情</a>
+                                            <a class="action-link" onclick="showToast('info','编辑会员信息')">编辑</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:600;color:#1890ff;">VIP20250007</td>
+                                        <td>周女士</td>
+                                        <td>155****3456</td>
+                                        <td><span class="member-tag tag-silver">&#9670; 银卡会员</span></td>
+                                        <td>480</td>
+                                        <td>100.00</td>
+                                        <td>3,150.00</td>
+                                        <td>2026-05-22</td>
+                                        <td>
+                                            <a class="action-link" onclick="openDetail()">详情</a>
+                                            <a class="action-link" onclick="showToast('info','编辑会员信息')">编辑</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:600;color:#1890ff;">VIP20250008</td>
+                                        <td>吴先生</td>
+                                        <td>133****9012</td>
+                                        <td><span class="member-tag tag-normal">普通会员</span></td>
+                                        <td>80</td>
+                                        <td>0.00</td>
+                                        <td>520.00</td>
+                                        <td>2026-05-20</td>
+                                        <td>
+                                            <a class="action-link" onclick="openDetail()">详情</a>
+                                            <a class="action-link" onclick="showToast('info','编辑会员信息')">编辑</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 分页 -->
+                        <div style="padding:16px 20px;">
+                            <div class="pos-pagination">
+                                <span class="page-info">共 15,680 条记录</span>
+                                <button class="page-btn" disabled>&laquo;</button>
+                                <button class="page-btn active">1</button>
+                                <button class="page-btn">2</button>
+                                <button class="page-btn">3</button>
+                                <button class="page-btn">...</button>
+                                <button class="page-btn">784</button>
+                                <button class="page-btn">&raquo;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- 底部状态栏 -->
+            <footer class="pos-footer">
+                <span>智慧新零售云POS综合管理平台 v1.0</span>
+                <span style="margin-left:auto;">Copyright &copy; 2026 智慧零售科技</span>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 会员详情对话框 -->
+    <div class="pos-modal-overlay" id="detailModal">
+        <div class="pos-modal modal-lg">
+            <div class="modal-header">
+                <span class="modal-title">会员详情 - VIP20250001</span>
+                <button class="modal-close" onclick="closeDetail()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding:0;">
+                <!-- 标签页 -->
+                <div class="pos-tabs" style="padding:0 24px;">
+                    <button class="pos-tab active" onclick="switchTab(this, 'tab-basic')">基本信息</button>
+                    <button class="pos-tab" onclick="switchTab(this, 'tab-consume')">消费记录</button>
+                    <button class="pos-tab" onclick="switchTab(this, 'tab-coupon')">优惠券</button>
+                </div>
+                <!-- 基本信息 -->
+                <div class="tab-content active" id="tab-basic" style="padding:24px;">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">会员卡号</div>
+                            <div class="info-value">VIP20250001</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">姓名</div>
+                            <div class="info-value">王女士</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">手机号</div>
+                            <div class="info-value">138****5678</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">性别</div>
+                            <div class="info-value">女</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">生日</div>
+                            <div class="info-value">1990-06-15</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">注册日期</div>
+                            <div class="info-value">2025-01-10</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">会员等级</div>
+                            <div class="info-value"><span class="member-tag tag-gold">&#9733; 金卡会员</span></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">积分余额</div>
+                            <div class="info-value">1,280</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 消费记录 -->
+                <div class="tab-content" id="tab-consume" style="padding:24px;">
+                    <table class="pos-table">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>订单号</th>
+                                <th>金额(元)</th>
+                                <th>门店</th>
+                                <th>获得积分</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2026-05-25</td>
+                                <td>ORD20260525001</td>
+                                <td>186.50</td>
+                                <td>中心城旗舰店</td>
+                                <td>186</td>
+                            </tr>
+                            <tr>
+                                <td>2026-05-22</td>
+                                <td>ORD20260522008</td>
+                                <td>92.00</td>
+                                <td>万达广场店</td>
+                                <td>92</td>
+                            </tr>
+                            <tr>
+                                <td>2026-05-18</td>
+                                <td>ORD20260518015</td>
+                                <td>328.00</td>
+                                <td>中心城旗舰店</td>
+                                <td>328</td>
+                            </tr>
+                            <tr>
+                                <td>2026-05-10</td>
+                                <td>ORD20260510032</td>
+                                <td>56.80</td>
+                                <td>社区便利店</td>
+                                <td>56</td>
+                            </tr>
+                            <tr>
+                                <td>2026-05-03</td>
+                                <td>ORD20260503021</td>
+                                <td>215.00</td>
+                                <td>中心城旗舰店</td>
+                                <td>215</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- 优惠券列表 -->
+                <div class="tab-content" id="tab-coupon" style="padding:24px;">
+                    <table class="pos-table">
+                        <thead>
+                            <tr>
+                                <th>券名</th>
+                                <th>类型</th>
+                                <th>面额</th>
+                                <th>有效期</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>满100减20优惠券</td>
+                                <td><span class="pos-tag pos-tag-success">满减券</span></td>
+                                <td>20元</td>
+                                <td>2026-05-01 至 2026-05-31</td>
+                                <td><span class="pos-tag pos-tag-success">可使用</span></td>
+                            </tr>
+                            <tr>
+                                <td>全场8折券</td>
+                                <td><span class="pos-tag pos-tag-info">折扣券</span></td>
+                                <td>8折</td>
+                                <td>2026-06-01 至 2026-06-30</td>
+                                <td><span class="pos-tag pos-tag-warning">未生效</span></td>
+                            </tr>
+                            <tr>
+                                <td>新会员专享50元券</td>
+                                <td><span class="pos-tag pos-tag-success">满减券</span></td>
+                                <td>50元</td>
+                                <td>2026-04-01 至 2026-04-30</td>
+                                <td><span class="pos-tag pos-tag-default">已过期</span></td>
+                            </tr>
+                            <tr>
+                                <td>生日特惠8折券</td>
+                                <td><span class="pos-tag pos-tag-info">折扣券</span></td>
+                                <td>8折</td>
+                                <td>2026-06-15 至 2026-06-15</td>
+                                <td><span class="pos-tag pos-tag-warning">未生效</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeDetail()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div class="pos-toast toast-success" id="toast">
+        <span id="toastMsg">操作成功</span>
+    </div>
+
+    <script>
+        // 打开会员详情
+        function openDetail() {
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        // 关闭会员详情
+        function closeDetail() {
+            document.getElementById('detailModal').classList.remove('show');
+        }
+
+        // 切换标签页
+        function switchTab(el, tabId) {
+            var tabs = el.parentElement.querySelectorAll('.pos-tab');
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            el.classList.add('active');
+            var contents = el.closest('.modal-body').querySelectorAll('.tab-content');
+            contents.forEach(function(c) { c.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Toast 提示
+        function showToast(type, msg) {
+            var toast = document.getElementById('toast');
+            var toastMsg = document.getElementById('toastMsg');
+            toast.className = 'pos-toast toast-' + type + ' show';
+            toastMsg.textContent = msg;
+            setTimeout(function() {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // 点击遮罩关闭对话框
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDetail();
+        });
+    </script>
+    <script src="pos-common.js"></script>
+</body>
+</html>
