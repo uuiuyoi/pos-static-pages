@@ -1,53 +1,173 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>数据备份 - 智慧新零售云POS综合管理平台</title>
     <link rel="stylesheet" href="pos-common.css">
-    
-        <style>
-        .content-header { margin-bottom: 24px; }
-        .content-title { font-size: 22px; font-weight: 600; color: #333; margin-bottom: 8px; }
-        .content-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
-        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #e8e8e8; }
-        .stat-label { font-size: 13px; color: var(--text-tertiary); margin-bottom: 8px; }
-        .stat-value { font-size: 24px; font-weight: 700; color: #333; margin-bottom: 6px; }
-        .stat-trend { font-size: 12px; }
-        .stat-up { color: var(--success-color); }
-        .stat-down { color: var(--danger-color); }
-        .step-list { display: flex; flex-direction: column; gap: 12px; }
-        .step-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
-        .step-number { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-        .step-text { font-size: 14px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e8e8e8; font-size: 14px; }
-        .data-table th { background: #f8f9fa; font-weight: 600; color: #333; }
-        .data-table td { color: var(--text-secondary); }
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
-        .status-normal { background: #e3f2fd; color: #1976d2; }
-        .status-warning { background: #fff3e0; color: #f57c00; }
-        .status-success { background: #e8f5e9; color: #388e3c; }
-        .status-danger { background: #ffebee; color: #d32f2f; }
-        .btn-sm { padding: 6px 14px; font-size: 13px; }
-        @media (max-width: 1200px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) { .stat-grid { grid-template-columns: 1fr; } }
+    <style>
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary-green);
+            border-radius: 2px;
+        }
+        .search-panel {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .search-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .search-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .search-item label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .search-item .pos-input,
+        .search-item .pos-select {
+            width: 180px;
+        }
+        .search-item .date-range-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .search-item .date-range-wrap span {
+            color: var(--text-disabled);
+        }
+        .search-item .date-range-wrap .pos-input {
+            width: 150px;
+        }
+        .search-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .toolbar-left {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .action-link {
+            color: var(--auxiliary-blue);
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 8px;
+            text-decoration: none;
+        }
+        .action-link:hover {
+            color: var(--auxiliary-blue-hover);
+        }
+        .action-link.danger {
+            color: var(--error-color);
+        }
+        .action-link.danger:hover {
+            color: #ff7875;
+        }
+        .backup-strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .strategy-card {
+            background: #fafafa;
+            border: 1px solid var(--border-color-light);
+            border-radius: var(--card-radius);
+            padding: 20px;
+            text-align: center;
+        }
+        .strategy-card .strategy-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        .strategy-card .strategy-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .strategy-card .strategy-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .restore-warning {
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            border-radius: 4px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 13px;
+            color: #d48806;
+        }
+        .restore-warning .warn-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .backup-type-tag {
+            display: inline-flex;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .backup-type-tag.full {
+            background: var(--info-bg);
+            color: var(--info-color);
+            border: 1px solid var(--info-border);
+        }
+        .backup-type-tag.incr {
+            background: var(--success-bg);
+            color: var(--success-color);
+            border: 1px solid var(--success-border);
+        }
     </style>
 </head>
 <body>
     <div class="pos-layout">
-        <!-- ==================== Sidebar ==================== -->
+        <!-- 左侧菜单栏 -->
         <aside class="pos-sidebar" id="sidebar">
-            <!-- Logo -->
             <div class="sidebar-logo">
                 <div class="logo-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
                 </div>
                 <span class="logo-text">智慧新零售云POS</span>
             </div>
-
-            <!-- Menu -->
             <nav class="sidebar-menu">
                 <!-- 首页看板 -->
                 <div class="menu-group">
@@ -204,206 +324,464 @@
             </nav>
         </aside>
 
-        <!-- ==================== Main Content ==================== -->
+        <!-- 右侧主体 -->
         <div class="pos-main-wrapper">
-            <!-- Header -->
+            <!-- 顶部导航栏 -->
             <header class="pos-header">
                 <div class="header-left">
-                    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-                    </button>
                     <div class="header-breadcrumb">
                         <a href="pos-main-dashboard.html">首页</a>
                         <span>/</span>
-                        <span style="color: var(--text-primary);">数据备份</span>
+                        <a href="#">系统设置</a>
+                        <span>/</span>
+                        <span style="color:var(--text-primary);">数据备份</span>
                     </div>
                 </div>
                 <div class="header-right">
-                    <!-- Search -->
-                    <button class="header-action" title="搜索">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                    </button>
-                    <!-- Notification -->
                     <button class="header-action" title="消息通知">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                        &#128276;
                         <span class="badge">5</span>
                     </button>
-                    <!-- Fullscreen -->
-                    <button class="header-action" title="全屏" onclick="toggleFullscreen()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-                    </button>
-                    <!-- Theme -->
-                    <button class="header-action" title="主题切换">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
-                    </button>
-                    <!-- User -->
-                    <div class="header-user" onclick="toggleUserMenu()">
+                    <button class="header-action" title="全屏" onclick="toggleFullscreen()">&#9974;</button>
+                    <div class="header-user">
                         <div class="user-avatar">A</div>
                         <span class="user-name">Admin</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color: var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                     </div>
                 </div>
             </header>
 
-            <!-- Main Content Area -->
-            <!-- Main Content Area -->
+            <!-- 主工作区 -->
             <main class="pos-content">
-                <div class="content-header">
-                    <h1 class="content-title">数据备份</h1>
-                    <p class="content-desc">数据备份支持自动备份和手动备份，保障系统数据安全，支持本地和远程存储。</p>
-                </div>
+                <div class="page-title">数据备份</div>
 
-                <!-- Stat Cards -->
-                <div class="stat-grid">
-                    
+                <!-- 统计卡片 -->
+                <div class="stat-cards">
                     <div class="stat-card">
-                        <div class="stat-label">备份计划</div>
-                        <div class="stat-value">1</div>
-                        <div class="stat-trend stat-up">&#9644; 每日</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">最近备份</div>
-                        <div class="stat-value">今日 02:00</div>
-                        <div class="stat-trend stat-up">&#9650; 成功</div>
+                        <div class="stat-icon green">&#128190;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">备份总数</div>
+                            <div class="stat-value">128次</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">备份大小</div>
-                        <div class="stat-value">256MB</div>
-                        <div class="stat-trend stat-up">&#9650; +12MB</div>
+                        <div class="stat-icon blue">&#128340;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">自动备份</div>
+                            <div class="stat-value">每天03:00</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">保留备份</div>
-                        <div class="stat-value">7</div>
-                        <div class="stat-trend stat-up">&#9644; 正常</div>
+                        <div class="stat-icon orange">&#128197;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">最近备份</div>
+                            <div class="stat-value" style="font-size:18px;">2026-07-02 03:00</div>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Operation Steps -->
-                <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128161; 操作指南</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="step-list">
-                            
-                    <div class="step-item">
-                        <div class="step-number">1</div>
-                        <div class="step-text">在自动备份标签页配置备份计划：设置备份频率（每日/每周/自定义）</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">2</div>
-                        <div class="step-text">设置备份保留策略：保留最近7天的备份文件，超过7天的自动删除</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">3</div>
-                        <div class="step-text">设置备份存储位置：本地存储或远程存储（如阿里云OSS、AWS S3等）</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">4</div>
-                        <div class="step-text">手动备份：点击立即备份按钮，选择备份类型（全量备份或增量备份）</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">5</div>
-                        <div class="step-text">数据恢复：在备份列表中选择要恢复的备份文件，确认后执行恢复操作</div>
-                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">&#128451;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">备份占用空间</div>
+                            <div class="stat-value">12.8GB</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Placeholder Table -->
-                <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128202; 数据概览</span>
+                <!-- 标签页 -->
+                <div class="pos-card" style="margin-bottom: 20px;">
+                    <div class="pos-tabs">
+                        <button class="pos-tab active" onclick="switchTab(this, 'tab-record')">备份记录</button>
+                        <button class="pos-tab" onclick="switchTab(this, 'tab-strategy')">备份策略</button>
+                        <button class="pos-tab" onclick="switchTab(this, 'tab-restore')">恢复记录</button>
                     </div>
                     <div class="card-body">
-                        <table class="data-table">
-                            <thead>
-                                <tr><th>项目名称</th><th>数值</th><th>状态</th><th>操作</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>示例数据 1</td><td>--</td><td><span class="status-badge status-normal">正常</span></td><td><button class="btn btn-sm btn-primary">查看</button></td></tr>
-                                <tr><td>示例数据 2</td><td>--</td><td><span class="status-badge status-warning">预警</span></td><td><button class="btn btn-sm btn-primary">处理</button></td></tr>
-                                <tr><td>示例数据 3</td><td>--</td><td><span class="status-badge status-success">完成</span></td><td><button class="btn btn-sm btn-primary">详情</button></td></tr>
-                            </tbody>
-                        </table>
+
+                        <!-- 备份记录 -->
+                        <div class="tab-content active" id="tab-record">
+                            <div class="search-panel" style="margin-bottom:16px;padding:16px;box-shadow:none;background:#fafafa;border-radius:0;">
+                                <div class="search-row">
+                                    <div class="search-item">
+                                        <label>日期范围</label>
+                                        <div class="date-range-wrap">
+                                            <input type="date" class="pos-input" value="2026-06-25">
+                                            <span>~</span>
+                                            <input type="date" class="pos-input" value="2026-07-02">
+                                        </div>
+                                    </div>
+                                    <div class="search-item">
+                                        <label>备份类型</label>
+                                        <select class="pos-select" style="width:140px;">
+                                            <option>全部</option>
+                                            <option>全量备份</option>
+                                            <option>增量备份</option>
+                                        </select>
+                                    </div>
+                                    <div class="search-item">
+                                        <label>状态</label>
+                                        <select class="pos-select" style="width:140px;">
+                                            <option>全部</option>
+                                            <option>成功</option>
+                                            <option>失败</option>
+                                            <option>进行中</option>
+                                        </select>
+                                    </div>
+                                    <div class="search-actions">
+                                        <button class="pos-btn pos-btn-primary">查询</button>
+                                        <button class="pos-btn pos-btn-default">重置</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="toolbar">
+                                <div class="toolbar-left">共 <strong>128</strong> 条备份记录</div>
+                                <button class="pos-btn pos-btn-primary" onclick="openModal('manualBackupModal')">&#9889; 手动备份</button>
+                            </div>
+                            <div class="pos-table-wrapper">
+                                <table class="pos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>备份时间</th>
+                                            <th>备份类型</th>
+                                            <th>备份范围</th>
+                                            <th>文件大小</th>
+                                            <th>耗时</th>
+                                            <th>存储位置</th>
+                                            <th>状态</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2026-07-02 03:00:15</td>
+                                            <td><span class="backup-type-tag incr">增量备份</span></td>
+                                            <td>交易数据、会员数据、商品数据</td>
+                                            <td>128MB</td>
+                                            <td>2分15秒</td>
+                                            <td>/backup/2026/07/02/incremental/</td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">下载</a>
+                                                <a class="action-link" href="javascript:void(0)" onclick="openModal('restoreConfirmModal')">恢复</a>
+                                                <a class="action-link danger" href="javascript:void(0)">删除</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-01 03:00:08</td>
+                                            <td><span class="backup-type-tag incr">增量备份</span></td>
+                                            <td>交易数据、会员数据、商品数据</td>
+                                            <td>96MB</td>
+                                            <td>1分48秒</td>
+                                            <td>/backup/2026/07/01/incremental/</td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">下载</a>
+                                                <a class="action-link" href="javascript:void(0)" onclick="openModal('restoreConfirmModal')">恢复</a>
+                                                <a class="action-link danger" href="javascript:void(0)">删除</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-06-30 03:00:22</td>
+                                            <td><span class="backup-type-tag full">全量备份</span></td>
+                                            <td>全部数据</td>
+                                            <td>2.8GB</td>
+                                            <td>28分36秒</td>
+                                            <td>/backup/2026/06/30/full/</td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">下载</a>
+                                                <a class="action-link" href="javascript:void(0)" onclick="openModal('restoreConfirmModal')">恢复</a>
+                                                <a class="action-link danger" href="javascript:void(0)">删除</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-06-29 03:00:10</td>
+                                            <td><span class="backup-type-tag incr">增量备份</span></td>
+                                            <td>交易数据、会员数据、商品数据</td>
+                                            <td>112MB</td>
+                                            <td>2分05秒</td>
+                                            <td>/backup/2026/06/29/incremental/</td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">下载</a>
+                                                <a class="action-link" href="javascript:void(0)" onclick="openModal('restoreConfirmModal')">恢复</a>
+                                                <a class="action-link danger" href="javascript:void(0)">删除</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-06-28 03:00:05</td>
+                                            <td><span class="backup-type-tag incr">增量备份</span></td>
+                                            <td>交易数据、会员数据、商品数据</td>
+                                            <td>85MB</td>
+                                            <td>1分36秒</td>
+                                            <td>/backup/2026/06/28/incremental/</td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">下载</a>
+                                                <a class="action-link" href="javascript:void(0)" onclick="openModal('restoreConfirmModal')">恢复</a>
+                                                <a class="action-link danger" href="javascript:void(0)">删除</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-06-27 03:00:18</td>
+                                            <td><span class="backup-type-tag incr">增量备份</span></td>
+                                            <td>交易数据、会员数据、商品数据</td>
+                                            <td>76MB</td>
+                                            <td>1分22秒</td>
+                                            <td>/backup/2026/06/27/incremental/</td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">下载</a>
+                                                <a class="action-link" href="javascript:void(0)" onclick="openModal('restoreConfirmModal')">恢复</a>
+                                                <a class="action-link danger" href="javascript:void(0)">删除</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="pos-pagination">
+                                <span class="page-info">共 128 条 / 每页 10 条</span>
+                                <button class="page-btn" disabled>&laquo;</button>
+                                <button class="page-btn active">1</button>
+                                <button class="page-btn">2</button>
+                                <button class="page-btn">3</button>
+                                <button class="page-btn">...</button>
+                                <button class="page-btn">13</button>
+                                <button class="page-btn">&raquo;</button>
+                            </div>
+                        </div>
+
+                        <!-- 备份策略 -->
+                        <div class="tab-content" id="tab-strategy">
+                            <div class="backup-strategy-grid">
+                                <div class="strategy-card">
+                                    <div class="strategy-icon">&#128451;</div>
+                                    <div class="strategy-title">全量备份</div>
+                                    <div class="strategy-desc">每周日 03:00</div>
+                                    <div class="strategy-desc" style="margin-top:4px;color:var(--text-tertiary);">备份全部数据库及文件</div>
+                                </div>
+                                <div class="strategy-card">
+                                    <div class="strategy-icon">&#128260;</div>
+                                    <div class="strategy-title">增量备份</div>
+                                    <div class="strategy-desc">每日 03:00</div>
+                                    <div class="strategy-desc" style="margin-top:4px;color:var(--text-tertiary);">仅备份当日变更数据</div>
+                                </div>
+                                <div class="strategy-card">
+                                    <div class="strategy-icon">&#128340;</div>
+                                    <div class="strategy-title">保留策略</div>
+                                    <div class="strategy-desc">保留最近30天</div>
+                                    <div class="strategy-desc" style="margin-top:4px;color:var(--text-tertiary);">超过30天的备份自动清理</div>
+                                </div>
+                            </div>
+                            <div style="margin-top:24px;padding:16px;background:#fafafa;border-radius:6px;">
+                                <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">下次自动备份时间</div>
+                                <div style="display:flex;gap:40px;">
+                                    <div>
+                                        <span style="color:var(--text-tertiary);font-size:13px;">增量备份：</span>
+                                        <span style="color:var(--text-primary);font-weight:500;">2026-07-03 03:00</span>
+                                    </div>
+                                    <div>
+                                        <span style="color:var(--text-tertiary);font-size:13px;">全量备份：</span>
+                                        <span style="color:var(--text-primary);font-weight:500;">2026-07-05 03:00 (周日)</span>
+                                    </div>
+                                    <div>
+                                        <span style="color:var(--text-tertiary);font-size:13px;">下次清理：</span>
+                                        <span style="color:var(--text-primary);font-weight:500;">2026-07-03 04:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 恢复记录 -->
+                        <div class="tab-content" id="tab-restore">
+                            <div class="search-panel" style="margin-bottom:16px;padding:16px;box-shadow:none;background:#fafafa;border-radius:0;">
+                                <div class="search-row">
+                                    <div class="search-item">
+                                        <label>日期范围</label>
+                                        <div class="date-range-wrap">
+                                            <input type="date" class="pos-input" value="2026-06-01" style="width:150px;">
+                                            <span>~</span>
+                                            <input type="date" class="pos-input" value="2026-07-02" style="width:150px;">
+                                        </div>
+                                    </div>
+                                    <div class="search-item">
+                                        <label>恢复状态</label>
+                                        <select class="pos-select" style="width:140px;">
+                                            <option>全部</option>
+                                            <option>成功</option>
+                                            <option>失败</option>
+                                        </select>
+                                    </div>
+                                    <div class="search-actions">
+                                        <button class="pos-btn pos-btn-primary">查询</button>
+                                        <button class="pos-btn pos-btn-default">重置</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pos-table-wrapper">
+                                <table class="pos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>恢复时间</th>
+                                            <th>源备份时间</th>
+                                            <th>恢复范围</th>
+                                            <th>恢复前数据量</th>
+                                            <th>恢复后数据量</th>
+                                            <th>耗时</th>
+                                            <th>操作人</th>
+                                            <th>状态</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2026-06-20 15:30</td>
+                                            <td>2026-06-20 03:00</td>
+                                            <td>商品价格表</td>
+                                            <td>5,680条</td>
+                                            <td>5,680条</td>
+                                            <td>45秒</td>
+                                            <td>Admin</td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-06-15 09:12</td>
+                                            <td>2026-06-14 03:00</td>
+                                            <td>会员积分数据</td>
+                                            <td>12,500条</td>
+                                            <td>12,500条</td>
+                                            <td>2分18秒</td>
+                                            <td>Admin</td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-06-08 18:45</td>
+                                            <td>2026-06-07 03:00</td>
+                                            <td>交易流水</td>
+                                            <td>23,680条</td>
+                                            <td>23,680条</td>
+                                            <td>5分32秒</td>
+                                            <td>Admin</td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
 
-            <!-- Footer -->
+            <!-- 底部状态栏 -->
             <footer class="pos-footer">
-                <div style="display: flex; align-items: center; gap: 24px; width: 100%; flex-wrap: wrap;">
-                    <span>Current User：<strong style="color: var(--text-secondary);">Admin</strong></span>
-                    <span>|</span>
-                    <span>门店：<strong style="color: var(--text-secondary);">星链旗舰店</strong></span>
-                    <span>|</span>
-                    <span>数据同步：<strong style="color: var(--text-secondary);">2026-05-26 10:30</strong></span>
-                    <span>|</span>
-                    <span>版本：<strong style="color: var(--text-secondary);">V1.0</strong></span>
-                    <span style="margin-left: auto;">网络：<span class="status-dot online"></span><strong style="color: var(--success-color);">已连接</strong></span>
-                </div>
+                <span>&copy; 2026 智慧新零售云POS综合管理平台 v2.0</span>
+                <span>门店：星链旗舰店</span>
+                <span style="margin-left:auto;">数据同步：2026-07-02 12:00</span>
             </footer>
         </div>
     </div>
 
+    <!-- 手动备份弹窗 -->
+    <div class="pos-modal-overlay" id="manualBackupModal">
+        <div class="pos-modal" style="width:500px;">
+            <div class="modal-header">
+                <span class="modal-title">手动备份</span>
+                <button class="modal-close" onclick="closeModal('manualBackupModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom:16px;">
+                    <label style="font-size:13px;color:var(--text-secondary);font-weight:500;display:block;margin-bottom:6px;"><span style="color:var(--error-color);margin-right:4px;">*</span>备份类型</label>
+                    <select class="pos-select">
+                        <option>全量备份</option>
+                        <option>增量备份</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="font-size:13px;color:var(--text-secondary);font-weight:500;display:block;margin-bottom:6px;">备份范围</label>
+                    <div style="display:flex;flex-wrap:wrap;gap:12px;">
+                        <label class="pos-checkbox"><input type="checkbox" checked>交易数据</label>
+                        <label class="pos-checkbox"><input type="checkbox" checked>商品数据</label>
+                        <label class="pos-checkbox"><input type="checkbox" checked>会员数据</label>
+                        <label class="pos-checkbox"><input type="checkbox" checked>系统配置</label>
+                        <label class="pos-checkbox"><input type="checkbox">日志数据</label>
+                    </div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="font-size:13px;color:var(--text-secondary);font-weight:500;display:block;margin-bottom:6px;">备注</label>
+                    <textarea class="pos-textarea" placeholder="可选：填写备份备注信息" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeModal('manualBackupModal')">取消</button>
+                <button class="pos-btn pos-btn-primary" onclick="closeModal('manualBackupModal')">开始备份</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 恢复确认弹窗 -->
+    <div class="pos-modal-overlay" id="restoreConfirmModal">
+        <div class="pos-modal" style="width:480px;">
+            <div class="modal-header">
+                <span class="modal-title">恢复确认</span>
+                <button class="modal-close" onclick="closeModal('restoreConfirmModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="restore-warning">
+                    <span class="warn-icon">&#9888;</span>
+                    <span>数据恢复将覆盖当前数据，请确保已做好当前数据的备份。此操作不可撤销，请谨慎执行！</span>
+                </div>
+                <div style="font-size:14px;color:var(--text-primary);margin-bottom:12px;">
+                    确认要恢复 <strong style="color:var(--auxiliary-blue);">2026-07-02 03:00:15</strong> 的备份数据吗？
+                </div>
+                <div style="font-size:13px;color:var(--text-tertiary);">
+                    恢复范围：交易数据、会员数据、商品数据（增量备份）
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeModal('restoreConfirmModal')">取消</button>
+                <button class="pos-btn pos-btn-danger" onclick="closeModal('restoreConfirmModal')">确认恢复</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Toggle sidebar menu expand/collapse
         function toggleMenu(el) {
-            const children = el.nextElementSibling;
+            var children = el.nextElementSibling;
             if (!children || !children.classList.contains('menu-children')) return;
-
-            const isOpen = children.classList.contains('open');
-
-            // Close all other menus
-            document.querySelectorAll('.menu-children.open').forEach(function(menu) {
-                menu.classList.remove('open');
-                menu.previousElementSibling.classList.remove('expanded');
-            });
-
+            var isOpen = children.classList.contains('open');
             if (!isOpen) {
                 children.classList.add('open');
                 el.classList.add('expanded');
+            } else {
+                children.classList.remove('open');
+                el.classList.remove('expanded');
             }
         }
 
-        // Toggle mobile sidebar
-        function toggleMobileMenu() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
-        }
-
-        // Fullscreen toggle
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(function() {});
+                document.documentElement.requestFullscreen();
             } else {
                 document.exitFullscreen();
             }
         }
 
-        // Date filter buttons
-        document.querySelectorAll('.date-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.date-btn').forEach(function(b) {
-                    b.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-
-        // User menu toggle (placeholder)
-        function toggleUserMenu() {
-            // Placeholder for user dropdown
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
         }
 
-        // Close mobile sidebar when clicking outside
-        document.addEventListener('click', function(e) {
-            var sidebar = document.getElementById('sidebar');
-            var toggle = document.querySelector('.mobile-menu-toggle');
-            if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
-                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                    sidebar.classList.remove('mobile-open');
-                }
-            }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        function switchTab(btn, tabId) {
+            var card = btn.closest('.pos-card');
+            card.querySelectorAll('.pos-tab').forEach(function(t) { t.classList.remove('active'); });
+            btn.classList.add('active');
+            card.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        document.querySelectorAll('.pos-modal-overlay').forEach(function(overlay) {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) overlay.classList.remove('show');
+            });
         });
     </script>
     <script src="pos-common.js"></script>

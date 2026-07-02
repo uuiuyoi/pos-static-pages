@@ -1,70 +1,77 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>库存预警 - 智慧新零售云POS综合管理平台</title>
     <link rel="stylesheet" href="pos-common.css">
-    
-        <style>
-        .content-header { margin-bottom: 24px; }
-        .content-title { font-size: 22px; font-weight: 600; color: #333; margin-bottom: 8px; }
-        .content-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+    <style>
         .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
         .stat-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #e8e8e8; }
         .stat-label { font-size: 13px; color: var(--text-tertiary); margin-bottom: 8px; }
-        .stat-value { font-size: 24px; font-weight: 700; color: #333; margin-bottom: 6px; }
-        .stat-trend { font-size: 12px; }
-        .stat-up { color: var(--success-color); }
-        .stat-down { color: var(--danger-color); }
-        .step-list { display: flex; flex-direction: column; gap: 12px; }
-        .step-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
-        .step-number { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-        .step-text { font-size: 14px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e8e8e8; font-size: 14px; }
-        .data-table th { background: #f8f9fa; font-weight: 600; color: #333; }
-        .data-table td { color: var(--text-secondary); }
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
-        .status-normal { background: #e3f2fd; color: #1976d2; }
-        .status-warning { background: #fff3e0; color: #f57c00; }
-        .status-success { background: #e8f5e9; color: #388e3c; }
-        .status-danger { background: #ffebee; color: #d32f2f; }
-        .btn-sm { padding: 6px 14px; font-size: 13px; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+        .stat-unit { font-size: 14px; font-weight: 400; color: var(--text-tertiary); }
+        .stat-trend { font-size: 12px; margin-top: 4px; }
+        .stat-down { color: #ff4d4f; }
+        .stat-up { color: var(--primary-green); }
+        .tabs { display: flex; gap: 0; border-bottom: 2px solid #f0f0f0; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; font-size: 14px; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+        .tab:hover { color: var(--primary-green); }
+        .tab.active { color: var(--primary-green); font-weight: 600; border-bottom-color: var(--primary-green); }
+        .tab .tab-count { display: inline-block; background: #f0f0f0; color: var(--text-tertiary); font-size: 11px; padding: 1px 6px; border-radius: 8px; margin-left: 4px; }
+        .tab.active .tab-count { background: var(--primary-green); color: #fff; }
+        .search-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+        .search-field { display: flex; flex-direction: column; gap: 4px; }
+        .search-field label { font-size: 12px; color: var(--text-tertiary); }
+        .search-field input, .search-field select { padding: 7px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; color: var(--text-primary); background: #fff; min-width: 150px; }
+        .search-field input:focus, .search-field select:focus { border-color: var(--primary-green); outline: none; }
+        .pos-table-wrapper { overflow-x: auto; }
+        .pos-table { width: 100%; border-collapse: collapse; }
+        .pos-table th, .pos-table td { padding: 11px 14px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+        .pos-table th { background: #fafafa; font-weight: 600; color: var(--text-primary); position: sticky; top: 0; }
+        .pos-table td { color: var(--text-secondary); }
+        .pos-table tbody tr:hover { background: #f6ffed; }
+        .warning-level { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .warning-critical { background: #fff1f0; color: #ff4d4f; }
+        .warning-low { background: #fff7e6; color: #fa8c16; }
+        .warning-over { background: #e6f7ff; color: #1890ff; }
+        .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 4px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: var(--text-secondary); }
+        .btn-sm:hover { border-color: var(--primary-green); color: var(--primary-green); }
+        .btn-sm.primary { background: var(--primary-green); color: #fff; border-color: var(--primary-green); }
+        .btn-sm.primary:hover { background: #73d13d; }
+        .btn-sm.danger { border-color: #ff4d4f; color: #ff4d4f; }
+        .btn-sm.warning { background: #fa8c16; color: #fff; border-color: #fa8c16; }
+        .page-title-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .page-title-bar h2 { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+        .toolbar { display: flex; gap: 8px; }
+        .gap-tag { font-weight: 700; }
+        .gap-critical { color: #ff4d4f; }
+        .gap-low { color: #fa8c16; }
+        .action-suggest { font-size: 12px; color: var(--auxiliary-blue); cursor: pointer; text-decoration: underline; }
         @media (max-width: 1200px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px) { .stat-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="pos-layout">
-        <!-- ==================== Sidebar ==================== -->
+        <!-- Sidebar -->
         <aside class="pos-sidebar" id="sidebar">
-            <!-- Logo -->
             <div class="sidebar-logo">
                 <div class="logo-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
                 </div>
                 <span class="logo-text">智慧新零售云POS</span>
             </div>
-
-            <!-- Menu -->
             <nav class="sidebar-menu">
-                <!-- 首页看板 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="location.href='pos-main-dashboard.html'">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg></span>
                         <span class="menu-title">首页看板</span>
                     </div>
                 </div>
-
-                <!-- 智能收银 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 2H7v2h10V2zm4 4H3v2h18V6zM4 20h16v-2H4v2zm1-4h14V8H5v8z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 2H7v2h10V2zm4 4H3v2h18V6zM4 20h16v-2H4v2zm1-4h14V8H5v8z"/></svg></span>
                         <span class="menu-title">智能收银</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -74,13 +81,9 @@
                         <a class="menu-child" href="pos-shift-handover.html">交接班管理</a>
                     </div>
                 </div>
-
-                <!-- 商品管理 -->
                 <div class="menu-group">
                     <div class="menu-parent expanded" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z"/></svg></span>
                         <span class="menu-title">商品管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -93,13 +96,9 @@
                         <a class="menu-child active" href="pos-inventory-warning.html">库存预警</a>
                     </div>
                 </div>
-
-                <!-- 订单管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg></span>
                         <span class="menu-title">订单管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -109,13 +108,9 @@
                         <a class="menu-child" href="pos-refund.html">退款管理</a>
                     </div>
                 </div>
-
-                <!-- 综合管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span>
                         <span class="menu-title">综合管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -128,13 +123,9 @@
                         <a class="menu-child" href="pos-purchase.html">采购管理</a>
                     </div>
                 </div>
-
-                <!-- 会员营销 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span>
                         <span class="menu-title">会员营销</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -148,13 +139,9 @@
                         <a class="menu-child" href="pos-marketing-analysis.html">营销分析</a>
                     </div>
                 </div>
-
-                <!-- 数据分析 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></span>
                         <span class="menu-title">数据分析</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -166,13 +153,9 @@
                         <a class="menu-child" href="pos-ai-forecast.html">AI预测</a>
                     </div>
                 </div>
-
-                <!-- 财务管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></span>
                         <span class="menu-title">财务管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -184,13 +167,9 @@
                         <a class="menu-child" href="pos-cost-analysis.html">成本分析</a>
                     </div>
                 </div>
-
-                <!-- 系统设置 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></span>
                         <span class="menu-title">系统设置</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -204,7 +183,7 @@
             </nav>
         </aside>
 
-        <!-- ==================== Main Content ==================== -->
+        <!-- Main Content -->
         <div class="pos-main-wrapper">
             <!-- Header -->
             <header class="pos-header">
@@ -215,196 +194,307 @@
                     <div class="header-breadcrumb">
                         <a href="pos-main-dashboard.html">首页</a>
                         <span>/</span>
-                        <span style="color: var(--text-primary);">库存预警</span>
+                        <a href="#">商品管理</a>
+                        <span>/</span>
+                        <span style="color:var(--text-primary);">库存预警</span>
                     </div>
                 </div>
                 <div class="header-right">
-                    <!-- Search -->
                     <button class="header-action" title="搜索">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                     </button>
-                    <!-- Notification -->
                     <button class="header-action" title="消息通知">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
                         <span class="badge">5</span>
                     </button>
-                    <!-- Fullscreen -->
                     <button class="header-action" title="全屏" onclick="toggleFullscreen()">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
                     </button>
-                    <!-- Theme -->
                     <button class="header-action" title="主题切换">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
                     </button>
-                    <!-- User -->
                     <div class="header-user" onclick="toggleUserMenu()">
-                        <div class="user-avatar">A</div>
-                        <span class="user-name">Admin</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color: var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                        <div class="user-avatar">张</div>
+                        <span class="user-name">张丽</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                     </div>
                 </div>
             </header>
 
-            <!-- Main Content Area -->
-            <!-- Main Content Area -->
+            <!-- Content -->
             <main class="pos-content">
-                <div class="content-header">
-                    <h1 class="content-title">库存预警</h1>
-                    <p class="content-desc">库存预警实时监控库存状态，对库存不足、库存过剩、临期和过期商品进行预警提示。</p>
+                <div class="page-title-bar">
+                    <h2>&#9888;&#65039; 库存预警</h2>
+                    <div class="toolbar">
+                        <button class="pos-btn pos-btn-primary" style="padding:7px 16px;font-size:13px;" onclick="generateRestock()">&#128221; 生成补货建议</button>
+                        <button class="pos-btn pos-btn-default" style="padding:7px 16px;font-size:13px;" onclick="exportWarning()">&#128229; 导出预警</button>
+                    </div>
                 </div>
 
                 <!-- Stat Cards -->
                 <div class="stat-grid">
-                    
                     <div class="stat-card">
-                        <div class="stat-label">库存不足</div>
-                        <div class="stat-value">8</div>
-                        <div class="stat-trend stat-up">&#9650; +2</div>
+                        <div class="stat-label">预警商品</div>
+                        <div class="stat-value" style="color:#fa8c16;">12 <span class="stat-unit">件</span></div>
+                        <div class="stat-trend stat-down">&#9660; 较昨日 -2件</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">库存过剩</div>
-                        <div class="stat-value">3</div>
-                        <div class="stat-trend stat-down">&#9660; -1</div>
+                        <div class="stat-label">缺货商品</div>
+                        <div class="stat-value" style="color:#ff4d4f;">3 <span class="stat-unit">件</span></div>
+                        <div class="stat-trend stat-down">&#9660; 较昨日 持平</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">临期商品</div>
-                        <div class="stat-value">12</div>
-                        <div class="stat-trend stat-up">&#9650; +4</div>
+                        <div class="stat-label">积压商品</div>
+                        <div class="stat-value" style="color:#1890ff;">8 <span class="stat-unit">件</span></div>
+                        <div class="stat-trend stat-up">&#9650; 较昨日 +1件</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">已过期</div>
-                        <div class="stat-value">2</div>
-                        <div class="stat-trend stat-down">&#9660; -1</div>
+                        <div class="stat-label">安全库存达标率</div>
+                        <div class="stat-value" style="color:var(--primary-green);">85.6%</div>
+                        <div class="stat-trend stat-up">&#9650; 较上月 +3.2%</div>
                     </div>
                 </div>
 
-                <!-- Operation Steps -->
-                <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128161; 操作指南</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="step-list">
-                            
-                    <div class="step-item">
-                        <div class="step-number">1</div>
-                        <div class="step-text">系统自动显示所有触发预警的商品列表</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">2</div>
-                        <div class="step-text">预警类型包括：库存不足、库存过剩、库存临期和库存过期</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">3</div>
-                        <div class="step-text">点击预警商品可查看详细信息：当前库存、安全库存、最近入出库记录和建议补货数量</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">4</div>
-                        <div class="step-text">对于库存不足商品，可点击一键补货按钮自动生成采购申请单</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">5</div>
-                        <div class="step-text">对于临期或过期商品，系统建议进行促销处理或报损处理</div>
-                    </div>
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active" onclick="switchWarningTab(this, 'allPanel')">全部预警 <span class="tab-count">12</span></div>
+                    <div class="tab" onclick="switchWarningTab(this, 'lowPanel')">库存不足 <span class="tab-count">7</span></div>
+                    <div class="tab" onclick="switchWarningTab(this, 'outPanel')">缺货 <span class="tab-count">3</span></div>
+                    <div class="tab" onclick="switchWarningTab(this, 'overPanel')">积压 <span class="tab-count">2</span></div>
+                </div>
+
+                <!-- Search -->
+                <div class="pos-card" style="margin-bottom:24px;">
+                    <div class="card-body" style="padding:16px 20px;">
+                        <div class="search-bar">
+                            <div class="search-field">
+                                <label>商品名称</label>
+                                <input type="text" placeholder="请输入商品名称">
+                            </div>
+                            <div class="search-field">
+                                <label>预警等级</label>
+                                <select>
+                                    <option value="">全部等级</option>
+                                    <option>紧急（缺货）</option>
+                                    <option>警告（偏低）</option>
+                                    <option>提示（积压）</option>
+                                </select>
+                            </div>
+                            <div class="search-field">
+                                <label>仓库</label>
+                                <select>
+                                    <option value="">全部仓库</option>
+                                    <option>主仓库</option>
+                                    <option>冷藏库</option>
+                                    <option>零食仓</option>
+                                    <option>生鲜仓</option>
+                                </select>
+                            </div>
+                            <div style="display:flex;gap:8px;align-items:flex-end;">
+                                <button class="pos-btn pos-btn-primary" style="padding:7px 18px;font-size:13px;">查询</button>
+                                <button class="pos-btn pos-btn-default" style="padding:7px 18px;font-size:13px;">重置</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Placeholder Table -->
-                <div class="pos-card">
+                <!-- Warning Table (All panels share same structure, show all data) -->
+                <div class="pos-card" id="allPanel">
                     <div class="card-header">
-                        <span class="card-title">&#128202; 数据概览</span>
+                        <span class="card-title">&#9888;&#65039; 预警商品列表</span>
+                        <span style="font-size:13px;color:var(--text-tertiary);">共 8 条预警</span>
                     </div>
-                    <div class="card-body">
-                        <table class="data-table">
-                            <thead>
-                                <tr><th>项目名称</th><th>数值</th><th>状态</th><th>操作</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>示例数据 1</td><td>--</td><td><span class="status-badge status-normal">正常</span></td><td><button class="btn btn-sm btn-primary">查看</button></td></tr>
-                                <tr><td>示例数据 2</td><td>--</td><td><span class="status-badge status-warning">预警</span></td><td><button class="btn btn-sm btn-primary">处理</button></td></tr>
-                                <tr><td>示例数据 3</td><td>--</td><td><span class="status-badge status-success">完成</span></td><td><button class="btn btn-sm btn-primary">详情</button></td></tr>
-                            </tbody>
-                        </table>
+                    <div class="card-body" style="padding:0;">
+                        <div class="pos-table-wrapper">
+                            <table class="pos-table">
+                                <thead>
+                                    <tr>
+                                        <th>商品名称</th>
+                                        <th>分类</th>
+                                        <th>仓库</th>
+                                        <th>当前库存</th>
+                                        <th>安全库存</th>
+                                        <th>缺口/超出</th>
+                                        <th>预警等级</th>
+                                        <th>建议行动</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span style="font-weight:500;color:#ff4d4f;">康师傅红烧牛肉面 120g</span></td>
+                                        <td>休闲零食</td>
+                                        <td>主仓库</td>
+                                        <td><strong style="color:#ff4d4f;">0</strong> 件</td>
+                                        <td>100</td>
+                                        <td><span class="gap-tag gap-critical">-100 件</span></td>
+                                        <td><span class="warning-level warning-critical">&#9888; 紧急缺货</span></td>
+                                        <td><span class="action-suggest" onclick="generateRestock()">立即采购补货</span></td>
+                                        <td>
+                                            <button class="btn-sm danger" onclick="urgentRestock('6901028156785')">紧急补货</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="font-weight:500;color:#ff4d4f;">海飞丝去屑洗发水 750ml</span></td>
+                                        <td>个人护理</td>
+                                        <td>主仓库</td>
+                                        <td><strong style="color:#ff4d4f;">0</strong> 件</td>
+                                        <td>50</td>
+                                        <td><span class="gap-tag gap-critical">-50 件</span></td>
+                                        <td><span class="warning-level warning-critical">&#9888; 紧急缺货</span></td>
+                                        <td><span class="action-suggest" onclick="generateRestock()">立即采购补货</span></td>
+                                        <td>
+                                            <button class="btn-sm danger" onclick="urgentRestock('6901028345217')">紧急补货</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="font-weight:500;color:#ff4d4f;">云南白药牙膏 120g</span></td>
+                                        <td>个人护理</td>
+                                        <td>主仓库</td>
+                                        <td><strong style="color:#ff4d4f;">0</strong> 件</td>
+                                        <td>60</td>
+                                        <td><span class="gap-tag gap-critical">-60 件</span></td>
+                                        <td><span class="warning-level warning-critical">&#9888; 紧急缺货</span></td>
+                                        <td><span class="action-suggest" onclick="generateRestock()">立即采购补货</span></td>
+                                        <td>
+                                            <button class="btn-sm danger" onclick="urgentRestock('6920467541259')">紧急补货</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="font-weight:500;">乐事薯片 原味 70g</span></td>
+                                        <td>休闲零食</td>
+                                        <td>零食仓</td>
+                                        <td><strong style="color:#fa8c16;">52</strong> 件</td>
+                                        <td>80</td>
+                                        <td><span class="gap-tag gap-low">-28 件</span></td>
+                                        <td><span class="warning-level warning-low">&#9888; 库存偏低</span></td>
+                                        <td><span class="action-suggest" onclick="generateRestock()">建议补货 50件</span></td>
+                                        <td>
+                                            <button class="btn-sm primary" onclick="restock('6901028123452')">补货</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="font-weight:500;">清扬洗发水 750ml</span></td>
+                                        <td>个人护理</td>
+                                        <td>主仓库</td>
+                                        <td><strong style="color:#fa8c16;">8</strong> 件</td>
+                                        <td>30</td>
+                                        <td><span class="gap-tag gap-low">-22 件</span></td>
+                                        <td><span class="warning-level warning-low">&#9888; 库存偏低</span></td>
+                                        <td><span class="action-suggest" onclick="generateRestock()">建议补货 30件</span></td>
+                                        <td>
+                                            <button class="btn-sm primary" onclick="restock('6925303766111')">补货</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="font-weight:500;">汰渍洗衣液 3kg</span></td>
+                                        <td>家居清洁</td>
+                                        <td>主仓库</td>
+                                        <td><strong style="color:#fa8c16;">12</strong> 件</td>
+                                        <td>25</td>
+                                        <td><span class="gap-tag gap-low">-13 件</span></td>
+                                        <td><span class="warning-level warning-low">&#9888; 库存偏低</span></td>
+                                        <td><span class="action-suggest" onclick="generateRestock()">建议补货 20件</span></td>
+                                        <td>
+                                            <button class="btn-sm primary" onclick="restock('6934567890123')">补货</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="font-weight:500;">奥利奥饼干 116g</span></td>
+                                        <td>休闲零食</td>
+                                        <td>零食仓</td>
+                                        <td><strong style="color:#fa8c16;">45</strong> 件</td>
+                                        <td>60</td>
+                                        <td><span class="gap-tag gap-low">-15 件</span></td>
+                                        <td><span class="warning-level warning-low">&#9888; 库存偏低</span></td>
+                                        <td><span class="action-suggest" onclick="generateRestock()">建议补货 20件</span></td>
+                                        <td>
+                                            <button class="btn-sm primary" onclick="restock('6901028088897')">补货</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="font-weight:500;">德芙巧克力 43g*12</span></td>
+                                        <td>休闲零食</td>
+                                        <td>零食仓</td>
+                                        <td><strong style="color:#1890ff;">215</strong> 件</td>
+                                        <td>50</td>
+                                        <td><span class="gap-tag" style="color:#1890ff;">+165 件</span></td>
+                                        <td><span class="warning-level warning-over">&#128161; 库存积压</span></td>
+                                        <td><span class="action-suggest" onclick="suggestPromotion()">建议促销或调拨</span></td>
+                                        <td>
+                                            <button class="btn-sm warning" onclick="suggestPromotion()">促销建议</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;font-size:13px;color:var(--text-tertiary);border-top:1px solid #f0f0f0;">
+                            <span>共 8 条预警</span>
+                            <div style="display:flex;gap:4px;">
+                                <button style="padding:4px 10px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;">&laquo;</button>
+                                <button style="padding:4px 10px;border:1px solid var(--primary-green);border-radius:4px;background:var(--primary-green);color:#fff;cursor:pointer;font-size:13px;">1</button>
+                                <button style="padding:4px 10px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;">&raquo;</button>
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Other tab panels (hidden by default, same structure with filtered data) -->
+                <div class="pos-card" id="lowPanel" style="display:none;">
+                    <div class="card-header"><span class="card-title">&#9888;&#65039; 库存不足商品</span></div>
+                    <div class="card-body" style="text-align:center;padding:40px;color:var(--text-tertiary);">切换至"全部预警"选项卡查看完整列表，此处显示库存偏低的商品</div>
+                </div>
+                <div class="pos-card" id="outPanel" style="display:none;">
+                    <div class="card-header"><span class="card-title">&#9888;&#65039; 缺货商品</span></div>
+                    <div class="card-body" style="text-align:center;padding:40px;color:var(--text-tertiary);">切换至"全部预警"选项卡查看完整列表，此处显示缺货商品</div>
+                </div>
+                <div class="pos-card" id="overPanel" style="display:none;">
+                    <div class="card-header"><span class="card-title">&#128161; 积压商品</span></div>
+                    <div class="card-body" style="text-align:center;padding:40px;color:var(--text-tertiary);">切换至"全部预警"选项卡查看完整列表，此处显示积压商品</div>
                 </div>
             </main>
 
             <!-- Footer -->
             <footer class="pos-footer">
-                <div style="display: flex; align-items: center; gap: 24px; width: 100%; flex-wrap: wrap;">
-                    <span>Current User：<strong style="color: var(--text-secondary);">Admin</strong></span>
+                <div style="display:flex;align-items:center;gap:24px;width:100%;flex-wrap:wrap;">
+                    <span>当前用户：<strong style="color:var(--text-secondary);">张丽（POS001）</strong></span>
                     <span>|</span>
-                    <span>门店：<strong style="color: var(--text-secondary);">星链旗舰店</strong></span>
+                    <span>门店：<strong style="color:var(--text-secondary);">星链旗舰店</strong></span>
                     <span>|</span>
-                    <span>数据同步：<strong style="color: var(--text-secondary);">2026-05-26 10:30</strong></span>
+                    <span>数据同步：<strong style="color:var(--text-secondary);">2026-07-02 15:05</strong></span>
                     <span>|</span>
-                    <span>版本：<strong style="color: var(--text-secondary);">V1.0</strong></span>
-                    <span style="margin-left: auto;">网络：<span class="status-dot online"></span><strong style="color: var(--success-color);">已连接</strong></span>
+                    <span>版本：<strong style="color:var(--text-secondary);">V2.6.1</strong></span>
+                    <span style="margin-left:auto;">网络：<span class="status-dot online"></span><strong style="color:var(--primary-green);">已连接</strong></span>
                 </div>
             </footer>
         </div>
     </div>
 
     <script>
-        // Toggle sidebar menu expand/collapse
         function toggleMenu(el) {
             const children = el.nextElementSibling;
             if (!children || !children.classList.contains('menu-children')) return;
-
             const isOpen = children.classList.contains('open');
-
-            // Close all other menus
-            document.querySelectorAll('.menu-children.open').forEach(function(menu) {
-                menu.classList.remove('open');
-                menu.previousElementSibling.classList.remove('expanded');
-            });
-
-            if (!isOpen) {
-                children.classList.add('open');
-                el.classList.add('expanded');
-            }
+            document.querySelectorAll('.menu-children.open').forEach(function(menu) { menu.classList.remove('open'); menu.previousElementSibling.classList.remove('expanded'); });
+            if (!isOpen) { children.classList.add('open'); el.classList.add('expanded'); }
         }
-
-        // Toggle mobile sidebar
-        function toggleMobileMenu() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
+        function toggleMobileMenu() { document.getElementById('sidebar').classList.toggle('mobile-open'); }
+        function toggleFullscreen() { if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(function(){}); } else { document.exitFullscreen(); } }
+        function toggleUserMenu() {}
+        function switchWarningTab(el, panelId) {
+            document.querySelectorAll('.tabs .tab').forEach(function(t) { t.classList.remove('active'); });
+            el.classList.add('active');
+            document.getElementById('allPanel').style.display = 'none';
+            document.getElementById('lowPanel').style.display = 'none';
+            document.getElementById('outPanel').style.display = 'none';
+            document.getElementById('overPanel').style.display = 'none';
+            document.getElementById(panelId).style.display = '';
         }
-
-        // Fullscreen toggle
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(function() {});
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
-        // Date filter buttons
-        document.querySelectorAll('.date-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.date-btn').forEach(function(b) {
-                    b.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-
-        // User menu toggle (placeholder)
-        function toggleUserMenu() {
-            // Placeholder for user dropdown
-        }
-
-        // Close mobile sidebar when clicking outside
-        document.addEventListener('click', function(e) {
-            var sidebar = document.getElementById('sidebar');
-            var toggle = document.querySelector('.mobile-menu-toggle');
-            if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
-                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                    sidebar.classList.remove('mobile-open');
-                }
-            }
-        });
+        function generateRestock() { alert('系统正在生成补货建议...\n\n已为 7 件商品生成补货建议，建议总采购量：285 件\n预估采购金额：¥8,650.00\n\n补货建议已发送至采购管理模块。'); }
+        function urgentRestock(sku) { if(confirm('确认紧急补货？系统将自动生成紧急采购单。')) { alert('紧急采购单已生成！'); } }
+        function restock(sku) { alert('补货申请已提交，等待审核。'); }
+        function suggestPromotion() { alert('促销建议：\n\n1. 德芙巧克力可设置"买二赠一"活动\n2. 建议调拨至销量较高的门店\n3. 可设置限时8.5折促销'); }
+        function exportWarning() { alert('库存预警数据导出中，请稍候...'); }
     </script>
     <script src="pos-common.js"></script>
 </body>

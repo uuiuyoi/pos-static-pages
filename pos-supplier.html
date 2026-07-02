@@ -1,70 +1,91 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>供应商管理 - 智慧新零售云POS综合管理平台</title>
     <link rel="stylesheet" href="pos-common.css">
-    
-        <style>
-        .content-header { margin-bottom: 24px; }
-        .content-title { font-size: 22px; font-weight: 600; color: #333; margin-bottom: 8px; }
-        .content-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
-        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #e8e8e8; }
+    <style>
+        .content-header { margin-bottom: 20px; }
+        .page-title { font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+        .page-desc { font-size: 13px; color: var(--text-tertiary); }
+        .stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+        .stat-card { background: #fff; border-radius: 10px; padding: 18px 20px; border: 1px solid #e8e8e8; position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 4px 0 0 4px; }
+        .stat-card:nth-child(1)::before { background: var(--auxiliary-blue); }
+        .stat-card:nth-child(2)::before { background: var(--success-color); }
+        .stat-card:nth-child(3)::before { background: var(--primary-green); }
+        .stat-card:nth-child(4)::before { background: var(--warning-color); }
         .stat-label { font-size: 13px; color: var(--text-tertiary); margin-bottom: 8px; }
-        .stat-value { font-size: 24px; font-weight: 700; color: #333; margin-bottom: 6px; }
-        .stat-trend { font-size: 12px; }
-        .stat-up { color: var(--success-color); }
-        .stat-down { color: var(--danger-color); }
-        .step-list { display: flex; flex-direction: column; gap: 12px; }
-        .step-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
-        .step-number { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-        .step-text { font-size: 14px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e8e8e8; font-size: 14px; }
-        .data-table th { background: #f8f9fa; font-weight: 600; color: #333; }
-        .data-table td { color: var(--text-secondary); }
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
-        .status-normal { background: #e3f2fd; color: #1976d2; }
-        .status-warning { background: #fff3e0; color: #f57c00; }
-        .status-success { background: #e8f5e9; color: #388e3c; }
-        .status-danger { background: #ffebee; color: #d32f2f; }
-        .btn-sm { padding: 6px 14px; font-size: 13px; }
-        @media (max-width: 1200px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) { .stat-grid { grid-template-columns: 1fr; } }
+        .stat-value { font-size: 26px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+        .stat-extra { font-size: 12px; color: var(--text-tertiary); }
+        .search-panel { background: #fff; border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; border: 1px solid #e8e8e8; }
+        .search-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+        .search-item { display: flex; flex-direction: column; gap: 4px; min-width: 150px; }
+        .search-item label { font-size: 12px; color: var(--text-tertiary); }
+        .search-item input, .search-item select { padding: 7px 10px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; color: var(--text-primary); background: #fff; outline: none; transition: border-color .2s; }
+        .search-item input:focus, .search-item select:focus { border-color: var(--primary-green); }
+        .search-actions { display: flex; gap: 8px; }
+        .pos-btn { padding: 7px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; border: none; transition: all .2s; }
+        .pos-btn-primary { background: var(--primary-green); color: #fff; }
+        .pos-btn-primary:hover { background: #46b814; }
+        .pos-btn-default { background: #fff; color: var(--text-secondary); border: 1px solid #d9d9d9; }
+        .pos-btn-default:hover { border-color: var(--primary-green); color: var(--primary-green); }
+        .pos-btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: var(--text-secondary); transition: all .2s; }
+        .pos-btn-sm:hover { border-color: var(--primary-green); color: var(--primary-green); }
+        .pos-table-wrapper { background: #fff; border-radius: 10px; border: 1px solid #e8e8e8; overflow: hidden; }
+        .pos-table { width: 100%; border-collapse: collapse; }
+        .pos-table th { background: #fafafa; padding: 12px 14px; text-align: left; font-size: 13px; font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid #e8e8e8; }
+        .pos-table td { padding: 12px 14px; font-size: 13px; color: var(--text-primary); border-bottom: 1px solid #f0f0f0; }
+        .pos-table tr:hover td { background: #f6ffed; }
+        .pos-tag { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .pos-tag-success { background: #f6ffed; color: #389e0d; }
+        .pos-tag-default { background: #f5f5f5; color: #8c8c8c; }
+        .star-rating { color: #faad14; font-size: 14px; letter-spacing: 2px; }
+        .table-actions { display: flex; gap: 6px; }
+        .pos-pagination { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: #fff; border-top: 1px solid #e8e8e8; }
+        .pagination-info { font-size: 13px; color: var(--text-tertiary); }
+        .pagination-btns { display: flex; gap: 4px; }
+        .pagination-btns button { width: 32px; height: 32px; border-radius: 6px; border: 1px solid #d9d9d9; background: #fff; cursor: pointer; font-size: 13px; color: var(--text-secondary); transition: all .2s; }
+        .pagination-btns button.active { background: var(--primary-green); color: #fff; border-color: var(--primary-green); }
+        .pos-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.45); z-index: 1000; justify-content: center; align-items: center; }
+        .pos-modal-overlay.show { display: flex; }
+        .pos-modal { background: #fff; border-radius: 12px; width: 580px; max-height: 85vh; overflow-y: auto; box-shadow: 0 12px 48px rgba(0,0,0,.15); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
+        .modal-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+        .modal-close { width: 28px; height: 28px; border: none; background: none; cursor: pointer; font-size: 18px; color: var(--text-tertiary); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        .modal-close:hover { background: #f5f5f5; }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 14px 20px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 8px; }
+        .pos-form-group { margin-bottom: 14px; }
+        .pos-form-label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+        .pos-input, .pos-select { width: 100%; padding: 8px 10px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; color: var(--text-primary); background: #fff; outline: none; transition: border-color .2s; box-sizing: border-box; }
+        .pos-input:focus, .pos-select:focus { border-color: var(--primary-green); }
+        .detail-row { display: flex; margin-bottom: 10px; }
+        .detail-label { width: 90px; font-size: 13px; color: var(--text-tertiary); flex-shrink: 0; }
+        .detail-value { font-size: 13px; color: var(--text-primary); }
+        @media (max-width: 1200px) { .stat-cards { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .stat-cards { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="pos-layout">
-        <!-- ==================== Sidebar ==================== -->
+        <!-- Sidebar -->
         <aside class="pos-sidebar" id="sidebar">
-            <!-- Logo -->
             <div class="sidebar-logo">
-                <div class="logo-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
-                </div>
+                <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg></div>
                 <span class="logo-text">智慧新零售云POS</span>
             </div>
-
-            <!-- Menu -->
             <nav class="sidebar-menu">
-                <!-- 首页看板 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="location.href='pos-main-dashboard.html'">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg></span>
                         <span class="menu-title">首页看板</span>
                     </div>
                 </div>
-
-                <!-- 智能收银 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 2H7v2h10V2zm4 4H3v2h18V6zM4 20h16v-2H4v2zm1-4h14V8H5v8z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 2H7v2h10V2zm4 4H3v2h18V6zM4 20h16v-2H4v2zm1-4h14V8H5v8z"/></svg></span>
                         <span class="menu-title">智能收银</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -74,13 +95,9 @@
                         <a class="menu-child" href="pos-shift-handover.html">交接班管理</a>
                     </div>
                 </div>
-
-                <!-- 商品管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z"/></svg></span>
                         <span class="menu-title">商品管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -93,13 +110,9 @@
                         <a class="menu-child" href="pos-inventory-warning.html">库存预警</a>
                     </div>
                 </div>
-
-                <!-- 订单管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg></span>
                         <span class="menu-title">订单管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -109,13 +122,9 @@
                         <a class="menu-child" href="pos-refund.html">退款管理</a>
                     </div>
                 </div>
-
-                <!-- 综合管理 -->
                 <div class="menu-group">
                     <div class="menu-parent expanded" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span>
                         <span class="menu-title">综合管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -128,13 +137,9 @@
                         <a class="menu-child" href="pos-purchase.html">采购管理</a>
                     </div>
                 </div>
-
-                <!-- 会员营销 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span>
                         <span class="menu-title">会员营销</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -148,13 +153,9 @@
                         <a class="menu-child" href="pos-marketing-analysis.html">营销分析</a>
                     </div>
                 </div>
-
-                <!-- 数据分析 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></span>
                         <span class="menu-title">数据分析</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -166,13 +167,9 @@
                         <a class="menu-child" href="pos-ai-forecast.html">AI预测</a>
                     </div>
                 </div>
-
-                <!-- 财务管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></span>
                         <span class="menu-title">财务管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -184,13 +181,9 @@
                         <a class="menu-child" href="pos-cost-analysis.html">成本分析</a>
                     </div>
                 </div>
-
-                <!-- 系统设置 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></span>
                         <span class="menu-title">系统设置</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -204,7 +197,7 @@
             </nav>
         </aside>
 
-        <!-- ==================== Main Content ==================== -->
+        <!-- Main Wrapper -->
         <div class="pos-main-wrapper">
             <!-- Header -->
             <header class="pos-header">
@@ -215,194 +208,333 @@
                     <div class="header-breadcrumb">
                         <a href="pos-main-dashboard.html">首页</a>
                         <span>/</span>
-                        <span style="color: var(--text-primary);">供应商管理</span>
+                        <a href="javascript:void(0)">综合管理</a>
+                        <span>/</span>
+                        <span style="color:var(--text-primary);">供应商管理</span>
                     </div>
                 </div>
                 <div class="header-right">
-                    <!-- Search -->
-                    <button class="header-action" title="搜索">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                    </button>
-                    <!-- Notification -->
+                    <button class="header-action" title="搜索"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5s2.59 6.5 6 6.5c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5s4.5 2.49 4.5 4.5-2.49 4.5-4.5 4.5z"/></svg></button>
                     <button class="header-action" title="消息通知">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-                        <span class="badge">5</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5S10 3.17 10 4v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                        <span class="badge">2</span>
                     </button>
-                    <!-- Fullscreen -->
-                    <button class="header-action" title="全屏" onclick="toggleFullscreen()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-                    </button>
-                    <!-- Theme -->
-                    <button class="header-action" title="主题切换">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
-                    </button>
-                    <!-- User -->
+                    <button class="header-action" title="全屏" onclick="toggleFullscreen()"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg></button>
+                    <button class="header-action" title="主题切换"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg></button>
                     <div class="header-user" onclick="toggleUserMenu()">
                         <div class="user-avatar">A</div>
                         <span class="user-name">Admin</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color: var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                     </div>
                 </div>
             </header>
 
-            <!-- Main Content Area -->
-            <!-- Main Content Area -->
+            <!-- Content -->
             <main class="pos-content">
                 <div class="content-header">
-                    <h1 class="content-title">供应商管理</h1>
-                    <p class="content-desc">供应商管理用于维护供应商信息、供货记录和评级管理，优化采购决策。</p>
+                    <div class="page-title">供应商管理</div>
+                    <div class="page-desc">维护供应商信息，跟踪合作状态与评级，助力优质供应链建设。</div>
                 </div>
 
                 <!-- Stat Cards -->
-                <div class="stat-grid">
-                    
+                <div class="stat-cards">
                     <div class="stat-card">
                         <div class="stat-label">供应商总数</div>
                         <div class="stat-value">28</div>
-                        <div class="stat-trend stat-up">&#9650; +2</div>
+                        <div class="stat-extra">本月新增 <span style="color:var(--primary-green);">2家</span></div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">活跃供应商</div>
                         <div class="stat-value">22</div>
-                        <div class="stat-trend stat-up">&#9650; +1</div>
+                        <div class="stat-extra">近30天有交易往来</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">本月采购额</div>
-                        <div class="stat-value">¥86,500</div>
-                        <div class="stat-trend stat-up">&#9650; +12%</div>
+                        <div class="stat-value" style="font-size:22px;">¥86,500</div>
+                        <div class="stat-extra">较上月 <span style="color:var(--success-color);">&#9650; 8%</span></div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">平均评级</div>
-                        <div class="stat-value">4.6</div>
-                        <div class="stat-trend stat-up">&#9650; +0.1</div>
+                        <div class="stat-value">4.6 <span style="font-size:14px;font-weight:400;color:var(--text-tertiary);">/5.0</span></div>
+                        <div class="stat-extra"><span class="star-rating">&#9733;&#9733;&#9733;&#9733;&#9734;</span></div>
                     </div>
                 </div>
 
-                <!-- Operation Steps -->
-                <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128161; 操作指南</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="step-list">
-                            
-                    <div class="step-item">
-                        <div class="step-number">1</div>
-                        <div class="step-text">查看供应商列表，点击新增供应商按钮</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">2</div>
-                        <div class="step-text">填写供应商信息：名称、统一社会信用代码、联系人、联系电话、联系地址、供应商品分类、结算方式、开户银行和银行账号</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">3</div>
-                        <div class="step-text">点击保存按钮创建供应商，系统自动生成供应商编号</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">4</div>
-                        <div class="step-text">在供应商详情页面查看供货记录、采购订单和结算记录</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">5</div>
-                        <div class="step-text">根据交货准时率、商品质量、服务态度等维度进行供应商评级评分</div>
-                    </div>
+                <!-- Search Panel -->
+                <div class="search-panel">
+                    <div class="search-row">
+                        <div class="search-item">
+                            <label>供应商名称</label>
+                            <input type="text" placeholder="请输入供应商名称">
+                        </div>
+                        <div class="search-item">
+                            <label>供应类别</label>
+                            <select><option value="">全部类别</option><option>食品饮料</option><option>日用百货</option><option>生鲜果蔬</option><option>家电数码</option><option>服装鞋帽</option></select>
+                        </div>
+                        <div class="search-item">
+                            <label>评级</label>
+                            <select><option value="">全部评级</option><option>5星</option><option>4星</option><option>3星</option><option>2星及以下</option></select>
+                        </div>
+                        <div class="search-item">
+                            <label>状态</label>
+                            <select><option value="">全部状态</option><option>活跃</option><option>停用</option></select>
+                        </div>
+                        <div class="search-actions">
+                            <button class="pos-btn pos-btn-primary">查询</button>
+                            <button class="pos-btn pos-btn-default" onclick="openModal('supplierModal')">+ 新增供应商</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Placeholder Table -->
-                <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128202; 数据概览</span>
-                    </div>
-                    <div class="card-body">
-                        <table class="data-table">
-                            <thead>
-                                <tr><th>项目名称</th><th>数值</th><th>状态</th><th>操作</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>示例数据 1</td><td>--</td><td><span class="status-badge status-normal">正常</span></td><td><button class="btn btn-sm btn-primary">查看</button></td></tr>
-                                <tr><td>示例数据 2</td><td>--</td><td><span class="status-badge status-warning">预警</span></td><td><button class="btn btn-sm btn-primary">处理</button></td></tr>
-                                <tr><td>示例数据 3</td><td>--</td><td><span class="status-badge status-success">完成</span></td><td><button class="btn btn-sm btn-primary">详情</button></td></tr>
-                            </tbody>
-                        </table>
+                <!-- Table -->
+                <div class="pos-table-wrapper">
+                    <table class="pos-table">
+                        <thead>
+                            <tr>
+                                <th>供应商编号</th>
+                                <th>供应商名称</th>
+                                <th>联系人</th>
+                                <th>联系电话</th>
+                                <th>供应类别</th>
+                                <th>结算方式</th>
+                                <th>累计采购额</th>
+                                <th>评级</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>SP20240001</td>
+                                <td style="font-weight:500;color:var(--auxiliary-blue);cursor:pointer;">厦门鲜之源食品有限公司</td>
+                                <td>刘明辉</td>
+                                <td>138****9012</td>
+                                <td>食品饮料</td>
+                                <td>月结30天</td>
+                                <td style="font-weight:500;">¥1,256,800</td>
+                                <td><span class="star-rating">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
+                                <td><span class="pos-tag pos-tag-success">活跃</span></td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button class="pos-btn-sm" onclick="openModal('supplierDetailModal')">详情</button>
+                                        <button class="pos-btn-sm" onclick="openModal('supplierModal')">编辑</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>SP20240002</td>
+                                <td style="font-weight:500;color:var(--auxiliary-blue);cursor:pointer;">泉州日用品供应中心</td>
+                                <td>陈丽华</td>
+                                <td>159****3456</td>
+                                <td>日用百货</td>
+                                <td>现结</td>
+                                <td style="font-weight:500;">¥856,200</td>
+                                <td><span class="star-rating">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
+                                <td><span class="pos-tag pos-tag-success">活跃</span></td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button class="pos-btn-sm" onclick="openModal('supplierDetailModal')">详情</button>
+                                        <button class="pos-btn-sm" onclick="openModal('supplierModal')">编辑</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>SP20240003</td>
+                                <td style="font-weight:500;color:var(--auxiliary-blue);cursor:pointer;">漳州绿野生鲜基地</td>
+                                <td>黄海涛</td>
+                                <td>136****7890</td>
+                                <td>生鲜果蔬</td>
+                                <td>周结</td>
+                                <td style="font-weight:500;">¥2,045,600</td>
+                                <td><span class="star-rating">&#9733;&#9733;&#9733;&#9733;&#9734;</span></td>
+                                <td><span class="pos-tag pos-tag-success">活跃</span></td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button class="pos-btn-sm" onclick="openModal('supplierDetailModal')">详情</button>
+                                        <button class="pos-btn-sm" onclick="openModal('supplierModal')">编辑</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>SP20240004</td>
+                                <td style="font-weight:500;color:var(--auxiliary-blue);cursor:pointer;">深圳数码通科技有限公司</td>
+                                <td>张伟杰</td>
+                                <td>188****1234</td>
+                                <td>家电数码</td>
+                                <td>月结60天</td>
+                                <td style="font-weight:500;">¥523,400</td>
+                                <td><span class="star-rating">&#9733;&#9733;&#9733;&#9733;&#9734;</span></td>
+                                <td><span class="pos-tag pos-tag-success">活跃</span></td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button class="pos-btn-sm" onclick="openModal('supplierDetailModal')">详情</button>
+                                        <button class="pos-btn-sm" onclick="openModal('supplierModal')">编辑</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>SP20240005</td>
+                                <td style="font-weight:500;color:var(--auxiliary-blue);cursor:pointer;">福州茶韵茶叶有限公司</td>
+                                <td>林建国</td>
+                                <td>135****5678</td>
+                                <td>食品饮料</td>
+                                <td>月结30天</td>
+                                <td style="font-weight:500;">¥312,900</td>
+                                <td><span class="star-rating">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
+                                <td><span class="pos-tag pos-tag-success">活跃</span></td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button class="pos-btn-sm" onclick="openModal('supplierDetailModal')">详情</button>
+                                        <button class="pos-btn-sm" onclick="openModal('supplierModal')">编辑</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>SP20230008</td>
+                                <td style="font-weight:500;color:var(--text-tertiary);cursor:pointer;">广州服饰贸易有限公司</td>
+                                <td>赵文静</td>
+                                <td>150****8901</td>
+                                <td>服装鞋帽</td>
+                                <td>月结45天</td>
+                                <td style="font-weight:500;">¥189,300</td>
+                                <td><span class="star-rating">&#9733;&#9733;&#9733;&#9734;&#9734;</span></td>
+                                <td><span class="pos-tag pos-tag-default">停用</span></td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button class="pos-btn-sm" onclick="openModal('supplierDetailModal')">详情</button>
+                                        <button class="pos-btn-sm" onclick="openModal('supplierModal')">编辑</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="pos-pagination">
+                        <div class="pagination-info">共 28 条数据，每页 6 条，当前第 1/5 页</div>
+                        <div class="pagination-btns">
+                            <button>&laquo;</button>
+                            <button class="active">1</button>
+                            <button>2</button>
+                            <button>3</button>
+                            <button>...</button>
+                            <button>5</button>
+                            <button>&raquo;</button>
+                        </div>
                     </div>
                 </div>
             </main>
 
             <!-- Footer -->
             <footer class="pos-footer">
-                <div style="display: flex; align-items: center; gap: 24px; width: 100%; flex-wrap: wrap;">
-                    <span>Current User：<strong style="color: var(--text-secondary);">Admin</strong></span>
+                <div style="display:flex;align-items:center;gap:24px;width:100%;flex-wrap:wrap;">
+                    <span>Current User：<strong style="color:var(--text-secondary);">Admin</strong></span>
                     <span>|</span>
-                    <span>门店：<strong style="color: var(--text-secondary);">星链旗舰店</strong></span>
+                    <span>门店：<strong style="color:var(--text-secondary);">星链旗舰店</strong></span>
                     <span>|</span>
-                    <span>数据同步：<strong style="color: var(--text-secondary);">2026-05-26 10:30</strong></span>
+                    <span>数据同步：<strong style="color:var(--text-secondary);">2026-05-26 10:30</strong></span>
                     <span>|</span>
-                    <span>版本：<strong style="color: var(--text-secondary);">V1.0</strong></span>
-                    <span style="margin-left: auto;">网络：<span class="status-dot online"></span><strong style="color: var(--success-color);">已连接</strong></span>
+                    <span>版本：<strong style="color:var(--text-secondary);">V2.0</strong></span>
+                    <span style="margin-left:auto;">网络：<span class="status-dot online"></span><strong style="color:var(--success-color);">已连接</strong></span>
                 </div>
             </footer>
         </div>
     </div>
 
+    <!-- Supplier Add/Edit Modal -->
+    <div class="pos-modal-overlay" id="supplierModal">
+        <div class="pos-modal">
+            <div class="modal-header">
+                <span class="modal-title">新增供应商</span>
+                <button class="modal-close" onclick="closeModal('supplierModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="pos-form-group">
+                    <label class="pos-form-label">供应商名称 <span style="color:var(--danger-color);">*</span></label>
+                    <input class="pos-input" type="text" placeholder="请输入供应商名称">
+                </div>
+                <div class="pos-form-group">
+                    <label class="pos-form-label">统一社会信用代码</label>
+                    <input class="pos-input" type="text" placeholder="请输入统一社会信用代码">
+                </div>
+                <div style="display:flex;gap:14px;">
+                    <div class="pos-form-group" style="flex:1;">
+                        <label class="pos-form-label">联系人</label>
+                        <input class="pos-input" type="text" placeholder="联系人姓名">
+                    </div>
+                    <div class="pos-form-group" style="flex:1;">
+                        <label class="pos-form-label">联系电话</label>
+                        <input class="pos-input" type="text" placeholder="联系人电话">
+                    </div>
+                </div>
+                <div style="display:flex;gap:14px;">
+                    <div class="pos-form-group" style="flex:1;">
+                        <label class="pos-form-label">供应类别</label>
+                        <select class="pos-select"><option>食品饮料</option><option>日用百货</option><option>生鲜果蔬</option><option>家电数码</option><option>服装鞋帽</option></select>
+                    </div>
+                    <div class="pos-form-group" style="flex:1;">
+                        <label class="pos-form-label">结算方式</label>
+                        <select class="pos-select"><option>现结</option><option>周结</option><option>月结30天</option><option>月结45天</option><option>月结60天</option></select>
+                    </div>
+                </div>
+                <div class="pos-form-group">
+                    <label class="pos-form-label">供应商地址</label>
+                    <input class="pos-input" type="text" placeholder="请输入供应商地址">
+                </div>
+                <div class="pos-form-group">
+                    <label class="pos-form-label">状态</label>
+                    <select class="pos-select"><option>活跃</option><option>停用</option></select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeModal('supplierModal')">取消</button>
+                <button class="pos-btn pos-btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supplier Detail Modal -->
+    <div class="pos-modal-overlay" id="supplierDetailModal">
+        <div class="pos-modal" style="width:560px;">
+            <div class="modal-header">
+                <span class="modal-title">供应商详情</span>
+                <button class="modal-close" onclick="closeModal('supplierDetailModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-row"><div class="detail-label">供应商编号</div><div class="detail-value">SP20240001</div></div>
+                <div class="detail-row"><div class="detail-label">供应商名称</div><div class="detail-value" style="font-weight:500;">厦门鲜之源食品有限公司</div></div>
+                <div class="detail-row"><div class="detail-label">信用代码</div><div class="detail-value">91350200MA2XXXXX</div></div>
+                <div class="detail-row"><div class="detail-label">联系人</div><div class="detail-value">刘明辉</div></div>
+                <div class="detail-row"><div class="detail-label">联系电话</div><div class="detail-value">138****9012</div></div>
+                <div class="detail-row"><div class="detail-label">供应类别</div><div class="detail-value">食品饮料</div></div>
+                <div class="detail-row"><div class="detail-label">结算方式</div><div class="detail-value">月结30天</div></div>
+                <div class="detail-row"><div class="detail-label">累计采购额</div><div class="detail-value" style="color:var(--primary-green);font-weight:600;">¥1,256,800</div></div>
+                <div class="detail-row"><div class="detail-label">评级</div><div class="detail-value"><span class="star-rating">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div></div>
+                <div class="detail-row"><div class="detail-label">地址</div><div class="detail-value">福建省厦门市集美区灌口大道368号</div></div>
+                <div class="detail-row"><div class="detail-label">状态</div><div class="detail-value"><span class="pos-tag pos-tag-success">活跃</span></div></div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeModal('supplierDetailModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Toggle sidebar menu expand/collapse
         function toggleMenu(el) {
             const children = el.nextElementSibling;
             if (!children || !children.classList.contains('menu-children')) return;
-
             const isOpen = children.classList.contains('open');
-
-            // Close all other menus
-            document.querySelectorAll('.menu-children.open').forEach(function(menu) {
-                menu.classList.remove('open');
-                menu.previousElementSibling.classList.remove('expanded');
-            });
-
-            if (!isOpen) {
-                children.classList.add('open');
-                el.classList.add('expanded');
-            }
+            document.querySelectorAll('.menu-children.open').forEach(function(menu) { menu.classList.remove('open'); menu.previousElementSibling.classList.remove('expanded'); });
+            if (!isOpen) { children.classList.add('open'); el.classList.add('expanded'); }
         }
-
-        // Toggle mobile sidebar
-        function toggleMobileMenu() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
-        }
-
-        // Fullscreen toggle
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(function() {});
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
-        // Date filter buttons
-        document.querySelectorAll('.date-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.date-btn').forEach(function(b) {
-                    b.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-
-        // User menu toggle (placeholder)
-        function toggleUserMenu() {
-            // Placeholder for user dropdown
-        }
-
-        // Close mobile sidebar when clicking outside
+        function toggleMobileMenu() { document.getElementById('sidebar').classList.toggle('mobile-open'); }
+        function toggleFullscreen() { if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(function(){}); } else { document.exitFullscreen(); } }
+        function toggleUserMenu() {}
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+        function openModal(id) { document.getElementById(id).classList.add('show'); }
         document.addEventListener('click', function(e) {
             var sidebar = document.getElementById('sidebar');
             var toggle = document.querySelector('.mobile-menu-toggle');
             if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
-                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                    sidebar.classList.remove('mobile-open');
-                }
+                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) { sidebar.classList.remove('mobile-open'); }
             }
         });
     </script>

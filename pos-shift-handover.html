@@ -1,70 +1,82 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>交接班管理 - 智慧新零售云POS综合管理平台</title>
     <link rel="stylesheet" href="pos-common.css">
-    
-        <style>
-        .content-header { margin-bottom: 24px; }
-        .content-title { font-size: 22px; font-weight: 600; color: #333; margin-bottom: 8px; }
-        .content-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+    <style>
         .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
         .stat-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #e8e8e8; }
         .stat-label { font-size: 13px; color: var(--text-tertiary); margin-bottom: 8px; }
-        .stat-value { font-size: 24px; font-weight: 700; color: #333; margin-bottom: 6px; }
-        .stat-trend { font-size: 12px; }
-        .stat-up { color: var(--success-color); }
-        .stat-down { color: var(--danger-color); }
-        .step-list { display: flex; flex-direction: column; gap: 12px; }
-        .step-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
-        .step-number { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-        .step-text { font-size: 14px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e8e8e8; font-size: 14px; }
-        .data-table th { background: #f8f9fa; font-weight: 600; color: #333; }
-        .data-table td { color: var(--text-secondary); }
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
-        .status-normal { background: #e3f2fd; color: #1976d2; }
-        .status-warning { background: #fff3e0; color: #f57c00; }
-        .status-success { background: #e8f5e9; color: #388e3c; }
-        .status-danger { background: #ffebee; color: #d32f2f; }
-        .btn-sm { padding: 6px 14px; font-size: 13px; }
-        @media (max-width: 1200px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) { .stat-grid { grid-template-columns: 1fr; } }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+        .stat-sub { font-size: 12px; color: var(--text-tertiary); }
+        .stat-trend { font-size: 12px; margin-top: 4px; }
+        .stat-up { color: var(--primary-green); }
+        .stat-down { color: #ff4d4f; }
+        .detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .detail-item { display: flex; flex-direction: column; gap: 4px; }
+        .detail-label { font-size: 12px; color: var(--text-tertiary); }
+        .detail-value { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+        .detail-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .tag-shift-a { background: #e6f7ff; color: #1890ff; }
+        .tag-shift-b { background: #f6ffed; color: #52c41a; }
+        .tag-shift-c { background: #fff7e6; color: #fa8c16; }
+        .pos-table-wrapper { overflow-x: auto; }
+        .pos-table { width: 100%; border-collapse: collapse; }
+        .pos-table th, .pos-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+        .pos-table th { background: #fafafa; font-weight: 600; color: var(--text-primary); position: sticky; top: 0; }
+        .pos-table td { color: var(--text-secondary); }
+        .pos-table tbody tr:hover { background: #f6ffed; }
+        .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+        .status-dot.success { background: var(--primary-green); }
+        .status-dot.warning { background: #faad14; }
+        .status-dot.error { background: #ff4d4f; }
+        .status-dot.info { background: #1890ff; }
+        .status-dot.default { background: #d9d9d9; }
+        .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 4px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: var(--text-secondary); }
+        .btn-sm:hover { border-color: var(--primary-green); color: var(--primary-green); }
+        .btn-sm.primary { background: var(--primary-green); color: #fff; border-color: var(--primary-green); }
+        .btn-sm.primary:hover { background: #73d13d; }
+        .btn-sm.danger { border-color: #ff4d4f; color: #ff4d4f; }
+        .btn-sm.danger:hover { background: #fff1f0; }
+        .search-panel { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+        .search-item { display: flex; flex-direction: column; gap: 4px; }
+        .search-item label { font-size: 12px; color: var(--text-tertiary); }
+        .search-item input, .search-item select { padding: 7px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; color: var(--text-primary); background: #fff; min-width: 150px; }
+        .search-item input:focus, .search-item select:focus { border-color: var(--primary-green); outline: none; }
+        .card-actions { display: flex; gap: 8px; margin-left: auto; }
+        .page-title-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .page-title-bar h2 { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+        .check-status { display: flex; align-items: center; gap: 4px; }
+        .check-status .match { color: var(--primary-green); font-weight: 600; }
+        .check-status .diff { color: #ff4d4f; font-weight: 600; }
+        @media (max-width: 1200px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } .detail-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .stat-grid { grid-template-columns: 1fr; } .detail-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="pos-layout">
-        <!-- ==================== Sidebar ==================== -->
+        <!-- Sidebar -->
         <aside class="pos-sidebar" id="sidebar">
-            <!-- Logo -->
             <div class="sidebar-logo">
                 <div class="logo-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
                 </div>
                 <span class="logo-text">智慧新零售云POS</span>
             </div>
-
-            <!-- Menu -->
             <nav class="sidebar-menu">
                 <!-- 首页看板 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="location.href='pos-main-dashboard.html'">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg></span>
                         <span class="menu-title">首页看板</span>
                     </div>
                 </div>
-
                 <!-- 智能收银 -->
                 <div class="menu-group">
                     <div class="menu-parent expanded" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 2H7v2h10V2zm4 4H3v2h18V6zM4 20h16v-2H4v2zm1-4h14V8H5v8z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 2H7v2h10V2zm4 4H3v2h18V6zM4 20h16v-2H4v2zm1-4h14V8H5v8z"/></svg></span>
                         <span class="menu-title">智能收银</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -74,13 +86,10 @@
                         <a class="menu-child active" href="pos-shift-handover.html">交接班管理</a>
                     </div>
                 </div>
-
                 <!-- 商品管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z"/></svg></span>
                         <span class="menu-title">商品管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -93,13 +102,10 @@
                         <a class="menu-child" href="pos-inventory-warning.html">库存预警</a>
                     </div>
                 </div>
-
                 <!-- 订单管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg></span>
                         <span class="menu-title">订单管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -109,13 +115,10 @@
                         <a class="menu-child" href="pos-refund.html">退款管理</a>
                     </div>
                 </div>
-
                 <!-- 综合管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span>
                         <span class="menu-title">综合管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -128,13 +131,10 @@
                         <a class="menu-child" href="pos-purchase.html">采购管理</a>
                     </div>
                 </div>
-
                 <!-- 会员营销 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span>
                         <span class="menu-title">会员营销</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -148,13 +148,10 @@
                         <a class="menu-child" href="pos-marketing-analysis.html">营销分析</a>
                     </div>
                 </div>
-
                 <!-- 数据分析 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></span>
                         <span class="menu-title">数据分析</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -166,13 +163,10 @@
                         <a class="menu-child" href="pos-ai-forecast.html">AI预测</a>
                     </div>
                 </div>
-
                 <!-- 财务管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></span>
                         <span class="menu-title">财务管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -184,13 +178,10 @@
                         <a class="menu-child" href="pos-cost-analysis.html">成本分析</a>
                     </div>
                 </div>
-
                 <!-- 系统设置 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></span>
                         <span class="menu-title">系统设置</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -204,7 +195,7 @@
             </nav>
         </aside>
 
-        <!-- ==================== Main Content ==================== -->
+        <!-- Main Content -->
         <div class="pos-main-wrapper">
             <!-- Header -->
             <header class="pos-header">
@@ -215,199 +206,368 @@
                     <div class="header-breadcrumb">
                         <a href="pos-main-dashboard.html">首页</a>
                         <span>/</span>
-                        <span style="color: var(--text-primary);">交接班管理</span>
+                        <span style="color:var(--text-primary);">交接班管理</span>
                     </div>
                 </div>
                 <div class="header-right">
-                    <!-- Search -->
                     <button class="header-action" title="搜索">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                     </button>
-                    <!-- Notification -->
                     <button class="header-action" title="消息通知">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-                        <span class="badge">5</span>
+                        <span class="badge">3</span>
                     </button>
-                    <!-- Fullscreen -->
                     <button class="header-action" title="全屏" onclick="toggleFullscreen()">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
                     </button>
-                    <!-- Theme -->
                     <button class="header-action" title="主题切换">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
                     </button>
-                    <!-- User -->
                     <div class="header-user" onclick="toggleUserMenu()">
-                        <div class="user-avatar">A</div>
-                        <span class="user-name">Admin</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color: var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                        <div class="user-avatar">张</div>
+                        <span class="user-name">张丽</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                     </div>
                 </div>
             </header>
 
-            <!-- Main Content Area -->
-            <!-- Main Content Area -->
+            <!-- Content -->
             <main class="pos-content">
-                <div class="content-header">
-                    <h1 class="content-title">交接班管理</h1>
-                    <p class="content-desc">交接班功能用于收银员班次切换时的资金核对与数据交接，确保每笔交易和现金金额准确无误。</p>
+                <div class="page-title-bar">
+                    <h2>交接班管理</h2>
+                    <button class="pos-btn pos-btn-primary" onclick="openModal('handoverModal')" style="padding:8px 20px;font-size:14px;">&#128260; 执行交接班</button>
                 </div>
 
                 <!-- Stat Cards -->
                 <div class="stat-grid">
-                    
+                    <div class="stat-card">
+                        <div class="stat-label">当前班次</div>
+                        <div class="stat-value"><span class="detail-tag tag-shift-a">早班 08:00-16:00</span></div>
+                        <div class="stat-sub">收银员：张丽（POS001）</div>
+                    </div>
                     <div class="stat-card">
                         <div class="stat-label">当班交易笔数</div>
-                        <div class="stat-value">128</div>
-                        <div class="stat-trend stat-up">&#9650; 12%</div>
+                        <div class="stat-value" style="color:var(--auxiliary-blue);">128 <span style="font-size:14px;font-weight:400;color:var(--text-tertiary);">笔</span></div>
+                        <div class="stat-trend stat-up">&#9650; 较昨日同班次 +12笔</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">销售总额</div>
-                        <div class="stat-value">¥8,560.00</div>
-                        <div class="stat-trend stat-up">&#9650; 8%</div>
+                        <div class="stat-label">当班销售总额</div>
+                        <div class="stat-value" style="color:var(--primary-green);">¥8,560.00</div>
+                        <div class="stat-trend stat-up">&#9650; 较昨日同班次 +8.2%</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">现金收款</div>
-                        <div class="stat-value">¥2,340.00</div>
-                        <div class="stat-trend stat-down">&#9660; -5%</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">退款总额</div>
-                        <div class="stat-value">¥120.00</div>
-                        <div class="stat-trend stat-up">&#9650; 2笔</div>
+                        <div class="stat-label">当班退款总额</div>
+                        <div class="stat-value" style="color:#fa8c16;">¥120.00</div>
+                        <div class="stat-trend stat-down">&#9660; 较昨日同班次 -2笔</div>
                     </div>
                 </div>
 
-                <!-- Operation Steps -->
-                <div class="pos-card">
+                <!-- 当前班次详情 -->
+                <div class="pos-card" style="margin-bottom:24px;">
                     <div class="card-header">
-                        <span class="card-title">&#128161; 操作指南</span>
+                        <span class="card-title">&#128203; 当前班次详情</span>
                     </div>
                     <div class="card-body">
-                        <div class="step-list">
-                            
-                    <div class="step-item">
-                        <div class="step-number">1</div>
-                        <div class="step-text">当前班次收银员点击交接班按钮，进入交接班页面</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">2</div>
-                        <div class="step-text">系统自动统计当班交易数据：交易笔数、销售总额、各支付方式收款金额、退款笔数和退款总额</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">3</div>
-                        <div class="step-text">收银员清点实际现金金额并输入系统，系统自动对比记录金额与实际金额</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">4</div>
-                        <div class="step-text">金额一致则点击确认交接；存在差异需填写差异原因并经店长确认</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">5</div>
-                        <div class="step-text">交接完成后系统打印交接班报表，包含当班交易汇总和资金核对信息</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">6</div>
-                        <div class="step-text">下一班次收银员使用自己账号登录，系统自动开始新的班次记录</div>
-                    </div>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">收银员</span>
+                                <span class="detail-value">张丽（POS001）</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">接班时间</span>
+                                <span class="detail-value">2026-07-02 08:00:15</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">接班备用金</span>
+                                <span class="detail-value">¥500.00</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">当班时长</span>
+                                <span class="detail-value">6小时42分钟</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">交易成功率</span>
+                                <span class="detail-value" style="color:var(--primary-green);">98.4%</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">班次状态</span>
+                                <span class="detail-value"><span class="status-dot success"></span>进行中</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Placeholder Table -->
-                <div class="pos-card">
+                <!-- 支付方式收款汇总 -->
+                <div class="pos-card" style="margin-bottom:24px;">
                     <div class="card-header">
-                        <span class="card-title">&#128202; 数据概览</span>
+                        <span class="card-title">&#128176; 支付方式收款汇总</span>
                     </div>
                     <div class="card-body">
-                        <table class="data-table">
-                            <thead>
-                                <tr><th>项目名称</th><th>数值</th><th>状态</th><th>操作</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>示例数据 1</td><td>--</td><td><span class="status-badge status-normal">正常</span></td><td><button class="btn btn-sm btn-primary">查看</button></td></tr>
-                                <tr><td>示例数据 2</td><td>--</td><td><span class="status-badge status-warning">预警</span></td><td><button class="btn btn-sm btn-primary">处理</button></td></tr>
-                                <tr><td>示例数据 3</td><td>--</td><td><span class="status-badge status-success">完成</span></td><td><button class="btn btn-sm btn-primary">详情</button></td></tr>
-                            </tbody>
-                        </table>
+                        <div class="pos-table-wrapper">
+                            <table class="pos-table">
+                                <thead>
+                                    <tr>
+                                        <th>支付方式</th>
+                                        <th>系统记录金额（元）</th>
+                                        <th>交易笔数</th>
+                                        <th>实际清点金额（元）</th>
+                                        <th>差异（元）</th>
+                                        <th>核对状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span style="font-weight:600;">现金</span></td>
+                                        <td>¥2,340.00</td>
+                                        <td>36</td>
+                                        <td><input type="text" value="2,340.00" style="width:90px;padding:4px 8px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px;text-align:right;"></td>
+                                        <td><span style="color:var(--primary-green);font-weight:600;">¥0.00</span></td>
+                                        <td><span class="pos-tag pos-tag-success">已核对</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="font-weight:600;">微信支付</span></td>
+                                        <td>¥3,280.50</td>
+                                        <td>52</td>
+                                        <td>—</td>
+                                        <td>—</td>
+                                        <td><span class="pos-tag pos-tag-success">自动核对</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="font-weight:600;">支付宝</span></td>
+                                        <td>¥2,150.00</td>
+                                        <td>34</td>
+                                        <td>—</td>
+                                        <td>—</td>
+                                        <td><span class="pos-tag pos-tag-success">自动核对</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="font-weight:600;">银行卡</span></td>
+                                        <td>¥650.00</td>
+                                        <td>4</td>
+                                        <td>—</td>
+                                        <td>—</td>
+                                        <td><span class="pos-tag pos-tag-success">自动核对</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="font-weight:600;">会员储值</span></td>
+                                        <td>¥139.50</td>
+                                        <td>2</td>
+                                        <td>—</td>
+                                        <td>—</td>
+                                        <td><span class="pos-tag pos-tag-success">自动核对</span></td>
+                                    </tr>
+                                    <tr style="background:#fafafa;font-weight:600;">
+                                        <td>合计</td>
+                                        <td>¥8,560.00</td>
+                                        <td>128</td>
+                                        <td>¥2,340.00</td>
+                                        <td><span style="color:var(--primary-green);">¥0.00</span></td>
+                                        <td><span class="pos-tag pos-tag-success">全部核对</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 交接班记录 -->
+                <div class="pos-card">
+                    <div class="card-header">
+                        <span class="card-title">&#128196; 交接班记录</span>
+                        <div class="card-actions">
+                            <button class="btn-sm" onclick="window.print()">&#128424; 打印报表</button>
+                            <button class="btn-sm" onclick="exportData()">&#128229; 导出记录</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="pos-table-wrapper">
+                            <table class="pos-table">
+                                <thead>
+                                    <tr>
+                                        <th>交接编号</th>
+                                        <th>交接时间</th>
+                                        <th>班次</th>
+                                        <th>交班人</th>
+                                        <th>接班人</th>
+                                        <th>备用金（元）</th>
+                                        <th>现金收款（元）</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span style="color:var(--auxiliary-blue);font-weight:600;">JB20260702001</span></td>
+                                        <td>2026-07-02 08:00:15</td>
+                                        <td><span class="detail-tag tag-shift-a">早班</span></td>
+                                        <td>王芳</td>
+                                        <td>张丽</td>
+                                        <td>¥500.00</td>
+                                        <td>¥2,340.00</td>
+                                        <td><span class="pos-tag pos-tag-success">交接完成</span></td>
+                                        <td><button class="btn-sm" onclick="viewDetail('JB20260702001')">详情</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="color:var(--auxiliary-blue);font-weight:600;">JB20260701003</span></td>
+                                        <td>2026-07-01 22:05:30</td>
+                                        <td><span class="detail-tag tag-shift-c">晚班</span></td>
+                                        <td>李明</td>
+                                        <td>王芳</td>
+                                        <td>¥500.00</td>
+                                        <td>¥1,890.00</td>
+                                        <td><span class="pos-tag pos-tag-success">交接完成</span></td>
+                                        <td><button class="btn-sm" onclick="viewDetail('JB20260701003')">详情</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="color:var(--auxiliary-blue);font-weight:600;">JB20260701002</span></td>
+                                        <td>2026-07-01 16:02:45</td>
+                                        <td><span class="detail-tag tag-shift-b">中班</span></td>
+                                        <td>陈杰</td>
+                                        <td>李明</td>
+                                        <td>¥500.00</td>
+                                        <td>¥2,650.00</td>
+                                        <td><span class="pos-tag pos-tag-success">交接完成</span></td>
+                                        <td><button class="btn-sm" onclick="viewDetail('JB20260701002')">详情</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="color:var(--auxiliary-blue);font-weight:600;">JB20260701001</span></td>
+                                        <td>2026-07-01 08:01:20</td>
+                                        <td><span class="detail-tag tag-shift-a">早班</span></td>
+                                        <td>张丽</td>
+                                        <td>陈杰</td>
+                                        <td>¥500.00</td>
+                                        <td>¥2,120.00</td>
+                                        <td><span class="pos-tag pos-tag-warning">存在差异</span></td>
+                                        <td><button class="btn-sm" onclick="viewDetail('JB20260701001')">详情</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span style="color:var(--auxiliary-blue);font-weight:600;">JB20260630003</span></td>
+                                        <td>2026-06-30 22:10:00</td>
+                                        <td><span class="detail-tag tag-shift-c">晚班</span></td>
+                                        <td>王芳</td>
+                                        <td>张丽</td>
+                                        <td>¥500.00</td>
+                                        <td>¥1,760.00</td>
+                                        <td><span class="pos-tag pos-tag-success">交接完成</span></td>
+                                        <td><button class="btn-sm" onclick="viewDetail('JB20260630003')">详情</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Pagination -->
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-size:13px;color:var(--text-tertiary);">
+                            <span>共 5 条记录</span>
+                            <div style="display:flex;gap:4px;">
+                                <button style="padding:4px 10px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;">&laquo;</button>
+                                <button style="padding:4px 10px;border:1px solid var(--primary-green);border-radius:4px;background:var(--primary-green);color:#fff;cursor:pointer;font-size:13px;">1</button>
+                                <button style="padding:4px 10px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;">&raquo;</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
 
             <!-- Footer -->
             <footer class="pos-footer">
-                <div style="display: flex; align-items: center; gap: 24px; width: 100%; flex-wrap: wrap;">
-                    <span>Current User：<strong style="color: var(--text-secondary);">Admin</strong></span>
+                <div style="display:flex;align-items:center;gap:24px;width:100%;flex-wrap:wrap;">
+                    <span>当前用户：<strong style="color:var(--text-secondary);">张丽（POS001）</strong></span>
                     <span>|</span>
-                    <span>门店：<strong style="color: var(--text-secondary);">星链旗舰店</strong></span>
+                    <span>门店：<strong style="color:var(--text-secondary);">星链旗舰店</strong></span>
                     <span>|</span>
-                    <span>数据同步：<strong style="color: var(--text-secondary);">2026-05-26 10:30</strong></span>
+                    <span>数据同步：<strong style="color:var(--text-secondary);">2026-07-02 14:42</strong></span>
                     <span>|</span>
-                    <span>版本：<strong style="color: var(--text-secondary);">V1.0</strong></span>
-                    <span style="margin-left: auto;">网络：<span class="status-dot online"></span><strong style="color: var(--success-color);">已连接</strong></span>
+                    <span>版本：<strong style="color:var(--text-secondary);">V2.6.1</strong></span>
+                    <span style="margin-left:auto;">网络：<span class="status-dot online"></span><strong style="color:var(--primary-green);">已连接</strong></span>
                 </div>
             </footer>
         </div>
     </div>
 
+    <!-- 执行交接班弹窗 -->
+    <div class="pos-modal-overlay" id="handoverModal">
+        <div class="pos-modal" style="max-width:520px;">
+            <div class="modal-header">
+                <span class="modal-title">&#128260; 执行交接班</span>
+                <button class="modal-close" onclick="closeModal('handoverModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                    <div>
+                        <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px;">接班人（收银员）</label>
+                        <select style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;color:var(--text-primary);background:#fff;">
+                            <option value="">请选择接班人</option>
+                            <option value="王芳">王芳（POS002）</option>
+                            <option value="陈杰">陈杰（POS003）</option>
+                            <option value="李明">李明（POS004）</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px;">实际清点现金金额（元）</label>
+                        <input type="text" placeholder="请输入实际清点金额" style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;box-sizing:border-box;">
+                        <div style="font-size:12px;color:var(--text-tertiary);margin-top:4px;">系统记录金额：¥2,340.00</div>
+                    </div>
+                    <div>
+                        <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px;">差异说明</label>
+                        <textarea placeholder="如金额存在差异，请填写差异原因" rows="3" style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;resize:vertical;box-sizing:border-box;"></textarea>
+                    </div>
+                    <div>
+                        <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px;">备注</label>
+                        <textarea placeholder="可选填备注信息" rows="2" style="width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;resize:vertical;box-sizing:border-box;"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeModal('handoverModal')">取消</button>
+                <button class="pos-btn pos-btn-primary" onclick="confirmHandover()">确认交接</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Toggle sidebar menu expand/collapse
         function toggleMenu(el) {
             const children = el.nextElementSibling;
             if (!children || !children.classList.contains('menu-children')) return;
-
             const isOpen = children.classList.contains('open');
-
-            // Close all other menus
             document.querySelectorAll('.menu-children.open').forEach(function(menu) {
                 menu.classList.remove('open');
                 menu.previousElementSibling.classList.remove('expanded');
             });
-
             if (!isOpen) {
                 children.classList.add('open');
                 el.classList.add('expanded');
             }
         }
-
-        // Toggle mobile sidebar
         function toggleMobileMenu() {
             document.getElementById('sidebar').classList.toggle('mobile-open');
         }
-
-        // Fullscreen toggle
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(function() {});
+                document.documentElement.requestFullscreen().catch(function(){});
             } else {
                 document.exitFullscreen();
             }
         }
-
-        // Date filter buttons
-        document.querySelectorAll('.date-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.date-btn').forEach(function(b) {
-                    b.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-
-        // User menu toggle (placeholder)
-        function toggleUserMenu() {
-            // Placeholder for user dropdown
+        function toggleUserMenu() {}
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
         }
-
-        // Close mobile sidebar when clicking outside
-        document.addEventListener('click', function(e) {
-            var sidebar = document.getElementById('sidebar');
-            var toggle = document.querySelector('.mobile-menu-toggle');
-            if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
-                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                    sidebar.classList.remove('mobile-open');
-                }
-            }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+        function confirmHandover() {
+            alert('交接班确认成功！系统已生成交接班报表。');
+            closeModal('handoverModal');
+        }
+        function viewDetail(id) {
+            alert('查看交接班详情：' + id);
+        }
+        function exportData() {
+            alert('交接班记录导出中，请稍候...');
+        }
+        document.querySelectorAll('.pos-modal-overlay').forEach(function(overlay) {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) closeModal(overlay.id);
+            });
         });
     </script>
     <script src="pos-common.js"></script>

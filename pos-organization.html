@@ -1,70 +1,96 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>组织架构 - 智慧新零售云POS综合管理平台</title>
     <link rel="stylesheet" href="pos-common.css">
-    
-        <style>
-        .content-header { margin-bottom: 24px; }
-        .content-title { font-size: 22px; font-weight: 600; color: #333; margin-bottom: 8px; }
-        .content-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
-        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #e8e8e8; }
-        .stat-label { font-size: 13px; color: var(--text-tertiary); margin-bottom: 8px; }
-        .stat-value { font-size: 24px; font-weight: 700; color: #333; margin-bottom: 6px; }
-        .stat-trend { font-size: 12px; }
-        .stat-up { color: var(--success-color); }
-        .stat-down { color: var(--danger-color); }
-        .step-list { display: flex; flex-direction: column; gap: 12px; }
-        .step-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
-        .step-number { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-        .step-text { font-size: 14px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e8e8e8; font-size: 14px; }
-        .data-table th { background: #f8f9fa; font-weight: 600; color: #333; }
-        .data-table td { color: var(--text-secondary); }
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
-        .status-normal { background: #e3f2fd; color: #1976d2; }
-        .status-warning { background: #fff3e0; color: #f57c00; }
-        .status-success { background: #e8f5e9; color: #388e3c; }
-        .status-danger { background: #ffebee; color: #d32f2f; }
-        .btn-sm { padding: 6px 14px; font-size: 13px; }
-        @media (max-width: 1200px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) { .stat-grid { grid-template-columns: 1fr; } }
+    <style>
+        .content-header { margin-bottom: 20px; }
+        .page-title { font-size: 22px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+        .page-desc { font-size: 13px; color: var(--text-tertiary); }
+        .org-layout { display: flex; gap: 16px; }
+        .org-tree-panel { width: 280px; flex-shrink: 0; background: #fff; border-radius: 10px; border: 1px solid #e8e8e8; overflow: hidden; }
+        .org-tree-header { padding: 14px 16px; font-size: 15px; font-weight: 600; color: var(--text-primary); border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+        .org-tree-header .add-btn { padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; background: var(--primary-green); color: #fff; border: none; }
+        .org-tree-body { padding: 12px 8px; max-height: 600px; overflow-y: auto; }
+        .tree-node { padding: 6px 0; }
+        .tree-node-main { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 6px; cursor: pointer; transition: background .2s; font-size: 13px; color: var(--text-primary); }
+        .tree-node-main:hover { background: #f6ffed; }
+        .tree-node-main.active { background: #f6ffed; color: var(--primary-green); font-weight: 600; }
+        .tree-toggle { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-tertiary); transition: transform .2s; flex-shrink: 0; }
+        .tree-toggle.open { transform: rotate(90deg); }
+        .tree-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .tree-children { padding-left: 20px; display: none; }
+        .tree-children.open { display: block; }
+        .tree-node-main .node-count { margin-left: auto; font-size: 11px; color: var(--text-tertiary); background: #f5f5f5; padding: 1px 6px; border-radius: 8px; }
+        .org-table-panel { flex: 1; min-width: 0; }
+        .search-panel { background: #fff; border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; border: 1px solid #e8e8e8; }
+        .search-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+        .search-item { display: flex; flex-direction: column; gap: 4px; min-width: 150px; }
+        .search-item label { font-size: 12px; color: var(--text-tertiary); }
+        .search-item input, .search-item select { padding: 7px 10px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; color: var(--text-primary); background: #fff; outline: none; transition: border-color .2s; }
+        .search-item input:focus, .search-item select:focus { border-color: var(--primary-green); }
+        .search-actions { display: flex; gap: 8px; }
+        .pos-btn { padding: 7px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; border: none; transition: all .2s; }
+        .pos-btn-primary { background: var(--primary-green); color: #fff; }
+        .pos-btn-primary:hover { background: #46b814; }
+        .pos-btn-default { background: #fff; color: var(--text-secondary); border: 1px solid #d9d9d9; }
+        .pos-btn-default:hover { border-color: var(--primary-green); color: var(--primary-green); }
+        .pos-btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: var(--text-secondary); transition: all .2s; }
+        .pos-btn-sm:hover { border-color: var(--primary-green); color: var(--primary-green); }
+        .pos-btn-sm.primary { background: var(--primary-green); color: #fff; border-color: var(--primary-green); }
+        .pos-table-wrapper { background: #fff; border-radius: 10px; border: 1px solid #e8e8e8; overflow: hidden; }
+        .pos-table { width: 100%; border-collapse: collapse; }
+        .pos-table th { background: #fafafa; padding: 12px 14px; text-align: left; font-size: 13px; font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid #e8e8e8; }
+        .pos-table td { padding: 12px 14px; font-size: 13px; color: var(--text-primary); border-bottom: 1px solid #f0f0f0; }
+        .pos-table tr:hover td { background: #f6ffed; }
+        .pos-tag { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .pos-tag-success { background: #f6ffed; color: #389e0d; }
+        .pos-tag-default { background: #f5f5f5; color: #8c8c8c; }
+        .table-actions { display: flex; gap: 6px; }
+        .pos-pagination { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: #fff; border-top: 1px solid #e8e8e8; }
+        .pagination-info { font-size: 13px; color: var(--text-tertiary); }
+        .pagination-btns { display: flex; gap: 4px; }
+        .pagination-btns button { width: 32px; height: 32px; border-radius: 6px; border: 1px solid #d9d9d9; background: #fff; cursor: pointer; font-size: 13px; color: var(--text-secondary); transition: all .2s; }
+        .pagination-btns button.active { background: var(--primary-green); color: #fff; border-color: var(--primary-green); }
+        .pos-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.45); z-index: 1000; justify-content: center; align-items: center; }
+        .pos-modal-overlay.show { display: flex; }
+        .pos-modal { background: #fff; border-radius: 12px; width: 560px; max-height: 85vh; overflow-y: auto; box-shadow: 0 12px 48px rgba(0,0,0,.15); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
+        .modal-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+        .modal-close { width: 28px; height: 28px; border: none; background: none; cursor: pointer; font-size: 18px; color: var(--text-tertiary); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        .modal-close:hover { background: #f5f5f5; }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 14px 20px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 8px; }
+        .pos-form-group { margin-bottom: 14px; }
+        .pos-form-label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+        .pos-input, .pos-select { width: 100%; padding: 8px 10px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 13px; color: var(--text-primary); background: #fff; outline: none; transition: border-color .2s; box-sizing: border-box; }
+        .pos-input:focus, .pos-select:focus { border-color: var(--primary-green); }
+        .detail-row { display: flex; margin-bottom: 10px; }
+        .detail-label { width: 80px; font-size: 13px; color: var(--text-tertiary); flex-shrink: 0; }
+        .detail-value { font-size: 13px; color: var(--text-primary); }
+        @media (max-width: 1200px) { .org-layout { flex-direction: column; } .org-tree-panel { width: 100%; } }
     </style>
 </head>
 <body>
     <div class="pos-layout">
-        <!-- ==================== Sidebar ==================== -->
+        <!-- Sidebar -->
         <aside class="pos-sidebar" id="sidebar">
-            <!-- Logo -->
             <div class="sidebar-logo">
-                <div class="logo-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
-                </div>
+                <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg></div>
                 <span class="logo-text">智慧新零售云POS</span>
             </div>
-
-            <!-- Menu -->
             <nav class="sidebar-menu">
-                <!-- 首页看板 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="location.href='pos-main-dashboard.html'">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg></span>
                         <span class="menu-title">首页看板</span>
                     </div>
                 </div>
-
-                <!-- 智能收银 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 2H7v2h10V2zm4 4H3v2h18V6zM4 20h16v-2H4v2zm1-4h14V8H5v8z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 2H7v2h10V2zm4 4H3v2h18V6zM4 20h16v-2H4v2zm1-4h14V8H5v8z"/></svg></span>
                         <span class="menu-title">智能收银</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -74,13 +100,9 @@
                         <a class="menu-child" href="pos-shift-handover.html">交接班管理</a>
                     </div>
                 </div>
-
-                <!-- 商品管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z"/></svg></span>
                         <span class="menu-title">商品管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -93,13 +115,9 @@
                         <a class="menu-child" href="pos-inventory-warning.html">库存预警</a>
                     </div>
                 </div>
-
-                <!-- 订单管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg></span>
                         <span class="menu-title">订单管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -109,13 +127,9 @@
                         <a class="menu-child" href="pos-refund.html">退款管理</a>
                     </div>
                 </div>
-
-                <!-- 综合管理 -->
                 <div class="menu-group">
                     <div class="menu-parent expanded" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span>
                         <span class="menu-title">综合管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -128,13 +142,9 @@
                         <a class="menu-child" href="pos-purchase.html">采购管理</a>
                     </div>
                 </div>
-
-                <!-- 会员营销 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span>
                         <span class="menu-title">会员营销</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -148,13 +158,9 @@
                         <a class="menu-child" href="pos-marketing-analysis.html">营销分析</a>
                     </div>
                 </div>
-
-                <!-- 数据分析 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></span>
                         <span class="menu-title">数据分析</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -166,13 +172,9 @@
                         <a class="menu-child" href="pos-ai-forecast.html">AI预测</a>
                     </div>
                 </div>
-
-                <!-- 财务管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></span>
                         <span class="menu-title">财务管理</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -184,13 +186,9 @@
                         <a class="menu-child" href="pos-cost-analysis.html">成本分析</a>
                     </div>
                 </div>
-
-                <!-- 系统设置 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
-                        <span class="menu-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-                        </span>
+                        <span class="menu-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></span>
                         <span class="menu-title">系统设置</span>
                         <span class="menu-arrow">&#9654;</span>
                     </div>
@@ -204,7 +202,7 @@
             </nav>
         </aside>
 
-        <!-- ==================== Main Content ==================== -->
+        <!-- Main Wrapper -->
         <div class="pos-main-wrapper">
             <!-- Header -->
             <header class="pos-header">
@@ -215,194 +213,327 @@
                     <div class="header-breadcrumb">
                         <a href="pos-main-dashboard.html">首页</a>
                         <span>/</span>
-                        <span style="color: var(--text-primary);">组织架构</span>
+                        <a href="javascript:void(0)">综合管理</a>
+                        <span>/</span>
+                        <span style="color:var(--text-primary);">组织架构</span>
                     </div>
                 </div>
                 <div class="header-right">
-                    <!-- Search -->
-                    <button class="header-action" title="搜索">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                    </button>
-                    <!-- Notification -->
+                    <button class="header-action" title="搜索"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5s2.59 6.5 6 6.5c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5s4.5 2.49 4.5 4.5-2.49 4.5-4.5 4.5z"/></svg></button>
                     <button class="header-action" title="消息通知">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-                        <span class="badge">5</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5S10 3.17 10 4v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                        <span class="badge">2</span>
                     </button>
-                    <!-- Fullscreen -->
-                    <button class="header-action" title="全屏" onclick="toggleFullscreen()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-                    </button>
-                    <!-- Theme -->
-                    <button class="header-action" title="主题切换">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
-                    </button>
-                    <!-- User -->
+                    <button class="header-action" title="全屏" onclick="toggleFullscreen()"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg></button>
+                    <button class="header-action" title="主题切换"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg></button>
                     <div class="header-user" onclick="toggleUserMenu()">
                         <div class="user-avatar">A</div>
                         <span class="user-name">Admin</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color: var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                     </div>
                 </div>
             </header>
 
-            <!-- Main Content Area -->
-            <!-- Main Content Area -->
+            <!-- Content -->
             <main class="pos-content">
                 <div class="content-header">
-                    <h1 class="content-title">组织架构</h1>
-                    <p class="content-desc">组织架构管理以树形结构维护企业部门体系，支持部门增删改查和层级调整。</p>
+                    <div class="page-title">组织架构</div>
+                    <div class="page-desc">管理企业部门层级结构，清晰展示组织关系，支持部门新增、编辑与状态管理。</div>
                 </div>
 
-                <!-- Stat Cards -->
-                <div class="stat-grid">
-                    
-                    <div class="stat-card">
-                        <div class="stat-label">部门总数</div>
-                        <div class="stat-value">8</div>
-                        <div class="stat-trend stat-up">&#9650; +1</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">一级部门</div>
-                        <div class="stat-value">4</div>
-                        <div class="stat-trend stat-up">&#9644; 0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">二级部门</div>
-                        <div class="stat-value">4</div>
-                        <div class="stat-trend stat-up">&#9650; +1</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">关联员工</div>
-                        <div class="stat-value">42</div>
-                        <div class="stat-trend stat-up">&#9650; +3</div>
-                    </div>
-                </div>
-
-                <!-- Operation Steps -->
-                <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128161; 操作指南</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="step-list">
-                            
-                    <div class="step-item">
-                        <div class="step-number">1</div>
-                        <div class="step-text">进入综合管理-组织架构页面，系统以树形结构展示当前组织架构</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">2</div>
-                        <div class="step-text">点击新增部门按钮，输入部门名称、部门编码、上级部门、部门负责人和部门描述</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">3</div>
-                        <div class="step-text">点击保存按钮创建部门，新部门将显示在组织架构树中</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">4</div>
-                        <div class="step-text">如需调整部门层级关系，可通过拖拽方式移动部门位置</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">5</div>
-                        <div class="step-text">如需删除部门，需先确保该部门下没有关联员工，然后点击删除按钮</div>
-                    </div>
+                <!-- Org Layout: left tree + right table -->
+                <div class="org-layout">
+                    <!-- Left: Org Tree -->
+                    <div class="org-tree-panel">
+                        <div class="org-tree-header">
+                            <span>组织架构树</span>
+                            <button class="add-btn" onclick="openModal('deptModal')">+ 新增</button>
+                        </div>
+                        <div class="org-tree-body">
+                            <!-- Root Node -->
+                            <div class="tree-node">
+                                <div class="tree-node-main active" onclick="selectTreeNode(this)">
+                                    <span class="tree-toggle open" onclick="toggleTree(this,event)">&#9654;</span>
+                                    <span class="tree-icon" style="color:var(--primary-green);">&#128188;</span>
+                                    <span>星链零售有限公司</span>
+                                    <span class="node-count">68人</span>
+                                </div>
+                                <div class="tree-children open">
+                                    <!-- 总经办 -->
+                                    <div class="tree-node">
+                                        <div class="tree-node-main" onclick="selectTreeNode(this)">
+                                            <span class="tree-toggle open" onclick="toggleTree(this,event)">&#9654;</span>
+                                            <span class="tree-icon" style="color:#faad14;">&#128081;</span>
+                                            <span>总经办</span>
+                                            <span class="node-count">3人</span>
+                                        </div>
+                                        <div class="tree-children open">
+                                            <div class="tree-node"><div class="tree-node-main" onclick="selectTreeNode(this)" style="padding-left:20px;">&#9873; 总经理办公室</div></div>
+                                            <div class="tree-node"><div class="tree-node-main" onclick="selectTreeNode(this)" style="padding-left:20px;">&#9873; 战略发展部</div></div>
+                                        </div>
+                                    </div>
+                                    <!-- 运营中心 -->
+                                    <div class="tree-node">
+                                        <div class="tree-node-main" onclick="selectTreeNode(this)">
+                                            <span class="tree-toggle open" onclick="toggleTree(this,event)">&#9654;</span>
+                                            <span class="tree-icon" style="color:var(--auxiliary-blue);">&#128200;</span>
+                                            <span>运营中心</span>
+                                            <span class="node-count">22人</span>
+                                        </div>
+                                        <div class="tree-children open">
+                                            <div class="tree-node"><div class="tree-node-main" onclick="selectTreeNode(this)" style="padding-left:20px;">&#9873; 门店运营部</div></div>
+                                            <div class="tree-node"><div class="tree-node-main" onclick="selectTreeNode(this)" style="padding-left:20px;">&#9873; 线上运营部</div></div>
+                                            <div class="tree-node"><div class="tree-node-main" onclick="selectTreeNode(this)" style="padding-left:20px;">&#9873; 客户服务部</div></div>
+                                        </div>
+                                    </div>
+                                    <!-- 商品中心 -->
+                                    <div class="tree-node">
+                                        <div class="tree-node-main" onclick="selectTreeNode(this)">
+                                            <span class="tree-toggle" onclick="toggleTree(this,event)">&#9654;</span>
+                                            <span class="tree-icon" style="color:var(--primary-green);">&#128092;</span>
+                                            <span>商品中心</span>
+                                            <span class="node-count">12人</span>
+                                        </div>
+                                        <div class="tree-children">
+                                            <div class="tree-node"><div class="tree-node-main" onclick="selectTreeNode(this)" style="padding-left:20px;">&#9873; 采购部</div></div>
+                                            <div class="tree-node"><div class="tree-node-main" onclick="selectTreeNode(this)" style="padding-left:20px;">&#9873; 仓储部</div></div>
+                                        </div>
+                                    </div>
+                                    <!-- 财务部 -->
+                                    <div class="tree-node">
+                                        <div class="tree-node-main" onclick="selectTreeNode(this)">
+                                            <span class="tree-toggle" onclick="toggleTree(this,event)">&#9654;</span>
+                                            <span class="tree-icon" style="color:#722ed1;">&#128181;</span>
+                                            <span>财务部</span>
+                                            <span class="node-count">8人</span>
+                                        </div>
+                                        <div class="tree-children">
+                                            <div class="tree-node"><div class="tree-node-main" onclick="selectTreeNode(this)" style="padding-left:20px;">&#9873; 会计核算部</div></div>
+                                            <div class="tree-node"><div class="tree-node-main" onclick="selectTreeNode(this)" style="padding-left:20px;">&#9873; 资金管理部</div></div>
+                                        </div>
+                                    </div>
+                                    <!-- 技术部 -->
+                                    <div class="tree-node">
+                                        <div class="tree-node-main" onclick="selectTreeNode(this)">
+                                            <span class="tree-toggle" onclick="toggleTree(this,event)">&#9654;</span>
+                                            <span class="tree-icon" style="color:#13c2c2;">&#128187;</span>
+                                            <span>技术部</span>
+                                            <span class="node-count">15人</span>
+                                        </div>
+                                        <div class="tree-children">
+                                            <div class="tree-node"><div class="tree-node-main" onclick="selectTreeNode(this)" style="padding-left:20px;">&#9873; 研发部</div></div>
+                                            <div class="tree-node"><div class="tree-node-main" onclick="selectTreeNode(this)" style="padding-left:20px;">&#9873; 运维部</div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Placeholder Table -->
-                <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128202; 数据概览</span>
-                    </div>
-                    <div class="card-body">
-                        <table class="data-table">
-                            <thead>
-                                <tr><th>项目名称</th><th>数值</th><th>状态</th><th>操作</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>示例数据 1</td><td>--</td><td><span class="status-badge status-normal">正常</span></td><td><button class="btn btn-sm btn-primary">查看</button></td></tr>
-                                <tr><td>示例数据 2</td><td>--</td><td><span class="status-badge status-warning">预警</span></td><td><button class="btn btn-sm btn-primary">处理</button></td></tr>
-                                <tr><td>示例数据 3</td><td>--</td><td><span class="status-badge status-success">完成</span></td><td><button class="btn btn-sm btn-primary">详情</button></td></tr>
-                            </tbody>
-                        </table>
+                    <!-- Right: Department Table -->
+                    <div class="org-table-panel">
+                        <!-- Search Panel -->
+                        <div class="search-panel">
+                            <div class="search-row">
+                                <div class="search-item">
+                                    <label>部门名称</label>
+                                    <input type="text" placeholder="请输入部门名称">
+                                </div>
+                                <div class="search-item">
+                                    <label>负责人</label>
+                                    <input type="text" placeholder="请输入负责人姓名">
+                                </div>
+                                <div class="search-item">
+                                    <label>状态</label>
+                                    <select><option value="">全部状态</option><option>启用</option><option>停用</option></select>
+                                </div>
+                                <div class="search-actions">
+                                    <button class="pos-btn pos-btn-primary">查询</button>
+                                    <button class="pos-btn pos-btn-default">重置</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="pos-table-wrapper">
+                            <table class="pos-table">
+                                <thead>
+                                    <tr>
+                                        <th>部门编号</th>
+                                        <th>部门名称</th>
+                                        <th>上级部门</th>
+                                        <th>负责人</th>
+                                        <th>成立日期</th>
+                                        <th>员工数</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>DP001</td>
+                                        <td style="font-weight:500;">总经办</td>
+                                        <td>—</td>
+                                        <td>张建国</td>
+                                        <td>2020-01-15</td>
+                                        <td>3</td>
+                                        <td><span class="pos-tag pos-tag-success">启用</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <button class="pos-btn-sm" onclick="openModal('deptModal')">编辑</button>
+                                                <button class="pos-btn-sm">详情</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>DP002</td>
+                                        <td style="font-weight:500;">运营中心</td>
+                                        <td>—</td>
+                                        <td>李雪梅</td>
+                                        <td>2020-03-01</td>
+                                        <td>22</td>
+                                        <td><span class="pos-tag pos-tag-success">启用</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <button class="pos-btn-sm" onclick="openModal('deptModal')">编辑</button>
+                                                <button class="pos-btn-sm">详情</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>DP003</td>
+                                        <td style="font-weight:500;">商品中心</td>
+                                        <td>—</td>
+                                        <td>王志强</td>
+                                        <td>2020-05-10</td>
+                                        <td>12</td>
+                                        <td><span class="pos-tag pos-tag-success">启用</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <button class="pos-btn-sm" onclick="openModal('deptModal')">编辑</button>
+                                                <button class="pos-btn-sm">详情</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>DP004</td>
+                                        <td style="font-weight:500;">财务部</td>
+                                        <td>—</td>
+                                        <td>赵丽华</td>
+                                        <td>2020-02-20</td>
+                                        <td>8</td>
+                                        <td><span class="pos-tag pos-tag-success">启用</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <button class="pos-btn-sm" onclick="openModal('deptModal')">编辑</button>
+                                                <button class="pos-btn-sm">详情</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>DP005</td>
+                                        <td style="font-weight:500;">技术部</td>
+                                        <td>—</td>
+                                        <td>陈明辉</td>
+                                        <td>2021-01-08</td>
+                                        <td>15</td>
+                                        <td><span class="pos-tag pos-tag-success">启用</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <button class="pos-btn-sm" onclick="openModal('deptModal')">编辑</button>
+                                                <button class="pos-btn-sm">详情</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="pos-pagination">
+                                <div class="pagination-info">共 5 条数据，每页 10 条，当前第 1/1 页</div>
+                                <div class="pagination-btns">
+                                    <button class="active">1</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
 
             <!-- Footer -->
             <footer class="pos-footer">
-                <div style="display: flex; align-items: center; gap: 24px; width: 100%; flex-wrap: wrap;">
-                    <span>Current User：<strong style="color: var(--text-secondary);">Admin</strong></span>
+                <div style="display:flex;align-items:center;gap:24px;width:100%;flex-wrap:wrap;">
+                    <span>Current User：<strong style="color:var(--text-secondary);">Admin</strong></span>
                     <span>|</span>
-                    <span>门店：<strong style="color: var(--text-secondary);">星链旗舰店</strong></span>
+                    <span>门店：<strong style="color:var(--text-secondary);">星链旗舰店</strong></span>
                     <span>|</span>
-                    <span>数据同步：<strong style="color: var(--text-secondary);">2026-05-26 10:30</strong></span>
+                    <span>数据同步：<strong style="color:var(--text-secondary);">2026-05-26 10:30</strong></span>
                     <span>|</span>
-                    <span>版本：<strong style="color: var(--text-secondary);">V1.0</strong></span>
-                    <span style="margin-left: auto;">网络：<span class="status-dot online"></span><strong style="color: var(--success-color);">已连接</strong></span>
+                    <span>版本：<strong style="color:var(--text-secondary);">V2.0</strong></span>
+                    <span style="margin-left:auto;">网络：<span class="status-dot online"></span><strong style="color:var(--success-color);">已连接</strong></span>
                 </div>
             </footer>
         </div>
     </div>
 
+    <!-- Add Department Modal -->
+    <div class="pos-modal-overlay" id="deptModal">
+        <div class="pos-modal">
+            <div class="modal-header">
+                <span class="modal-title">新增部门</span>
+                <button class="modal-close" onclick="closeModal('deptModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="pos-form-group">
+                    <label class="pos-form-label">部门名称 <span style="color:var(--danger-color);">*</span></label>
+                    <input class="pos-input" type="text" placeholder="请输入部门名称">
+                </div>
+                <div class="pos-form-group">
+                    <label class="pos-form-label">上级部门</label>
+                    <select class="pos-select"><option>星链零售有限公司（无上级）</option><option>总经办</option><option>运营中心</option><option>商品中心</option><option>财务部</option><option>技术部</option></select>
+                </div>
+                <div class="pos-form-group">
+                    <label class="pos-form-label">负责人</label>
+                    <input class="pos-input" type="text" placeholder="请选择负责人">
+                </div>
+                <div class="pos-form-group">
+                    <label class="pos-form-label">成立日期</label>
+                    <input class="pos-input" type="date" value="2026-05-26">
+                </div>
+                <div class="pos-form-group">
+                    <label class="pos-form-label">状态</label>
+                    <select class="pos-select"><option value="active">启用</option><option value="inactive">停用</option></select>
+                </div>
+                <div class="pos-form-group">
+                    <label class="pos-form-label">部门描述</label>
+                    <textarea class="pos-textarea" style="width:100%;min-height:70px;border:1px solid #d9d9d9;border-radius:6px;padding:8px 10px;font-size:13px;color:var(--text-primary);outline:none;resize:vertical;" placeholder="请输入部门职责描述"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeModal('deptModal')">取消</button>
+                <button class="pos-btn pos-btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Toggle sidebar menu expand/collapse
         function toggleMenu(el) {
             const children = el.nextElementSibling;
             if (!children || !children.classList.contains('menu-children')) return;
-
             const isOpen = children.classList.contains('open');
-
-            // Close all other menus
-            document.querySelectorAll('.menu-children.open').forEach(function(menu) {
-                menu.classList.remove('open');
-                menu.previousElementSibling.classList.remove('expanded');
-            });
-
-            if (!isOpen) {
-                children.classList.add('open');
-                el.classList.add('expanded');
-            }
+            document.querySelectorAll('.menu-children.open').forEach(function(menu) { menu.classList.remove('open'); menu.previousElementSibling.classList.remove('expanded'); });
+            if (!isOpen) { children.classList.add('open'); el.classList.add('expanded'); }
         }
-
-        // Toggle mobile sidebar
-        function toggleMobileMenu() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
-        }
-
-        // Fullscreen toggle
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(function() {});
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
-        // Date filter buttons
-        document.querySelectorAll('.date-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.date-btn').forEach(function(b) {
-                    b.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-
-        // User menu toggle (placeholder)
-        function toggleUserMenu() {
-            // Placeholder for user dropdown
-        }
-
-        // Close mobile sidebar when clicking outside
+        function toggleMobileMenu() { document.getElementById('sidebar').classList.toggle('mobile-open'); }
+        function toggleFullscreen() { if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(function(){}); } else { document.exitFullscreen(); } }
+        function toggleUserMenu() {}
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+        function openModal(id) { document.getElementById(id).classList.add('show'); }
+        function toggleTree(el, ev) { ev.stopPropagation(); el.classList.toggle('open'); var children = el.parentElement.nextElementSibling; if (children && children.classList.contains('tree-children')) { children.classList.toggle('open'); } }
+        function selectTreeNode(el) { document.querySelectorAll('.tree-node-main').forEach(function(n) { n.classList.remove('active'); }); el.classList.add('active'); }
         document.addEventListener('click', function(e) {
             var sidebar = document.getElementById('sidebar');
             var toggle = document.querySelector('.mobile-menu-toggle');
             if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
-                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                    sidebar.classList.remove('mobile-open');
-                }
+                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) { sidebar.classList.remove('mobile-open'); }
             }
         });
     </script>

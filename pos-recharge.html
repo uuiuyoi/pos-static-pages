@@ -1,55 +1,103 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>储值管理 - 智慧新零售云POS综合管理平台</title>
     <link rel="stylesheet" href="pos-common.css">
-    
-        <style>
-        .content-header { margin-bottom: 24px; }
-        .content-title { font-size: 22px; font-weight: 600; color: #333; margin-bottom: 8px; }
-        .content-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
-        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #e8e8e8; }
-        .stat-label { font-size: 13px; color: var(--text-tertiary); margin-bottom: 8px; }
-        .stat-value { font-size: 24px; font-weight: 700; color: #333; margin-bottom: 6px; }
-        .stat-trend { font-size: 12px; }
-        .stat-up { color: var(--success-color); }
-        .stat-down { color: var(--danger-color); }
-        .step-list { display: flex; flex-direction: column; gap: 12px; }
-        .step-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
-        .step-number { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-        .step-text { font-size: 14px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e8e8e8; font-size: 14px; }
-        .data-table th { background: #f8f9fa; font-weight: 600; color: #333; }
-        .data-table td { color: var(--text-secondary); }
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
-        .status-normal { background: #e3f2fd; color: #1976d2; }
-        .status-warning { background: #fff3e0; color: #f57c00; }
-        .status-success { background: #e8f5e9; color: #388e3c; }
-        .status-danger { background: #ffebee; color: #d32f2f; }
-        .btn-sm { padding: 6px 14px; font-size: 13px; }
-        @media (max-width: 1200px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) { .stat-grid { grid-template-columns: 1fr; } }
+    <style>
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary-green);
+            border-radius: 2px;
+        }
+        .search-panel {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .search-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .search-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .search-item label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .search-item .pos-input,
+        .search-item .pos-select {
+            width: 180px;
+        }
+        .search-item .date-range-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .search-item .date-range-wrap span {
+            color: var(--text-disabled);
+        }
+        .search-item .date-range-wrap .pos-input {
+            width: 150px;
+        }
+        .search-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .amount-plus { color: var(--success-color); font-weight: 600; }
+        .amount-minus { color: var(--error-color); font-weight: 600; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .rule-item {
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 12px;
+            background: #fafafa;
+        }
+        .rule-item h4 {
+            font-size: 15px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .rule-item p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
     </style>
 </head>
 <body>
     <div class="pos-layout">
-        <!-- ==================== Sidebar ==================== -->
         <aside class="pos-sidebar" id="sidebar">
-            <!-- Logo -->
             <div class="sidebar-logo">
                 <div class="logo-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
                 </div>
                 <span class="logo-text">智慧新零售云POS</span>
             </div>
-
-            <!-- Menu -->
             <nav class="sidebar-menu">
-                <!-- 首页看板 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="location.href='pos-main-dashboard.html'">
                         <span class="menu-icon">
@@ -58,8 +106,6 @@
                         <span class="menu-title">首页看板</span>
                     </div>
                 </div>
-
-                <!-- 智能收银 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -74,8 +120,6 @@
                         <a class="menu-child" href="pos-shift-handover.html">交接班管理</a>
                     </div>
                 </div>
-
-                <!-- 商品管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -93,8 +137,6 @@
                         <a class="menu-child" href="pos-inventory-warning.html">库存预警</a>
                     </div>
                 </div>
-
-                <!-- 订单管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -109,8 +151,6 @@
                         <a class="menu-child" href="pos-refund.html">退款管理</a>
                     </div>
                 </div>
-
-                <!-- 综合管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -128,8 +168,6 @@
                         <a class="menu-child" href="pos-purchase.html">采购管理</a>
                     </div>
                 </div>
-
-                <!-- 会员营销 -->
                 <div class="menu-group">
                     <div class="menu-parent expanded" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -148,8 +186,6 @@
                         <a class="menu-child" href="pos-marketing-analysis.html">营销分析</a>
                     </div>
                 </div>
-
-                <!-- 数据分析 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -166,8 +202,6 @@
                         <a class="menu-child" href="pos-ai-forecast.html">AI预测</a>
                     </div>
                 </div>
-
-                <!-- 财务管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -184,8 +218,6 @@
                         <a class="menu-child" href="pos-cost-analysis.html">成本分析</a>
                     </div>
                 </div>
-
-                <!-- 系统设置 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -204,207 +236,311 @@
             </nav>
         </aside>
 
-        <!-- ==================== Main Content ==================== -->
         <div class="pos-main-wrapper">
-            <!-- Header -->
             <header class="pos-header">
                 <div class="header-left">
-                    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-                    </button>
                     <div class="header-breadcrumb">
-                        <a href="pos-main-dashboard.html">首页</a>
+                        <a href="#">首页</a>
                         <span>/</span>
-                        <span style="color: var(--text-primary);">储值管理</span>
+                        <a href="#">会员营销</a>
+                        <span>/</span>
+                        <span style="color:var(--text-primary);">储值管理</span>
                     </div>
                 </div>
                 <div class="header-right">
-                    <!-- Search -->
-                    <button class="header-action" title="搜索">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    <button class="header-action" onclick="toggleFullscreen()" title="全屏">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
                     </button>
-                    <!-- Notification -->
                     <button class="header-action" title="消息通知">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                         <span class="badge">5</span>
                     </button>
-                    <!-- Fullscreen -->
-                    <button class="header-action" title="全屏" onclick="toggleFullscreen()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-                    </button>
-                    <!-- Theme -->
-                    <button class="header-action" title="主题切换">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
-                    </button>
-                    <!-- User -->
-                    <div class="header-user" onclick="toggleUserMenu()">
+                    <div class="header-user">
                         <div class="user-avatar">A</div>
                         <span class="user-name">Admin</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color: var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                     </div>
                 </div>
             </header>
 
-            <!-- Main Content Area -->
-            <!-- Main Content Area -->
             <main class="pos-content">
-                <div class="content-header">
-                    <h1 class="content-title">储值管理</h1>
-                    <p class="content-desc">储值管理用于配置储值赠送规则和查看储值记录，支持会员充值操作。</p>
-                </div>
+                <div class="page-title">储值管理</div>
 
-                <!-- Stat Cards -->
-                <div class="stat-grid">
-                    
+                <div class="stat-cards">
                     <div class="stat-card">
-                        <div class="stat-label">储值规则</div>
-                        <div class="stat-value">4</div>
-                        <div class="stat-trend stat-up">&#9644; 已配置</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">今日充值</div>
-                        <div class="stat-value">¥5,600</div>
-                        <div class="stat-trend stat-up">&#9650; +18%</div>
+                        <div class="stat-icon blue">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">储值账户总数</div>
+                            <div class="stat-value">5,680</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">储值会员</div>
-                        <div class="stat-value">186</div>
-                        <div class="stat-trend stat-up">&#9650; +12</div>
+                        <div class="stat-icon green">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">储值总余额</div>
+                            <div class="stat-value">¥256,800</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">储值余额</div>
-                        <div class="stat-value">¥128,600</div>
-                        <div class="stat-trend stat-up">&#9650; +5%</div>
+                        <div class="stat-icon green">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.66 3.34C16.04 1.72 14.06 1 12 1S7.96 1.72 6.34 3.34C4.72 4.96 4 6.94 4 9s.72 4.04 2.34 5.66L12 21l5.66-6.34C19.28 13.04 20 11.06 20 9s-.72-4.04-2.34-5.66z"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">今日储值金额</div>
+                            <div class="stat-value">¥12,580</div>
+                            <div class="stat-trend up">&#9650; 25%</div>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Operation Steps -->
-                <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128161; 操作指南</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="step-list">
-                            
-                    <div class="step-item">
-                        <div class="step-number">1</div>
-                        <div class="step-text">配置储值规则：设置充值赠送规则（如充值100元赠送10元、充值500元赠送60元）</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">2</div>
-                        <div class="step-text">支持多档位设置，满足不同会员的充值需求</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">3</div>
-                        <div class="step-text">在会员详情页面点击储值操作按钮，输入充值金额</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">4</div>
-                        <div class="step-text">选择支付方式完成充值，充值成功后系统自动更新会员储值余额</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">5</div>
-                        <div class="step-text">在储值记录标签页查看所有储值操作记录：充值、消费和退款</div>
-                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label">今日消费金额</div>
+                            <div class="stat-value">¥8,920</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Placeholder Table -->
                 <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128202; 数据概览</span>
+                    <div class="pos-tabs" style="border-bottom: 1px solid var(--border-color); padding: 0 20px;">
+                        <button class="pos-tab active" onclick="switchTab('recharge-log')">储值流水</button>
+                        <button class="pos-tab" onclick="switchTab('recharge-rule')">储值规则</button>
+                        <button class="pos-tab" onclick="switchTab('refund-log')">退款记录</button>
                     </div>
-                    <div class="card-body">
-                        <table class="data-table">
-                            <thead>
-                                <tr><th>项目名称</th><th>数值</th><th>状态</th><th>操作</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>示例数据 1</td><td>--</td><td><span class="status-badge status-normal">正常</span></td><td><button class="btn btn-sm btn-primary">查看</button></td></tr>
-                                <tr><td>示例数据 2</td><td>--</td><td><span class="status-badge status-warning">预警</span></td><td><button class="btn btn-sm btn-primary">处理</button></td></tr>
-                                <tr><td>示例数据 3</td><td>--</td><td><span class="status-badge status-success">完成</span></td><td><button class="btn btn-sm btn-primary">详情</button></td></tr>
-                            </tbody>
-                        </table>
+
+                    <div class="tab-content active" id="tab-recharge-log">
+                        <div class="search-panel" style="box-shadow:none;margin:0;border-radius:0;border-bottom:1px solid var(--border-color-light);">
+                            <div class="search-row">
+                                <div class="search-item">
+                                    <label>会员手机号</label>
+                                    <input type="text" class="pos-input" placeholder="请输入手机号">
+                                </div>
+                                <div class="search-item">
+                                    <label>业务类型</label>
+                                    <select class="pos-select">
+                                        <option>全部</option>
+                                        <option>充值</option>
+                                        <option>消费</option>
+                                        <option>退款</option>
+                                        <option>赠送</option>
+                                    </select>
+                                </div>
+                                <div class="search-item">
+                                    <label>支付方式</label>
+                                    <select class="pos-select">
+                                        <option>全部</option>
+                                        <option>微信支付</option>
+                                        <option>支付宝</option>
+                                        <option>银行卡</option>
+                                        <option>现金</option>
+                                    </select>
+                                </div>
+                                <div class="search-item">
+                                    <label>日期范围</label>
+                                    <div class="date-range-wrap">
+                                        <input type="date" class="pos-input" value="2026-06-25">
+                                        <span>~</span>
+                                        <input type="date" class="pos-input" value="2026-07-02">
+                                    </div>
+                                </div>
+                                <div class="search-actions">
+                                    <button class="pos-btn pos-btn-primary">查询</button>
+                                    <button class="pos-btn pos-btn-default">重置</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pos-table-wrapper" style="padding:0 20px;">
+                            <table class="pos-table">
+                                <thead>
+                                    <tr>
+                                        <th>时间</th>
+                                        <th>会员</th>
+                                        <th>手机号</th>
+                                        <th>业务类型</th>
+                                        <th>金额</th>
+                                        <th>余额</th>
+                                        <th>支付方式</th>
+                                        <th>关联单号</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2026-07-02 11:20:05</td>
+                                        <td>王女士</td>
+                                        <td>138****6789</td>
+                                        <td><span class="pos-tag pos-tag-info">充值</span></td>
+                                        <td class="amount-plus">+¥500.00</td>
+                                        <td>¥2,580.00</td>
+                                        <td>微信支付</td>
+                                        <td><a href="javascript:void(0)" style="color:var(--auxiliary-blue);">RC20260702001</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-07-02 10:15:32</td>
+                                        <td>张先生</td>
+                                        <td>139****1234</td>
+                                        <td><span class="pos-tag pos-tag-success">消费</span></td>
+                                        <td class="amount-minus">-¥128.50</td>
+                                        <td>¥1,850.00</td>
+                                        <td>储值卡</td>
+                                        <td><a href="javascript:void(0)" style="color:var(--auxiliary-blue);">ORD20260702005</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-07-01 16:45:18</td>
+                                        <td>李先生</td>
+                                        <td>136****5678</td>
+                                        <td><span class="pos-tag pos-tag-info">充值</span></td>
+                                        <td class="amount-plus">+¥1,000.00</td>
+                                        <td>¥5,680.00</td>
+                                        <td>支付宝</td>
+                                        <td><a href="javascript:void(0)" style="color:var(--auxiliary-blue);">RC20260701002</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-07-01 14:20:00</td>
+                                        <td>赵女士</td>
+                                        <td>137****9012</td>
+                                        <td><span class="pos-tag pos-tag-success">消费</span></td>
+                                        <td class="amount-minus">-¥256.00</td>
+                                        <td>¥3,120.00</td>
+                                        <td>储值卡</td>
+                                        <td><a href="javascript:void(0)" style="color:var(--auxiliary-blue);">ORD20260701006</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-06-30 18:30:45</td>
+                                        <td>刘先生</td>
+                                        <td>135****3456</td>
+                                        <td><span class="pos-tag pos-tag-warning">赠送</span></td>
+                                        <td class="amount-plus">+¥200.00</td>
+                                        <td>¥4,800.00</td>
+                                        <td>系统赠送</td>
+                                        <td>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-06-30 12:10:22</td>
+                                        <td>陈女士</td>
+                                        <td>134****7890</td>
+                                        <td><span class="pos-tag pos-tag-error">退款</span></td>
+                                        <td class="amount-plus">+¥300.00</td>
+                                        <td>¥2,680.00</td>
+                                        <td>原路退回</td>
+                                        <td><a href="javascript:void(0)" style="color:var(--auxiliary-blue);">RF20260630001</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-06-29 15:55:10</td>
+                                        <td>周先生</td>
+                                        <td>133****2345</td>
+                                        <td><span class="pos-tag pos-tag-info">充值</span></td>
+                                        <td class="amount-plus">+¥2,000.00</td>
+                                        <td>¥8,560.00</td>
+                                        <td>银行卡</td>
+                                        <td><a href="javascript:void(0)" style="color:var(--auxiliary-blue);">RC20260629002</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="pos-pagination" style="padding:16px 20px;">
+                            <span class="page-info">共 312 条 / 每页 7 条</span>
+                            <button class="page-btn" disabled>&laquo;</button>
+                            <button class="page-btn active">1</button>
+                            <button class="page-btn">2</button>
+                            <button class="page-btn">3</button>
+                            <button class="page-btn">...</button>
+                            <button class="page-btn">45</button>
+                            <button class="page-btn">&raquo;</button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tab-recharge-rule" style="padding:20px;">
+                        <div class="rule-item">
+                            <h4>充值规则</h4>
+                            <p>单次充值最低金额¥100.00；充值¥500赠送¥50；充值¥1,000赠送¥120；充值¥2,000赠送¥300；充值¥5,000赠送¥800。</p>
+                        </div>
+                        <div class="rule-item">
+                            <h4>消费规则</h4>
+                            <p>储值卡余额可用于全店商品消费；储值消费不设找零；储值余额不可提现；支持组合支付（储值+其他方式）。</p>
+                        </div>
+                        <div class="rule-item">
+                            <h4>退款规则</h4>
+                            <p>储值卡充值7天内可申请全额退款；超过7天按实际使用比例退款；赠送金额不可退款；退款原路返回至支付账户。</p>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tab-refund-log" style="padding:20px;">
+                        <div class="pos-table-wrapper">
+                            <table class="pos-table">
+                                <thead>
+                                    <tr>
+                                        <th>退款时间</th>
+                                        <th>会员</th>
+                                        <th>手机号</th>
+                                        <th>退款金额</th>
+                                        <th>退款原因</th>
+                                        <th>状态</th>
+                                        <th>关联单号</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2026-06-30 12:10:22</td>
+                                        <td>陈女士</td>
+                                        <td>134****7890</td>
+                                        <td class="amount-plus">¥300.00</td>
+                                        <td>商品退货</td>
+                                        <td><span class="pos-tag pos-tag-success">已完成</span></td>
+                                        <td><a href="javascript:void(0)" style="color:var(--auxiliary-blue);">RF20260630001</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-06-25 09:30:15</td>
+                                        <td>张先生</td>
+                                        <td>139****1234</td>
+                                        <td class="amount-plus">¥150.00</td>
+                                        <td>充值退款</td>
+                                        <td><span class="pos-tag pos-tag-success">已完成</span></td>
+                                        <td><a href="javascript:void(0)" style="color:var(--auxiliary-blue);">RF20260625001</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2026-06-20 16:45:00</td>
+                                        <td>王女士</td>
+                                        <td>138****6789</td>
+                                        <td class="amount-plus">¥80.00</td>
+                                        <td>订单取消</td>
+                                        <td><span class="pos-tag pos-tag-success">已完成</span></td>
+                                        <td><a href="javascript:void(0)" style="color:var(--auxiliary-blue);">RF20260620002</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pos-pagination" style="padding:16px 0;">
+                            <span class="page-info">共 28 条 / 每页 7 条</span>
+                            <button class="page-btn" disabled>&laquo;</button>
+                            <button class="page-btn active">1</button>
+                            <button class="page-btn">2</button>
+                            <button class="page-btn">3</button>
+                            <button class="page-btn">4</button>
+                            <button class="page-btn">&raquo;</button>
+                        </div>
                     </div>
                 </div>
             </main>
 
-            <!-- Footer -->
             <footer class="pos-footer">
-                <div style="display: flex; align-items: center; gap: 24px; width: 100%; flex-wrap: wrap;">
-                    <span>Current User：<strong style="color: var(--text-secondary);">Admin</strong></span>
-                    <span>|</span>
-                    <span>门店：<strong style="color: var(--text-secondary);">星链旗舰店</strong></span>
-                    <span>|</span>
-                    <span>数据同步：<strong style="color: var(--text-secondary);">2026-05-26 10:30</strong></span>
-                    <span>|</span>
-                    <span>版本：<strong style="color: var(--text-secondary);">V1.0</strong></span>
-                    <span style="margin-left: auto;">网络：<span class="status-dot online"></span><strong style="color: var(--success-color);">已连接</strong></span>
-                </div>
+                <span>&copy; 2026 智慧新零售云POS综合管理平台 v2.0 | 门店：星链旗舰店 | 数据同步：2026-07-02 12:00</span>
             </footer>
         </div>
     </div>
 
     <script>
-        // Toggle sidebar menu expand/collapse
-        function toggleMenu(el) {
-            const children = el.nextElementSibling;
-            if (!children || !children.classList.contains('menu-children')) return;
-
-            const isOpen = children.classList.contains('open');
-
-            // Close all other menus
-            document.querySelectorAll('.menu-children.open').forEach(function(menu) {
-                menu.classList.remove('open');
-                menu.previousElementSibling.classList.remove('expanded');
-            });
-
-            if (!isOpen) {
-                children.classList.add('open');
-                el.classList.add('expanded');
-            }
+        function switchTab(tabId) {
+            document.querySelectorAll('.pos-tab').forEach(function(t) { t.classList.remove('active'); });
+            event.target.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            document.getElementById('tab-' + tabId).classList.add('active');
         }
-
-        // Toggle mobile sidebar
-        function toggleMobileMenu() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
-        }
-
-        // Fullscreen toggle
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(function() {});
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
-        // Date filter buttons
-        document.querySelectorAll('.date-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.date-btn').forEach(function(b) {
-                    b.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-
-        // User menu toggle (placeholder)
-        function toggleUserMenu() {
-            // Placeholder for user dropdown
-        }
-
-        // Close mobile sidebar when clicking outside
-        document.addEventListener('click', function(e) {
-            var sidebar = document.getElementById('sidebar');
-            var toggle = document.querySelector('.mobile-menu-toggle');
-            if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
-                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                    sidebar.classList.remove('mobile-open');
-                }
-            }
-        });
     </script>
     <script src="pos-common.js"></script>
 </body>

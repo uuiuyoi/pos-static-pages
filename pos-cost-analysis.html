@@ -1,55 +1,143 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>成本分析 - 智慧新零售云POS综合管理平台</title>
     <link rel="stylesheet" href="pos-common.css">
-    
-        <style>
-        .content-header { margin-bottom: 24px; }
-        .content-title { font-size: 22px; font-weight: 600; color: #333; margin-bottom: 8px; }
-        .content-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
-        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #e8e8e8; }
-        .stat-label { font-size: 13px; color: var(--text-tertiary); margin-bottom: 8px; }
-        .stat-value { font-size: 24px; font-weight: 700; color: #333; margin-bottom: 6px; }
-        .stat-trend { font-size: 12px; }
-        .stat-up { color: var(--success-color); }
-        .stat-down { color: var(--danger-color); }
-        .step-list { display: flex; flex-direction: column; gap: 12px; }
-        .step-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
-        .step-number { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-        .step-text { font-size: 14px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e8e8e8; font-size: 14px; }
-        .data-table th { background: #f8f9fa; font-weight: 600; color: #333; }
-        .data-table td { color: var(--text-secondary); }
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
-        .status-normal { background: #e3f2fd; color: #1976d2; }
-        .status-warning { background: #fff3e0; color: #f57c00; }
-        .status-success { background: #e8f5e9; color: #388e3c; }
-        .status-danger { background: #ffebee; color: #d32f2f; }
-        .btn-sm { padding: 6px 14px; font-size: 13px; }
-        @media (max-width: 1200px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) { .stat-grid { grid-template-columns: 1fr; } }
+    <style>
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary-green);
+            border-radius: 2px;
+        }
+        .search-panel {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .search-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .search-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .search-item label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .search-item .pos-input,
+        .search-item .pos-select {
+            width: 180px;
+        }
+        .search-item .date-range-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .search-item .date-range-wrap span {
+            color: var(--text-disabled);
+        }
+        .search-item .date-range-wrap .pos-input {
+            width: 150px;
+        }
+        .search-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .toolbar-left {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            height: 220px;
+            padding: 20px 0 0;
+        }
+        .bar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+        }
+        .bar {
+            width: 36px;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s;
+        }
+        .bar.green { background: var(--primary-green); }
+        .bar.blue { background: var(--auxiliary-blue); }
+        .bar.orange { background: #fa8c16; }
+        .bar.red { background: var(--error-color); }
+        .bar-value {
+            font-size: 12px;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .bar-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 8px;
+        }
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+        .amount-green { color: var(--success-color); font-weight: 600; }
+        .amount-red { color: var(--error-color); font-weight: 600; }
+        .amount-orange { color: #fa8c16; font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="pos-layout">
-        <!-- ==================== Sidebar ==================== -->
         <aside class="pos-sidebar" id="sidebar">
-            <!-- Logo -->
             <div class="sidebar-logo">
                 <div class="logo-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
                 </div>
                 <span class="logo-text">智慧新零售云POS</span>
             </div>
-
-            <!-- Menu -->
             <nav class="sidebar-menu">
-                <!-- 首页看板 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="location.href='pos-main-dashboard.html'">
                         <span class="menu-icon">
@@ -58,8 +146,6 @@
                         <span class="menu-title">首页看板</span>
                     </div>
                 </div>
-
-                <!-- 智能收银 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -74,8 +160,6 @@
                         <a class="menu-child" href="pos-shift-handover.html">交接班管理</a>
                     </div>
                 </div>
-
-                <!-- 商品管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -93,8 +177,6 @@
                         <a class="menu-child" href="pos-inventory-warning.html">库存预警</a>
                     </div>
                 </div>
-
-                <!-- 订单管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -109,8 +191,6 @@
                         <a class="menu-child" href="pos-refund.html">退款管理</a>
                     </div>
                 </div>
-
-                <!-- 综合管理 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -128,8 +208,6 @@
                         <a class="menu-child" href="pos-purchase.html">采购管理</a>
                     </div>
                 </div>
-
-                <!-- 会员营销 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -148,8 +226,6 @@
                         <a class="menu-child" href="pos-marketing-analysis.html">营销分析</a>
                     </div>
                 </div>
-
-                <!-- 数据分析 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -166,8 +242,6 @@
                         <a class="menu-child" href="pos-ai-forecast.html">AI预测</a>
                     </div>
                 </div>
-
-                <!-- 财务管理 -->
                 <div class="menu-group">
                     <div class="menu-parent expanded" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -177,15 +251,11 @@
                         <span class="menu-arrow">&#9654;</span>
                     </div>
                     <div class="menu-children open">
-                        <a class="menu-child" href="pos-transaction.html">交易流水</a>
                         <a class="menu-child" href="pos-daily-reconciliation.html">日结对账</a>
                         <a class="menu-child" href="pos-multi-channel-reconciliation.html">多渠道对账</a>
-                        <a class="menu-child" href="pos-invoice.html">发票管理</a>
                         <a class="menu-child active" href="pos-cost-analysis.html">成本分析</a>
                     </div>
                 </div>
-
-                <!-- 系统设置 -->
                 <div class="menu-group">
                     <div class="menu-parent" onclick="toggleMenu(this)">
                         <span class="menu-icon">
@@ -204,208 +274,227 @@
             </nav>
         </aside>
 
-        <!-- ==================== Main Content ==================== -->
         <div class="pos-main-wrapper">
-            <!-- Header -->
             <header class="pos-header">
                 <div class="header-left">
-                    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-                    </button>
                     <div class="header-breadcrumb">
-                        <a href="pos-main-dashboard.html">首页</a>
+                        <a href="#">首页</a>
                         <span>/</span>
-                        <span style="color: var(--text-primary);">成本分析</span>
+                        <a href="#">财务管理</a>
+                        <span>/</span>
+                        <span style="color:var(--text-primary);">成本分析</span>
                     </div>
                 </div>
                 <div class="header-right">
-                    <!-- Search -->
-                    <button class="header-action" title="搜索">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                    </button>
-                    <!-- Notification -->
-                    <button class="header-action" title="消息通知">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-                        <span class="badge">5</span>
-                    </button>
-                    <!-- Fullscreen -->
-                    <button class="header-action" title="全屏" onclick="toggleFullscreen()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-                    </button>
-                    <!-- Theme -->
-                    <button class="header-action" title="主题切换">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
-                    </button>
-                    <!-- User -->
-                    <div class="header-user" onclick="toggleUserMenu()">
+                    <button class="header-action" title="消息通知">&#128276;<span class="badge">3</span></button>
+                    <button class="header-action" title="全屏" onclick="toggleFullscreen()">&#9723;</button>
+                    <button class="header-action" title="帮助">&#10067;</button>
+                    <div class="header-user">
                         <div class="user-avatar">A</div>
                         <span class="user-name">Admin</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color: var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                     </div>
                 </div>
             </header>
 
-            <!-- Main Content Area -->
-            <!-- Main Content Area -->
             <main class="pos-content">
-                <div class="content-header">
-                    <h1 class="content-title">成本分析</h1>
-                    <p class="content-desc">成本分析用于多维度分析成本构成和利润情况，支持按商品、分类、门店或时间维度查看。</p>
-                </div>
+                <div class="page-title">成本分析</div>
 
-                <!-- Stat Cards -->
-                <div class="stat-grid">
-                    
+                <!-- 统计卡片 -->
+                <div class="stat-cards">
                     <div class="stat-card">
-                        <div class="stat-label">毛利率</div>
-                        <div class="stat-value">32.5%</div>
-                        <div class="stat-trend stat-up">&#9650; +1.2%</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">净利润</div>
-                        <div class="stat-value">¥28,600</div>
-                        <div class="stat-trend stat-up">&#9650; +8%</div>
+                        <div class="stat-icon red">&#128176;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">本月总成本</div>
+                            <div class="stat-value">&#165;186,500</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">采购成本</div>
-                        <div class="stat-value">¥52,300</div>
-                        <div class="stat-trend stat-up">&#9650; +5%</div>
+                        <div class="stat-icon blue">&#128230;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">采购成本</div>
+                            <div class="stat-value">&#165;128,600</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">损耗成本</div>
-                        <div class="stat-value">¥1,200</div>
-                        <div class="stat-trend stat-down">&#9660; -8%</div>
+                        <div class="stat-icon orange">&#9881;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">运营成本</div>
+                            <div class="stat-value">&#165;38,200</div>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Operation Steps -->
-                <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128161; 操作指南</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="step-list">
-                            
-                    <div class="step-item">
-                        <div class="step-number">1</div>
-                        <div class="step-text">选择分析维度：按商品、按分类、按门店或按时间</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">2</div>
-                        <div class="step-text">设置时间范围，点击查询按钮生成成本分析报表</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">3</div>
-                        <div class="step-text">查看成本构成：采购成本、物流成本、人工成本、损耗成本等各项成本的占比</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">4</div>
-                        <div class="step-text">查看毛利率和净利润数据，系统以图表形式展示各维度下的利润排名</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">5</div>
-                        <div class="step-text">支持导出成本分析报表为Excel或PDF格式</div>
-                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">&#37;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">毛利率</div>
+                            <div class="stat-value amount-green">35.8%</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Placeholder Table -->
-                <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128202; 数据概览</span>
+                <!-- 查询条件 -->
+                <div class="search-panel">
+                    <div class="search-row">
+                        <div class="search-item">
+                            <label>日期范围</label>
+                            <div class="date-range-wrap">
+                                <input type="date" class="pos-input" value="2026-06-01">
+                                <span>~</span>
+                                <input type="date" class="pos-input" value="2026-07-02">
+                            </div>
+                        </div>
+                        <div class="search-item">
+                            <label>成本类型</label>
+                            <select class="pos-select">
+                                <option>全部类型</option>
+                                <option>采购成本</option>
+                                <option>运营成本</option>
+                                <option>人工成本</option>
+                                <option>房租水电</option>
+                            </select>
+                        </div>
+                        <div class="search-item">
+                            <label>门店</label>
+                            <select class="pos-select">
+                                <option>全部门店</option>
+                                <option selected>星链旗舰店</option>
+                                <option>星链天河城店</option>
+                            </select>
+                        </div>
+                        <div class="search-actions">
+                            <button class="pos-btn pos-btn-primary">查询</button>
+                            <button class="pos-btn pos-btn-default">重置</button>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <table class="data-table">
+                </div>
+
+                <!-- 各类成本占比图 -->
+                <div class="chart-container">
+                    <div class="chart-title">各类成本占比</div>
+                    <div class="bar-chart">
+                        <div class="bar-item">
+                            <div class="bar-value">&#165;128.6K</div>
+                            <div class="bar blue" style="height:100%;"></div>
+                            <div class="bar-label">采购</div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-value">&#165;38.2K</div>
+                            <div class="bar orange" style="height:30%;"></div>
+                            <div class="bar-label">运营</div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-value">&#165;12.8K</div>
+                            <div class="bar green" style="height:10%;"></div>
+                            <div class="bar-label">人工</div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-value">&#165;6.9K</div>
+                            <div class="bar red" style="height:5%;"></div>
+                            <div class="bar-label">房租</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 工具栏 -->
+                <div class="toolbar">
+                    <div class="toolbar-left">共查询到 <strong>6</strong> 条记录</div>
+                    <button class="pos-btn pos-btn-default">&#128229; 导出报表</button>
+                </div>
+
+                <!-- 成本分析表格 -->
+                <div class="pos-card">
+                    <div class="pos-table-wrapper">
+                        <table class="pos-table">
                             <thead>
-                                <tr><th>项目名称</th><th>数值</th><th>状态</th><th>操作</th></tr>
+                                <tr>
+                                    <th>成本类别</th>
+                                    <th>本月预算</th>
+                                    <th>本月实际</th>
+                                    <th>差异</th>
+                                    <th>差异率</th>
+                                    <th>上月实际</th>
+                                    <th>环比</th>
+                                    <th>状态</th>
+                                </tr>
                             </thead>
                             <tbody>
-                                <tr><td>示例数据 1</td><td>--</td><td><span class="status-badge status-normal">正常</span></td><td><button class="btn btn-sm btn-primary">查看</button></td></tr>
-                                <tr><td>示例数据 2</td><td>--</td><td><span class="status-badge status-warning">预警</span></td><td><button class="btn btn-sm btn-primary">处理</button></td></tr>
-                                <tr><td>示例数据 3</td><td>--</td><td><span class="status-badge status-success">完成</span></td><td><button class="btn btn-sm btn-primary">详情</button></td></tr>
+                                <tr>
+                                    <td>采购成本</td>
+                                    <td>&#165;135,000</td>
+                                    <td>&#165;128,600</td>
+                                    <td class="amount-green">-&#165;6,400</td>
+                                    <td class="amount-green">-4.7%</td>
+                                    <td>&#165;132,800</td>
+                                    <td class="amount-green">&#8595; 3.2%</td>
+                                    <td><span class="pos-tag pos-tag-success">正常</span></td>
+                                </tr>
+                                <tr>
+                                    <td>运营成本</td>
+                                    <td>&#165;35,000</td>
+                                    <td>&#165;38,200</td>
+                                    <td class="amount-red">+&#165;3,200</td>
+                                    <td class="amount-red">+9.1%</td>
+                                    <td>&#165;36,500</td>
+                                    <td class="amount-orange">&#8593; 4.7%</td>
+                                    <td><span class="pos-tag pos-tag-warning">偏高</span></td>
+                                </tr>
+                                <tr>
+                                    <td>人工成本</td>
+                                    <td>&#165;15,000</td>
+                                    <td>&#165;12,800</td>
+                                    <td class="amount-green">-&#165;2,200</td>
+                                    <td class="amount-green">-14.7%</td>
+                                    <td>&#165;14,200</td>
+                                    <td class="amount-green">&#8595; 9.9%</td>
+                                    <td><span class="pos-tag pos-tag-success">正常</span></td>
+                                </tr>
+                                <tr>
+                                    <td>房租水电</td>
+                                    <td>&#165;8,000</td>
+                                    <td>&#165;6,900</td>
+                                    <td class="amount-green">-&#165;1,100</td>
+                                    <td class="amount-green">-13.8%</td>
+                                    <td>&#165;7,500</td>
+                                    <td class="amount-green">&#8595; 8.0%</td>
+                                    <td><span class="pos-tag pos-tag-success">正常</span></td>
+                                </tr>
+                                <tr>
+                                    <td>营销费用</td>
+                                    <td>&#165;10,000</td>
+                                    <td>&#165;8,500</td>
+                                    <td class="amount-green">-&#165;1,500</td>
+                                    <td class="amount-green">-15.0%</td>
+                                    <td>&#165;9,800</td>
+                                    <td class="amount-green">&#8595; 13.3%</td>
+                                    <td><span class="pos-tag pos-tag-success">正常</span></td>
+                                </tr>
+                                <tr>
+                                    <td>物流费用</td>
+                                    <td>&#165;5,000</td>
+                                    <td>&#165;5,800</td>
+                                    <td class="amount-red">+&#165;800</td>
+                                    <td class="amount-red">+16.0%</td>
+                                    <td>&#165;4,200</td>
+                                    <td class="amount-orange">&#8593; 38.1%</td>
+                                    <td><span class="pos-tag pos-tag-warning">偏高</span></td>
+                                </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="pos-pagination" style="padding: 16px 20px;">
+                        <span class="page-info">共 6 条 / 每页 10 条</span>
+                        <button class="page-btn active">1</button>
                     </div>
                 </div>
             </main>
 
-            <!-- Footer -->
             <footer class="pos-footer">
-                <div style="display: flex; align-items: center; gap: 24px; width: 100%; flex-wrap: wrap;">
-                    <span>Current User：<strong style="color: var(--text-secondary);">Admin</strong></span>
-                    <span>|</span>
-                    <span>门店：<strong style="color: var(--text-secondary);">星链旗舰店</strong></span>
-                    <span>|</span>
-                    <span>数据同步：<strong style="color: var(--text-secondary);">2026-05-26 10:30</strong></span>
-                    <span>|</span>
-                    <span>版本：<strong style="color: var(--text-secondary);">V1.0</strong></span>
-                    <span style="margin-left: auto;">网络：<span class="status-dot online"></span><strong style="color: var(--success-color);">已连接</strong></span>
-                </div>
+                <span>&copy; 2026 智慧新零售云POS综合管理平台 v2.0</span>
+                <span style="margin-left:auto;">门店：星链旗舰店</span>
+                <span style="margin-left:24px;">数据同步：2026-07-02 12:00</span>
             </footer>
         </div>
     </div>
 
-    <script>
-        // Toggle sidebar menu expand/collapse
-        function toggleMenu(el) {
-            const children = el.nextElementSibling;
-            if (!children || !children.classList.contains('menu-children')) return;
-
-            const isOpen = children.classList.contains('open');
-
-            // Close all other menus
-            document.querySelectorAll('.menu-children.open').forEach(function(menu) {
-                menu.classList.remove('open');
-                menu.previousElementSibling.classList.remove('expanded');
-            });
-
-            if (!isOpen) {
-                children.classList.add('open');
-                el.classList.add('expanded');
-            }
-        }
-
-        // Toggle mobile sidebar
-        function toggleMobileMenu() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
-        }
-
-        // Fullscreen toggle
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(function() {});
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
-        // Date filter buttons
-        document.querySelectorAll('.date-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.date-btn').forEach(function(b) {
-                    b.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-
-        // User menu toggle (placeholder)
-        function toggleUserMenu() {
-            // Placeholder for user dropdown
-        }
-
-        // Close mobile sidebar when clicking outside
-        document.addEventListener('click', function(e) {
-            var sidebar = document.getElementById('sidebar');
-            var toggle = document.querySelector('.mobile-menu-toggle');
-            if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
-                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                    sidebar.classList.remove('mobile-open');
-                }
-            }
-        });
-    </script>
     <script src="pos-common.js"></script>
 </body>
 </html>

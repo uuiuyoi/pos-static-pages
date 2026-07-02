@@ -1,53 +1,140 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>日志管理 - 智慧新零售云POS综合管理平台</title>
     <link rel="stylesheet" href="pos-common.css">
-    
-        <style>
-        .content-header { margin-bottom: 24px; }
-        .content-title { font-size: 22px; font-weight: 600; color: #333; margin-bottom: 8px; }
-        .content-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
-        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #e8e8e8; }
-        .stat-label { font-size: 13px; color: var(--text-tertiary); margin-bottom: 8px; }
-        .stat-value { font-size: 24px; font-weight: 700; color: #333; margin-bottom: 6px; }
-        .stat-trend { font-size: 12px; }
-        .stat-up { color: var(--success-color); }
-        .stat-down { color: var(--danger-color); }
-        .step-list { display: flex; flex-direction: column; gap: 12px; }
-        .step-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
-        .step-number { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-        .step-text { font-size: 14px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e8e8e8; font-size: 14px; }
-        .data-table th { background: #f8f9fa; font-weight: 600; color: #333; }
-        .data-table td { color: var(--text-secondary); }
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
-        .status-normal { background: #e3f2fd; color: #1976d2; }
-        .status-warning { background: #fff3e0; color: #f57c00; }
-        .status-success { background: #e8f5e9; color: #388e3c; }
-        .status-danger { background: #ffebee; color: #d32f2f; }
-        .btn-sm { padding: 6px 14px; font-size: 13px; }
-        @media (max-width: 1200px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) { .stat-grid { grid-template-columns: 1fr; } }
+    <style>
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary-green);
+            border-radius: 2px;
+        }
+        .search-panel {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .search-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .search-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .search-item label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .search-item .pos-input,
+        .search-item .pos-select {
+            width: 180px;
+        }
+        .search-item .date-range-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .search-item .date-range-wrap span {
+            color: var(--text-disabled);
+        }
+        .search-item .date-range-wrap .pos-input {
+            width: 150px;
+        }
+        .search-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .toolbar-left {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .action-link {
+            color: var(--auxiliary-blue);
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 8px;
+            text-decoration: none;
+        }
+        .action-link:hover {
+            color: var(--auxiliary-blue-hover);
+        }
+        .action-link.danger {
+            color: var(--error-color);
+        }
+        .action-link.danger:hover {
+            color: #ff7875;
+        }
+        .log-desc {
+            max-width: 240px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .detail-modal-row {
+            display: flex;
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--border-color-light);
+        }
+        .detail-modal-row:last-child {
+            border-bottom: none;
+        }
+        .detail-modal-label {
+            width: 80px;
+            color: var(--text-tertiary);
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .detail-modal-value {
+            flex: 1;
+            color: var(--text-primary);
+            font-size: 13px;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
     <div class="pos-layout">
-        <!-- ==================== Sidebar ==================== -->
+        <!-- 左侧菜单栏 -->
         <aside class="pos-sidebar" id="sidebar">
-            <!-- Logo -->
             <div class="sidebar-logo">
                 <div class="logo-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
                 </div>
                 <span class="logo-text">智慧新零售云POS</span>
             </div>
-
-            <!-- Menu -->
             <nav class="sidebar-menu">
                 <!-- 首页看板 -->
                 <div class="menu-group">
@@ -204,206 +291,642 @@
             </nav>
         </aside>
 
-        <!-- ==================== Main Content ==================== -->
+        <!-- 右侧主体 -->
         <div class="pos-main-wrapper">
-            <!-- Header -->
+            <!-- 顶部导航栏 -->
             <header class="pos-header">
                 <div class="header-left">
-                    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-                    </button>
                     <div class="header-breadcrumb">
                         <a href="pos-main-dashboard.html">首页</a>
                         <span>/</span>
-                        <span style="color: var(--text-primary);">日志管理</span>
+                        <a href="#">系统设置</a>
+                        <span>/</span>
+                        <span style="color:var(--text-primary);">日志管理</span>
                     </div>
                 </div>
                 <div class="header-right">
-                    <!-- Search -->
-                    <button class="header-action" title="搜索">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                    </button>
-                    <!-- Notification -->
                     <button class="header-action" title="消息通知">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                        &#128276;
                         <span class="badge">5</span>
                     </button>
-                    <!-- Fullscreen -->
-                    <button class="header-action" title="全屏" onclick="toggleFullscreen()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-                    </button>
-                    <!-- Theme -->
-                    <button class="header-action" title="主题切换">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
-                    </button>
-                    <!-- User -->
-                    <div class="header-user" onclick="toggleUserMenu()">
+                    <button class="header-action" title="全屏" onclick="toggleFullscreen()">&#9974;</button>
+                    <div class="header-user">
                         <div class="user-avatar">A</div>
                         <span class="user-name">Admin</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color: var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                     </div>
                 </div>
             </header>
 
-            <!-- Main Content Area -->
-            <!-- Main Content Area -->
+            <!-- 主工作区 -->
             <main class="pos-content">
-                <div class="content-header">
-                    <h1 class="content-title">日志管理</h1>
-                    <p class="content-desc">日志管理用于查看和管理系统运行日志，包括操作日志、系统日志、接口日志和安全日志。</p>
-                </div>
+                <div class="page-title">日志管理</div>
 
-                <!-- Stat Cards -->
-                <div class="stat-grid">
-                    
+                <!-- 统计卡片 -->
+                <div class="stat-cards">
                     <div class="stat-card">
-                        <div class="stat-label">今日日志</div>
-                        <div class="stat-value">3,856</div>
-                        <div class="stat-trend stat-up">&#9650; +456</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">操作日志</div>
-                        <div class="stat-value">2,340</div>
-                        <div class="stat-trend stat-up">&#9650; +234</div>
+                        <div class="stat-icon green">&#128203;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">今日日志</div>
+                            <div class="stat-value">12,580条</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">异常日志</div>
-                        <div class="stat-value">12</div>
-                        <div class="stat-trend stat-down">&#9660; -3</div>
+                        <div class="stat-icon red">&#9888;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">错误日志</div>
+                            <div class="stat-value">23条</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">安全事件</div>
-                        <div class="stat-value">2</div>
-                        <div class="stat-trend stat-down">&#9660; -1</div>
+                        <div class="stat-icon blue">&#128100;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">登录日志</div>
+                            <div class="stat-value">1,280条</div>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Operation Steps -->
-                <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128161; 操作指南</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="step-list">
-                            
-                    <div class="step-item">
-                        <div class="step-number">1</div>
-                        <div class="step-text">选择日志类型：操作日志、系统日志、接口日志或安全日志</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">2</div>
-                        <div class="step-text">设置查询条件：时间范围、操作人、操作类型、关键词等</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">3</div>
-                        <div class="step-text">点击查询按钮查看日志列表，支持按时间倒序排列</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">4</div>
-                        <div class="step-text">点击日志详情可查看完整的日志信息</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">5</div>
-                        <div class="step-text">支持导出日志为Excel文件，便于离线分析</div>
-                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">&#9997;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">操作日志</div>
+                            <div class="stat-value">8,560条</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Placeholder Table -->
-                <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128202; 数据概览</span>
+                <!-- 标签页 -->
+                <div class="pos-card" style="margin-bottom: 20px;">
+                    <div class="pos-tabs">
+                        <button class="pos-tab active" onclick="switchTab(this, 'tab-operation')">操作日志</button>
+                        <button class="pos-tab" onclick="switchTab(this, 'tab-login')">登录日志</button>
+                        <button class="pos-tab" onclick="switchTab(this, 'tab-error')">错误日志</button>
+                        <button class="pos-tab" onclick="switchTab(this, 'tab-system')">系统日志</button>
                     </div>
                     <div class="card-body">
-                        <table class="data-table">
-                            <thead>
-                                <tr><th>项目名称</th><th>数值</th><th>状态</th><th>操作</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>示例数据 1</td><td>--</td><td><span class="status-badge status-normal">正常</span></td><td><button class="btn btn-sm btn-primary">查看</button></td></tr>
-                                <tr><td>示例数据 2</td><td>--</td><td><span class="status-badge status-warning">预警</span></td><td><button class="btn btn-sm btn-primary">处理</button></td></tr>
-                                <tr><td>示例数据 3</td><td>--</td><td><span class="status-badge status-success">完成</span></td><td><button class="btn btn-sm btn-primary">详情</button></td></tr>
-                            </tbody>
-                        </table>
+
+                        <!-- 操作日志 -->
+                        <div class="tab-content active" id="tab-operation">
+                            <div class="search-panel" style="margin-bottom:16px;padding:16px;box-shadow:none;background:#fafafa;border-radius:0;">
+                                <div class="search-row">
+                                    <div class="search-item">
+                                        <label>日期范围</label>
+                                        <div class="date-range-wrap">
+                                            <input type="date" class="pos-input" value="2026-07-02">
+                                            <span>~</span>
+                                            <input type="date" class="pos-input" value="2026-07-02">
+                                        </div>
+                                    </div>
+                                    <div class="search-item">
+                                        <label>操作人</label>
+                                        <input type="text" class="pos-input" placeholder="请输入操作人" style="width:160px;">
+                                    </div>
+                                    <div class="search-item">
+                                        <label>操作模块</label>
+                                        <select class="pos-select" style="width:160px;">
+                                            <option>全部</option>
+                                            <option>商品管理</option>
+                                            <option>订单管理</option>
+                                            <option>会员管理</option>
+                                            <option>系统设置</option>
+                                            <option>财务管理</option>
+                                        </select>
+                                    </div>
+                                    <div class="search-actions">
+                                        <button class="pos-btn pos-btn-primary">查询</button>
+                                        <button class="pos-btn pos-btn-default">重置</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="toolbar">
+                                <div class="toolbar-left">共 <strong>8,560</strong> 条操作日志</div>
+                                <div style="display:flex;gap:8px;">
+                                    <button class="pos-btn pos-btn-default">&#128229; 导出日志</button>
+                                    <button class="pos-btn pos-btn-danger" onclick="openModal('clearLogModal')">&#128465; 清理日志</button>
+                                </div>
+                            </div>
+                            <div class="pos-table-wrapper">
+                                <table class="pos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>时间</th>
+                                            <th>日志类型</th>
+                                            <th>操作人</th>
+                                            <th>IP地址</th>
+                                            <th>操作模块</th>
+                                            <th>操作描述</th>
+                                            <th>结果</th>
+                                            <th>详情</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2026-07-02 11:58:32</td>
+                                            <td><span class="pos-tag pos-tag-success">操作</span></td>
+                                            <td>Admin</td>
+                                            <td>192.168.1.100</td>
+                                            <td>商品管理</td>
+                                            <td><span class="log-desc" title="修改商品信息：商品编码SKU00856，更新价格从¥15.80至¥18.60">修改商品信息：商品编码SKU00856，更新价格</span></td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)" onclick="showLogDetail(this)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 11:45:18</td>
+                                            <td><span class="pos-tag pos-tag-info">登录</span></td>
+                                            <td>李大明</td>
+                                            <td>192.168.1.50</td>
+                                            <td>系统登录</td>
+                                            <td><span class="log-desc">用户登录系统，收银终端POS-03</span></td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)" onclick="showLogDetail(this)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 11:32:05</td>
+                                            <td><span class="pos-tag pos-tag-error">错误</span></td>
+                                            <td>系统</td>
+                                            <td>192.168.1.106</td>
+                                            <td>打印服务</td>
+                                            <td><span class="log-desc" title="后厨小票打印机PRT-006连接超时，重试3次后失败">后厨小票打印机PRT-006连接超时，重试3次后失败</span></td>
+                                            <td><span class="pos-tag pos-tag-error">失败</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)" onclick="showLogDetail(this)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 11:20:44</td>
+                                            <td><span class="pos-tag pos-tag-success">操作</span></td>
+                                            <td>Lily Zhang</td>
+                                            <td>192.168.1.101</td>
+                                            <td>订单管理</td>
+                                            <td><span class="log-desc">创建退货单：订单ORD20260702058，退货金额¥128.00</span></td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)" onclick="showLogDetail(this)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 11:08:56</td>
+                                            <td><span class="pos-tag pos-tag-default">系统</span></td>
+                                            <td>系统</td>
+                                            <td>Server</td>
+                                            <td>定时任务</td>
+                                            <td><span class="log-desc">自动备份任务开始执行，备份类型：增量备份</span></td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)" onclick="showLogDetail(this)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 10:55:30</td>
+                                            <td><span class="pos-tag pos-tag-info">登录</span></td>
+                                            <td>Jason Wang</td>
+                                            <td>192.168.1.52</td>
+                                            <td>系统登录</td>
+                                            <td><span class="log-desc">用户登录系统，移动端APP登录</span></td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)" onclick="showLogDetail(this)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 10:42:12</td>
+                                            <td><span class="pos-tag pos-tag-success">操作</span></td>
+                                            <td>Admin</td>
+                                            <td>192.168.1.100</td>
+                                            <td>系统设置</td>
+                                            <td><span class="log-desc">修改系统配置：收银超时时间从5分钟改为10分钟</span></td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)" onclick="showLogDetail(this)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 10:28:05</td>
+                                            <td><span class="pos-tag pos-tag-error">错误</span></td>
+                                            <td>系统</td>
+                                            <td>192.168.1.105</td>
+                                            <td>支付网关</td>
+                                            <td><span class="log-desc" title="微信支付接口调用异常：timeout after 30s，订单ORD20260702042">微信支付接口调用异常，订单ORD20260702042</span></td>
+                                            <td><span class="pos-tag pos-tag-warning">重试中</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)" onclick="showLogDetail(this)">查看</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="pos-pagination">
+                                <span class="page-info">共 8,560 条 / 每页 10 条</span>
+                                <button class="page-btn" disabled>&laquo;</button>
+                                <button class="page-btn active">1</button>
+                                <button class="page-btn">2</button>
+                                <button class="page-btn">3</button>
+                                <button class="page-btn">...</button>
+                                <button class="page-btn">856</button>
+                                <button class="page-btn">&raquo;</button>
+                            </div>
+                        </div>
+
+                        <!-- 登录日志 -->
+                        <div class="tab-content" id="tab-login">
+                            <div class="search-panel" style="margin-bottom:16px;padding:16px;box-shadow:none;background:#fafafa;border-radius:0;">
+                                <div class="search-row">
+                                    <div class="search-item">
+                                        <label>日期范围</label>
+                                        <div class="date-range-wrap">
+                                            <input type="date" class="pos-input" value="2026-07-02">
+                                            <span>~</span>
+                                            <input type="date" class="pos-input" value="2026-07-02">
+                                        </div>
+                                    </div>
+                                    <div class="search-item">
+                                        <label>操作人</label>
+                                        <input type="text" class="pos-input" placeholder="请输入操作人" style="width:160px;">
+                                    </div>
+                                    <div class="search-item">
+                                        <label>登录方式</label>
+                                        <select class="pos-select" style="width:160px;">
+                                            <option>全部</option>
+                                            <option>PC端</option>
+                                            <option>移动端</option>
+                                            <option>收银终端</option>
+                                        </select>
+                                    </div>
+                                    <div class="search-actions">
+                                        <button class="pos-btn pos-btn-primary">查询</button>
+                                        <button class="pos-btn pos-btn-default">重置</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="toolbar">
+                                <div class="toolbar-left">共 <strong>1,280</strong> 条登录日志</div>
+                                <button class="pos-btn pos-btn-default">&#128229; 导出日志</button>
+                            </div>
+                            <div class="pos-table-wrapper">
+                                <table class="pos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>登录时间</th>
+                                            <th>用户名</th>
+                                            <th>登录IP</th>
+                                            <th>登录方式</th>
+                                            <th>终端设备</th>
+                                            <th>登录结果</th>
+                                            <th>详情</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2026-07-02 12:00:05</td>
+                                            <td>Admin</td>
+                                            <td>192.168.1.100</td>
+                                            <td>PC端</td>
+                                            <td>Windows 11 / Chrome</td>
+                                            <td><span class="pos-tag pos-tag-success">登录成功</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 11:45:18</td>
+                                            <td>李大明</td>
+                                            <td>192.168.1.50</td>
+                                            <td>收银终端</td>
+                                            <td>POS终端 POS-03</td>
+                                            <td><span class="pos-tag pos-tag-success">登录成功</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 10:55:30</td>
+                                            <td>Jason Wang</td>
+                                            <td>192.168.1.52</td>
+                                            <td>移动端</td>
+                                            <td>iPhone 15 / iOS 18</td>
+                                            <td><span class="pos-tag pos-tag-success">登录成功</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 09:20:00</td>
+                                            <td>Lily Zhang</td>
+                                            <td>192.168.1.101</td>
+                                            <td>收银终端</td>
+                                            <td>POS终端 POS-01</td>
+                                            <td><span class="pos-tag pos-tag-success">登录成功</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 08:55:12</td>
+                                            <td>guest001</td>
+                                            <td>10.25.68.123</td>
+                                            <td>PC端</td>
+                                            <td>未知设备</td>
+                                            <td><span class="pos-tag pos-tag-error">登录失败</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)">查看</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 错误日志 -->
+                        <div class="tab-content" id="tab-error">
+                            <div class="search-panel" style="margin-bottom:16px;padding:16px;box-shadow:none;background:#fafafa;border-radius:0;">
+                                <div class="search-row">
+                                    <div class="search-item">
+                                        <label>日期范围</label>
+                                        <div class="date-range-wrap">
+                                            <input type="date" class="pos-input" value="2026-07-01">
+                                            <span>~</span>
+                                            <input type="date" class="pos-input" value="2026-07-02">
+                                        </div>
+                                    </div>
+                                    <div class="search-item">
+                                        <label>错误级别</label>
+                                        <select class="pos-select" style="width:140px;">
+                                            <option>全部</option>
+                                            <option>严重</option>
+                                            <option>警告</option>
+                                            <option>一般</option>
+                                        </select>
+                                    </div>
+                                    <div class="search-actions">
+                                        <button class="pos-btn pos-btn-primary">查询</button>
+                                        <button class="pos-btn pos-btn-default">重置</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="toolbar">
+                                <div class="toolbar-left">共 <strong>23</strong> 条错误日志</div>
+                                <button class="pos-btn pos-btn-default">&#128229; 导出日志</button>
+                            </div>
+                            <div class="pos-table-wrapper">
+                                <table class="pos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>时间</th>
+                                            <th>错误级别</th>
+                                            <th>错误模块</th>
+                                            <th>错误描述</th>
+                                            <th>错误代码</th>
+                                            <th>处理状态</th>
+                                            <th>详情</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2026-07-02 11:32:05</td>
+                                            <td><span class="pos-tag pos-tag-warning">警告</span></td>
+                                            <td>打印服务</td>
+                                            <td><span class="log-desc">后厨小票打印机PRT-006连接超时</span></td>
+                                            <td>ERR-PRT-001</td>
+                                            <td><span class="pos-tag pos-tag-error">未处理</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 10:28:05</td>
+                                            <td><span class="pos-tag pos-tag-error">严重</span></td>
+                                            <td>支付网关</td>
+                                            <td><span class="log-desc">微信支付接口超时，订单ORD20260702042</span></td>
+                                            <td>ERR-PAY-003</td>
+                                            <td><span class="pos-tag pos-tag-warning">处理中</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 09:15:22</td>
+                                            <td><span class="pos-tag pos-tag-warning">警告</span></td>
+                                            <td>库存服务</td>
+                                            <td><span class="log-desc">商品SKU00342库存数据同步延迟超过5分钟</span></td>
+                                            <td>ERR-INV-006</td>
+                                            <td><span class="pos-tag pos-tag-success">已解决</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-01 18:45:33</td>
+                                            <td><span class="pos-tag pos-tag-error">严重</span></td>
+                                            <td>数据库</td>
+                                            <td><span class="log-desc">数据库连接池耗尽，最大连接数500已达上限</span></td>
+                                            <td>ERR-DB-001</td>
+                                            <td><span class="pos-tag pos-tag-success">已解决</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)">查看</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 系统日志 -->
+                        <div class="tab-content" id="tab-system">
+                            <div class="search-panel" style="margin-bottom:16px;padding:16px;box-shadow:none;background:#fafafa;border-radius:0;">
+                                <div class="search-row">
+                                    <div class="search-item">
+                                        <label>日期范围</label>
+                                        <div class="date-range-wrap">
+                                            <input type="date" class="pos-input" value="2026-07-02">
+                                            <span>~</span>
+                                            <input type="date" class="pos-input" value="2026-07-02">
+                                        </div>
+                                    </div>
+                                    <div class="search-item">
+                                        <label>服务模块</label>
+                                        <select class="pos-select" style="width:160px;">
+                                            <option>全部</option>
+                                            <option>数据库</option>
+                                            <option>缓存服务</option>
+                                            <option>消息队列</option>
+                                            <option>定时任务</option>
+                                        </select>
+                                    </div>
+                                    <div class="search-actions">
+                                        <button class="pos-btn pos-btn-primary">查询</button>
+                                        <button class="pos-btn pos-btn-default">重置</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="toolbar">
+                                <div class="toolbar-left">共 <strong>2,720</strong> 条系统日志</div>
+                                <button class="pos-btn pos-btn-default">&#128229; 导出日志</button>
+                            </div>
+                            <div class="pos-table-wrapper">
+                                <table class="pos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>时间</th>
+                                            <th>服务模块</th>
+                                            <th>事件类型</th>
+                                            <th>事件描述</th>
+                                            <th>执行结果</th>
+                                            <th>详情</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2026-07-02 11:50:00</td>
+                                            <td>缓存服务</td>
+                                            <td>缓存刷新</td>
+                                            <td><span class="log-desc">Redis商品缓存全量刷新完成，共刷新12,580条记录</span></td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 10:30:00</td>
+                                            <td>定时任务</td>
+                                            <td>定时任务</td>
+                                            <td><span class="log-desc">每日销售数据统计任务执行完成，处理356条交易</span></td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 09:00:00</td>
+                                            <td>数据库</td>
+                                            <td>连接池监控</td>
+                                            <td><span class="log-desc">数据库连接池健康检查正常，活跃连接48/200</span></td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)">查看</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 08:30:00</td>
+                                            <td>消息队列</td>
+                                            <td>队列监控</td>
+                                            <td><span class="log-desc">RabbitMQ消息队列健康检查，积压消息数12条</span></td>
+                                            <td><span class="pos-tag pos-tag-warning">警告</span></td>
+                                            <td><a class="action-link" href="javascript:void(0)">查看</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
 
-            <!-- Footer -->
+            <!-- 底部状态栏 -->
             <footer class="pos-footer">
-                <div style="display: flex; align-items: center; gap: 24px; width: 100%; flex-wrap: wrap;">
-                    <span>Current User：<strong style="color: var(--text-secondary);">Admin</strong></span>
-                    <span>|</span>
-                    <span>门店：<strong style="color: var(--text-secondary);">星链旗舰店</strong></span>
-                    <span>|</span>
-                    <span>数据同步：<strong style="color: var(--text-secondary);">2026-05-26 10:30</strong></span>
-                    <span>|</span>
-                    <span>版本：<strong style="color: var(--text-secondary);">V1.0</strong></span>
-                    <span style="margin-left: auto;">网络：<span class="status-dot online"></span><strong style="color: var(--success-color);">已连接</strong></span>
-                </div>
+                <span>&copy; 2026 智慧新零售云POS综合管理平台 v2.0</span>
+                <span>门店：星链旗舰店</span>
+                <span style="margin-left:auto;">数据同步：2026-07-02 12:00</span>
             </footer>
         </div>
     </div>
 
+    <!-- 日志详情弹窗 -->
+    <div class="pos-modal-overlay" id="logDetailModal">
+        <div class="pos-modal" style="width:560px;">
+            <div class="modal-header">
+                <span class="modal-title">日志详情</span>
+                <button class="modal-close" onclick="closeModal('logDetailModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-modal-row">
+                    <div class="detail-modal-label">日志时间</div>
+                    <div class="detail-modal-value">2026-07-02 11:58:32</div>
+                </div>
+                <div class="detail-modal-row">
+                    <div class="detail-modal-label">日志类型</div>
+                    <div class="detail-modal-value"><span class="pos-tag pos-tag-success">操作</span></div>
+                </div>
+                <div class="detail-modal-row">
+                    <div class="detail-modal-label">操作人</div>
+                    <div class="detail-modal-value">Admin</div>
+                </div>
+                <div class="detail-modal-row">
+                    <div class="detail-modal-label">IP地址</div>
+                    <div class="detail-modal-value">192.168.1.100</div>
+                </div>
+                <div class="detail-modal-row">
+                    <div class="detail-modal-label">操作模块</div>
+                    <div class="detail-modal-value">商品管理</div>
+                </div>
+                <div class="detail-modal-row">
+                    <div class="detail-modal-label">操作描述</div>
+                    <div class="detail-modal-value">修改商品信息：商品编码SKU00856，更新价格从¥15.80至¥18.60，更新人：Admin</div>
+                </div>
+                <div class="detail-modal-row">
+                    <div class="detail-modal-label">请求参数</div>
+                    <div class="detail-modal-value" style="background:#f5f5f5;padding:8px;border-radius:4px;font-family:monospace;font-size:12px;">{ "skuCode": "SKU00856", "oldPrice": 15.80, "newPrice": 18.60, "operator": "Admin" }</div>
+                </div>
+                <div class="detail-modal-row">
+                    <div class="detail-modal-label">执行结果</div>
+                    <div class="detail-modal-value"><span class="pos-tag pos-tag-success">成功</span></div>
+                </div>
+                <div class="detail-modal-row">
+                    <div class="detail-modal-label">耗时</div>
+                    <div class="detail-modal-value">128ms</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeModal('logDetailModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 清理日志弹窗 -->
+    <div class="pos-modal-overlay" id="clearLogModal">
+        <div class="pos-modal" style="width:480px;">
+            <div class="modal-header">
+                <span class="modal-title">清理日志</span>
+                <button class="modal-close" onclick="closeModal('clearLogModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:4px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#d48806;">
+                    <span style="font-size:18px;flex-shrink:0;">&#9888;</span>
+                    <span>日志清理后将无法恢复，请确认是否继续执行此操作。</span>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="font-size:13px;color:var(--text-secondary);font-weight:500;display:block;margin-bottom:6px;">清理时间范围</label>
+                    <select class="pos-select">
+                        <option>清理7天前的日志</option>
+                        <option>清理30天前的日志</option>
+                        <option>清理90天前的日志</option>
+                        <option>清理全部日志</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="font-size:13px;color:var(--text-secondary);font-weight:500;display:block;margin-bottom:6px;">清理类型</label>
+                    <div style="display:flex;flex-wrap:wrap;gap:12px;">
+                        <label class="pos-checkbox"><input type="checkbox" checked>操作日志</label>
+                        <label class="pos-checkbox"><input type="checkbox">登录日志</label>
+                        <label class="pos-checkbox"><input type="checkbox">错误日志</label>
+                        <label class="pos-checkbox"><input type="checkbox">系统日志</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeModal('clearLogModal')">取消</button>
+                <button class="pos-btn pos-btn-danger" onclick="closeModal('clearLogModal')">确认清理</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Toggle sidebar menu expand/collapse
         function toggleMenu(el) {
-            const children = el.nextElementSibling;
+            var children = el.nextElementSibling;
             if (!children || !children.classList.contains('menu-children')) return;
-
-            const isOpen = children.classList.contains('open');
-
-            // Close all other menus
-            document.querySelectorAll('.menu-children.open').forEach(function(menu) {
-                menu.classList.remove('open');
-                menu.previousElementSibling.classList.remove('expanded');
-            });
-
+            var isOpen = children.classList.contains('open');
             if (!isOpen) {
                 children.classList.add('open');
                 el.classList.add('expanded');
+            } else {
+                children.classList.remove('open');
+                el.classList.remove('expanded');
             }
         }
 
-        // Toggle mobile sidebar
-        function toggleMobileMenu() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
-        }
-
-        // Fullscreen toggle
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(function() {});
+                document.documentElement.requestFullscreen();
             } else {
                 document.exitFullscreen();
             }
         }
 
-        // Date filter buttons
-        document.querySelectorAll('.date-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.date-btn').forEach(function(b) {
-                    b.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-
-        // User menu toggle (placeholder)
-        function toggleUserMenu() {
-            // Placeholder for user dropdown
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
         }
 
-        // Close mobile sidebar when clicking outside
-        document.addEventListener('click', function(e) {
-            var sidebar = document.getElementById('sidebar');
-            var toggle = document.querySelector('.mobile-menu-toggle');
-            if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
-                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                    sidebar.classList.remove('mobile-open');
-                }
-            }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        function switchTab(btn, tabId) {
+            var card = btn.closest('.pos-card');
+            card.querySelectorAll('.pos-tab').forEach(function(t) { t.classList.remove('active'); });
+            btn.classList.add('active');
+            card.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function showLogDetail(el) {
+            openModal('logDetailModal');
+        }
+
+        document.querySelectorAll('.pos-modal-overlay').forEach(function(overlay) {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) overlay.classList.remove('show');
+            });
         });
     </script>
     <script src="pos-common.js"></script>

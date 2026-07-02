@@ -1,53 +1,130 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>打印设置 - 智慧新零售云POS综合管理平台</title>
     <link rel="stylesheet" href="pos-common.css">
-    
-        <style>
-        .content-header { margin-bottom: 24px; }
-        .content-title { font-size: 22px; font-weight: 600; color: #333; margin-bottom: 8px; }
-        .content-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
-        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #e8e8e8; }
-        .stat-label { font-size: 13px; color: var(--text-tertiary); margin-bottom: 8px; }
-        .stat-value { font-size: 24px; font-weight: 700; color: #333; margin-bottom: 6px; }
-        .stat-trend { font-size: 12px; }
-        .stat-up { color: var(--success-color); }
-        .stat-down { color: var(--danger-color); }
-        .step-list { display: flex; flex-direction: column; gap: 12px; }
-        .step-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
-        .step-number { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-        .step-text { font-size: 14px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e8e8e8; font-size: 14px; }
-        .data-table th { background: #f8f9fa; font-weight: 600; color: #333; }
-        .data-table td { color: var(--text-secondary); }
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
-        .status-normal { background: #e3f2fd; color: #1976d2; }
-        .status-warning { background: #fff3e0; color: #f57c00; }
-        .status-success { background: #e8f5e9; color: #388e3c; }
-        .status-danger { background: #ffebee; color: #d32f2f; }
-        .btn-sm { padding: 6px 14px; font-size: 13px; }
-        @media (max-width: 1200px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) { .stat-grid { grid-template-columns: 1fr; } }
+    <style>
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary-green);
+            border-radius: 2px;
+        }
+        .search-panel {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .search-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .search-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .search-item label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .search-item .pos-input,
+        .search-item .pos-select {
+            width: 180px;
+        }
+        .search-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .toolbar-left {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .action-link {
+            color: var(--auxiliary-blue);
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 8px;
+            text-decoration: none;
+        }
+        .action-link:hover {
+            color: var(--auxiliary-blue-hover);
+        }
+        .action-link.danger {
+            color: var(--error-color);
+        }
+        .action-link.danger:hover {
+            color: #ff7875;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .form-row label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .form-row .required {
+            color: var(--error-color);
+            margin-right: 4px;
+        }
+        .printer-status-online {
+            color: var(--success-color);
+            font-weight: 500;
+        }
+        .printer-status-offline {
+            color: var(--text-disabled);
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
     <div class="pos-layout">
-        <!-- ==================== Sidebar ==================== -->
+        <!-- 左侧菜单栏 -->
         <aside class="pos-sidebar" id="sidebar">
-            <!-- Logo -->
             <div class="sidebar-logo">
                 <div class="logo-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
                 </div>
                 <span class="logo-text">智慧新零售云POS</span>
             </div>
-
-            <!-- Menu -->
             <nav class="sidebar-menu">
                 <!-- 首页看板 -->
                 <div class="menu-group">
@@ -204,206 +281,477 @@
             </nav>
         </aside>
 
-        <!-- ==================== Main Content ==================== -->
+        <!-- 右侧主体 -->
         <div class="pos-main-wrapper">
-            <!-- Header -->
+            <!-- 顶部导航栏 -->
             <header class="pos-header">
                 <div class="header-left">
-                    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-                    </button>
                     <div class="header-breadcrumb">
                         <a href="pos-main-dashboard.html">首页</a>
                         <span>/</span>
-                        <span style="color: var(--text-primary);">打印设置</span>
+                        <a href="#">系统设置</a>
+                        <span>/</span>
+                        <span style="color:var(--text-primary);">打印设置</span>
                     </div>
                 </div>
                 <div class="header-right">
-                    <!-- Search -->
-                    <button class="header-action" title="搜索">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                    </button>
-                    <!-- Notification -->
                     <button class="header-action" title="消息通知">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                        &#128276;
                         <span class="badge">5</span>
                     </button>
-                    <!-- Fullscreen -->
-                    <button class="header-action" title="全屏" onclick="toggleFullscreen()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-                    </button>
-                    <!-- Theme -->
-                    <button class="header-action" title="主题切换">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
-                    </button>
-                    <!-- User -->
-                    <div class="header-user" onclick="toggleUserMenu()">
+                    <button class="header-action" title="全屏" onclick="toggleFullscreen()">&#9974;</button>
+                    <div class="header-user">
                         <div class="user-avatar">A</div>
                         <span class="user-name">Admin</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color: var(--text-tertiary);"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                     </div>
                 </div>
             </header>
 
-            <!-- Main Content Area -->
-            <!-- Main Content Area -->
+            <!-- 主工作区 -->
             <main class="pos-content">
-                <div class="content-header">
-                    <h1 class="content-title">打印设置</h1>
-                    <p class="content-desc">打印设置用于配置小票打印机，自定义小票的头部信息、内容字段和尾部信息。</p>
-                </div>
+                <div class="page-title">打印设置</div>
 
-                <!-- Stat Cards -->
-                <div class="stat-grid">
-                    
+                <!-- 统计卡片 -->
+                <div class="stat-cards">
                     <div class="stat-card">
-                        <div class="stat-label">已配置打印机</div>
-                        <div class="stat-value">2</div>
-                        <div class="stat-trend stat-up">&#9644; 正常</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">今日打印</div>
-                        <div class="stat-value">186</div>
-                        <div class="stat-trend stat-up">&#9650; +23</div>
+                        <div class="stat-icon green">&#128424;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">打印机总数</div>
+                            <div class="stat-value">8台</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">打印成功率</div>
-                        <div class="stat-value">99.5%</div>
-                        <div class="stat-trend stat-up">&#9650; +0.2%</div>
+                        <div class="stat-icon blue">&#9989;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">在线打印机</div>
+                            <div class="stat-value">7台</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">故障次数</div>
-                        <div class="stat-value">1</div>
-                        <div class="stat-trend stat-down">&#9660; -2</div>
+                        <div class="stat-icon orange">&#128196;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">今日打印次数</div>
+                            <div class="stat-value">356次</div>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Operation Steps -->
-                <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128161; 操作指南</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="step-list">
-                            
-                    <div class="step-item">
-                        <div class="step-number">1</div>
-                        <div class="step-text">选择要配置的打印机（支持配置多台打印机）</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">2</div>
-                        <div class="step-text">设置小票头部信息：店铺名称、店铺地址、联系电话、店铺Logo等</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">3</div>
-                        <div class="step-text">设置小票内容：选择需要在小票上显示的信息字段（商品名称、单价、数量、小计、合计、支付方式、会员信息等）</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">4</div>
-                        <div class="step-text">设置小票尾部信息：感谢语、退换货政策、会员积分提示、二维码等</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">5</div>
-                        <div class="step-text">设置打印份数（默认为1份），点击测试打印按钮确认效果后保存</div>
-                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">&#9200;</div>
+                        <div class="stat-info">
+                            <div class="stat-label">待打印任务</div>
+                            <div class="stat-value">12</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Placeholder Table -->
-                <div class="pos-card">
-                    <div class="card-header">
-                        <span class="card-title">&#128202; 数据概览</span>
+                <!-- 标签页 -->
+                <div class="pos-card" style="margin-bottom: 20px;">
+                    <div class="pos-tabs">
+                        <button class="pos-tab active" onclick="switchTab(this, 'tab-printer')">打印机管理</button>
+                        <button class="pos-tab" onclick="switchTab(this, 'tab-template')">打印模板</button>
+                        <button class="pos-tab" onclick="switchTab(this, 'tab-record')">打印记录</button>
                     </div>
                     <div class="card-body">
-                        <table class="data-table">
-                            <thead>
-                                <tr><th>项目名称</th><th>数值</th><th>状态</th><th>操作</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>示例数据 1</td><td>--</td><td><span class="status-badge status-normal">正常</span></td><td><button class="btn btn-sm btn-primary">查看</button></td></tr>
-                                <tr><td>示例数据 2</td><td>--</td><td><span class="status-badge status-warning">预警</span></td><td><button class="btn btn-sm btn-primary">处理</button></td></tr>
-                                <tr><td>示例数据 3</td><td>--</td><td><span class="status-badge status-success">完成</span></td><td><button class="btn btn-sm btn-primary">详情</button></td></tr>
-                            </tbody>
-                        </table>
+
+                        <!-- 打印机管理 -->
+                        <div class="tab-content active" id="tab-printer">
+                            <div class="search-panel" style="margin-bottom:16px;padding:16px;box-shadow:none;background:#fafafa;border-radius:0;">
+                                <div class="search-row">
+                                    <div class="search-item">
+                                        <label>打印机名称</label>
+                                        <input type="text" class="pos-input" placeholder="请输入打印机名称" style="width:180px;">
+                                    </div>
+                                    <div class="search-item">
+                                        <label>打印机类型</label>
+                                        <select class="pos-select" style="width:160px;">
+                                            <option>全部</option>
+                                            <option>小票打印机</option>
+                                            <option>标签打印机</option>
+                                            <option>发票打印机</option>
+                                        </select>
+                                    </div>
+                                    <div class="search-item">
+                                        <label>连接状态</label>
+                                        <select class="pos-select" style="width:140px;">
+                                            <option>全部</option>
+                                            <option>在线</option>
+                                            <option>离线</option>
+                                        </select>
+                                    </div>
+                                    <div class="search-actions">
+                                        <button class="pos-btn pos-btn-primary">查询</button>
+                                        <button class="pos-btn pos-btn-default">重置</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="toolbar">
+                                <div class="toolbar-left">共 <strong>8</strong> 台打印机</div>
+                                <button class="pos-btn pos-btn-primary" onclick="openModal('addPrinterModal')">+ 添加打印机</button>
+                            </div>
+                            <div class="pos-table-wrapper">
+                                <table class="pos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>打印机编号</th>
+                                            <th>打印机名称</th>
+                                            <th>打印机类型</th>
+                                            <th>IP地址</th>
+                                            <th>连接状态</th>
+                                            <th>今日打印次数</th>
+                                            <th>最后打印</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>PRT-001</td>
+                                            <td>前台小票打印机01</td>
+                                            <td>小票打印机</td>
+                                            <td>192.168.1.101</td>
+                                            <td><span class="printer-status-online">在线</span></td>
+                                            <td>128</td>
+                                            <td>2026-07-02 11:58</td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">编辑</a>
+                                                <a class="action-link" href="javascript:void(0)">测试打印</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>PRT-002</td>
+                                            <td>前台小票打印机02</td>
+                                            <td>小票打印机</td>
+                                            <td>192.168.1.102</td>
+                                            <td><span class="printer-status-online">在线</span></td>
+                                            <td>96</td>
+                                            <td>2026-07-02 11:55</td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">编辑</a>
+                                                <a class="action-link" href="javascript:void(0)">测试打印</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>PRT-003</td>
+                                            <td>生鲜标签打印机</td>
+                                            <td>标签打印机</td>
+                                            <td>192.168.1.103</td>
+                                            <td><span class="printer-status-online">在线</span></td>
+                                            <td>65</td>
+                                            <td>2026-07-02 11:50</td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">编辑</a>
+                                                <a class="action-link" href="javascript:void(0)">测试打印</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>PRT-004</td>
+                                            <td>仓库标签打印机</td>
+                                            <td>标签打印机</td>
+                                            <td>192.168.1.104</td>
+                                            <td><span class="printer-status-online">在线</span></td>
+                                            <td>42</td>
+                                            <td>2026-07-02 11:42</td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">编辑</a>
+                                                <a class="action-link" href="javascript:void(0)">测试打印</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>PRT-005</td>
+                                            <td>发票打印机01</td>
+                                            <td>发票打印机</td>
+                                            <td>192.168.1.105</td>
+                                            <td><span class="printer-status-online">在线</span></td>
+                                            <td>18</td>
+                                            <td>2026-07-02 10:30</td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">编辑</a>
+                                                <a class="action-link" href="javascript:void(0)">测试打印</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>PRT-006</td>
+                                            <td>后厨小票打印机</td>
+                                            <td>小票打印机</td>
+                                            <td>192.168.1.106</td>
+                                            <td><span class="printer-status-offline">离线</span></td>
+                                            <td>7</td>
+                                            <td>2026-07-01 18:22</td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">编辑</a>
+                                                <a class="action-link danger" href="javascript:void(0)">删除</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 打印模板 -->
+                        <div class="tab-content" id="tab-template">
+                            <div class="toolbar" style="margin-top:0;">
+                                <div class="toolbar-left">共 <strong>5</strong> 个打印模板</div>
+                                <button class="pos-btn pos-btn-primary">+ 新增模板</button>
+                            </div>
+                            <div class="pos-table-wrapper">
+                                <table class="pos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>模板名称</th>
+                                            <th>模板类型</th>
+                                            <th>适用打印机</th>
+                                            <th>更新时间</th>
+                                            <th>状态</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>标准收银小票模板</td>
+                                            <td>小票模板</td>
+                                            <td>前台小票打印机01</td>
+                                            <td>2026-06-28 14:30</td>
+                                            <td><span class="pos-tag pos-tag-success">启用</span></td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">编辑</a>
+                                                <a class="action-link" href="javascript:void(0)">预览</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>生鲜价签模板</td>
+                                            <td>标签模板</td>
+                                            <td>生鲜标签打印机</td>
+                                            <td>2026-06-25 09:15</td>
+                                            <td><span class="pos-tag pos-tag-success">启用</span></td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">编辑</a>
+                                                <a class="action-link" href="javascript:void(0)">预览</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>电子发票模板</td>
+                                            <td>发票模板</td>
+                                            <td>发票打印机01</td>
+                                            <td>2026-06-20 16:45</td>
+                                            <td><span class="pos-tag pos-tag-success">启用</span></td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">编辑</a>
+                                                <a class="action-link" href="javascript:void(0)">预览</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>仓库入库标签模板</td>
+                                            <td>标签模板</td>
+                                            <td>仓库标签打印机</td>
+                                            <td>2026-06-18 11:20</td>
+                                            <td><span class="pos-tag pos-tag-success">启用</span></td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">编辑</a>
+                                                <a class="action-link" href="javascript:void(0)">预览</a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>促销活动小票模板</td>
+                                            <td>小票模板</td>
+                                            <td>前台小票打印机02</td>
+                                            <td>2026-06-15 08:50</td>
+                                            <td><span class="pos-tag pos-tag-default">停用</span></td>
+                                            <td>
+                                                <a class="action-link" href="javascript:void(0)">编辑</a>
+                                                <a class="action-link" href="javascript:void(0)">预览</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 打印记录 -->
+                        <div class="tab-content" id="tab-record">
+                            <div class="search-panel" style="margin-bottom:16px;padding:16px;box-shadow:none;background:#fafafa;border-radius:0;">
+                                <div class="search-row">
+                                    <div class="search-item">
+                                        <label>打印时间</label>
+                                        <div class="date-range-wrap" style="display:flex;align-items:center;gap:6px;">
+                                            <input type="date" class="pos-input" value="2026-07-02" style="width:150px;">
+                                            <span style="color:var(--text-disabled);">~</span>
+                                            <input type="date" class="pos-input" value="2026-07-02" style="width:150px;">
+                                        </div>
+                                    </div>
+                                    <div class="search-item">
+                                        <label>打印机名称</label>
+                                        <select class="pos-select" style="width:180px;">
+                                            <option>全部</option>
+                                            <option>前台小票打印机01</option>
+                                            <option>前台小票打印机02</option>
+                                            <option>生鲜标签打印机</option>
+                                        </select>
+                                    </div>
+                                    <div class="search-actions">
+                                        <button class="pos-btn pos-btn-primary">查询</button>
+                                        <button class="pos-btn pos-btn-default">重置</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pos-table-wrapper">
+                                <table class="pos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>打印时间</th>
+                                            <th>打印机名称</th>
+                                            <th>打印内容</th>
+                                            <th>纸张规格</th>
+                                            <th>打印状态</th>
+                                            <th>操作员</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2026-07-02 11:58</td>
+                                            <td>前台小票打印机01</td>
+                                            <td>收银小票 ORD20260702001</td>
+                                            <td>80mm热敏纸</td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td>Admin</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 11:55</td>
+                                            <td>前台小票打印机02</td>
+                                            <td>收银小票 ORD20260702002</td>
+                                            <td>80mm热敏纸</td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td>李大明</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 11:50</td>
+                                            <td>生鲜标签打印机</td>
+                                            <td>商品价签 商品编号:SKU00856</td>
+                                            <td>60x40mm不干胶</td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td>Lily Zhang</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 11:42</td>
+                                            <td>仓库标签打印机</td>
+                                            <td>入库标签 入库单号:IN20260702001</td>
+                                            <td>80x60mm不干胶</td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td>Jason Wang</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2026-07-02 10:30</td>
+                                            <td>发票打印机01</td>
+                                            <td>增值税电子普通发票</td>
+                                            <td>A4纸</td>
+                                            <td><span class="pos-tag pos-tag-success">成功</span></td>
+                                            <td>Admin</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
 
-            <!-- Footer -->
+            <!-- 底部状态栏 -->
             <footer class="pos-footer">
-                <div style="display: flex; align-items: center; gap: 24px; width: 100%; flex-wrap: wrap;">
-                    <span>Current User：<strong style="color: var(--text-secondary);">Admin</strong></span>
-                    <span>|</span>
-                    <span>门店：<strong style="color: var(--text-secondary);">星链旗舰店</strong></span>
-                    <span>|</span>
-                    <span>数据同步：<strong style="color: var(--text-secondary);">2026-05-26 10:30</strong></span>
-                    <span>|</span>
-                    <span>版本：<strong style="color: var(--text-secondary);">V1.0</strong></span>
-                    <span style="margin-left: auto;">网络：<span class="status-dot online"></span><strong style="color: var(--success-color);">已连接</strong></span>
-                </div>
+                <span>&copy; 2026 智慧新零售云POS综合管理平台 v2.0</span>
+                <span>门店：星链旗舰店</span>
+                <span style="margin-left:auto;">数据同步：2026-07-02 12:00</span>
             </footer>
         </div>
     </div>
 
+    <!-- 添加打印机弹窗 -->
+    <div class="pos-modal-overlay" id="addPrinterModal">
+        <div class="pos-modal" style="width:560px;">
+            <div class="modal-header">
+                <span class="modal-title">添加打印机</span>
+                <button class="modal-close" onclick="closeModal('addPrinterModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label><span class="required">*</span>打印机名称</label>
+                        <input type="text" class="pos-input" placeholder="请输入打印机名称">
+                    </div>
+                    <div class="form-row">
+                        <label><span class="required">*</span>打印机类型</label>
+                        <select class="pos-select">
+                            <option>请选择类型</option>
+                            <option>小票打印机</option>
+                            <option>标签打印机</option>
+                            <option>发票打印机</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label><span class="required">*</span>IP地址</label>
+                        <input type="text" class="pos-input" placeholder="192.168.1.xxx">
+                    </div>
+                    <div class="form-row">
+                        <label><span class="required">*</span>端口号</label>
+                        <input type="text" class="pos-input" placeholder="默认9100" value="9100">
+                    </div>
+                    <div class="form-row" style="grid-column: 1 / -1;">
+                        <label>纸张规格</label>
+                        <select class="pos-select">
+                            <option>80mm热敏纸</option>
+                            <option>58mm热敏纸</option>
+                            <option>60x40mm不干胶</option>
+                            <option>80x60mm不干胶</option>
+                            <option>A4纸</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="pos-btn pos-btn-default" onclick="closeModal('addPrinterModal')">取消</button>
+                <button class="pos-btn pos-btn-primary" onclick="closeModal('addPrinterModal')">确认添加</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Toggle sidebar menu expand/collapse
         function toggleMenu(el) {
-            const children = el.nextElementSibling;
+            var children = el.nextElementSibling;
             if (!children || !children.classList.contains('menu-children')) return;
-
-            const isOpen = children.classList.contains('open');
-
-            // Close all other menus
-            document.querySelectorAll('.menu-children.open').forEach(function(menu) {
-                menu.classList.remove('open');
-                menu.previousElementSibling.classList.remove('expanded');
-            });
-
+            var isOpen = children.classList.contains('open');
             if (!isOpen) {
                 children.classList.add('open');
                 el.classList.add('expanded');
+            } else {
+                children.classList.remove('open');
+                el.classList.remove('expanded');
             }
         }
 
-        // Toggle mobile sidebar
-        function toggleMobileMenu() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
-        }
-
-        // Fullscreen toggle
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(function() {});
+                document.documentElement.requestFullscreen();
             } else {
                 document.exitFullscreen();
             }
         }
 
-        // Date filter buttons
-        document.querySelectorAll('.date-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.date-btn').forEach(function(b) {
-                    b.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-
-        // User menu toggle (placeholder)
-        function toggleUserMenu() {
-            // Placeholder for user dropdown
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
         }
 
-        // Close mobile sidebar when clicking outside
-        document.addEventListener('click', function(e) {
-            var sidebar = document.getElementById('sidebar');
-            var toggle = document.querySelector('.mobile-menu-toggle');
-            if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
-                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                    sidebar.classList.remove('mobile-open');
-                }
-            }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        function switchTab(btn, tabId) {
+            var card = btn.closest('.pos-card');
+            card.querySelectorAll('.pos-tab').forEach(function(t) { t.classList.remove('active'); });
+            btn.classList.add('active');
+            card.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        document.querySelectorAll('.pos-modal-overlay').forEach(function(overlay) {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) overlay.classList.remove('show');
+            });
         });
     </script>
     <script src="pos-common.js"></script>
